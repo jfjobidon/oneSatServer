@@ -1,0 +1,23 @@
+type Query {
+  getUsers: [User]
+  # getUser(userID: Int): User
+  getUser(name: String): User
+}
+
+type User {
+  email:  String
+  name:   String
+  address: String
+  age:    Int
+}
+
+type AddUserMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  user: User
+}
+
+type Mutation {
+  addUser(email: String, name: String, address: String, age: Int): AddUserMutationResponse
+}
