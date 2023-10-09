@@ -8,13 +8,30 @@ const queries: QueryResolvers = {
 
   getUsers: async (_, __, { dataSources }) => {
     console.log("getUsers from client");
-    console.log(JSON.stringify(dataSources.usersAPI, null, 2))
     return await dataSources.usersAPI.getUsers();
   },
   
   getUser: async (_, args, { dataSources }) => {
     return dataSources.usersAPI.getUser(args.name);
+  },
+
+
+  getVotes: async (_, __, { dataSources }) => {
+    console.log("getVotes from client");
+    return await dataSources.redisAPI.getVotes();
+    // let x = await dataSources.redisAPI.getVotes();
+    // console.log('get votes: ' + JSON.stringify(x, null, 2));
+    // return { votes: "all votes" }
   }
+
+  // getVotes: async (_, __, { dataSources }) => {
+  //   console.log("getVotes from client");
+  //   // return await dataSources.redisAPI.getVotes();
+  //   let x = await dataSources.redisAPI.getVotes();
+  //   console.log(x)
+  //   // return { votes: "thevotes"}
+  //   return "all votes"
+  // }
 }
 
 export default queries;

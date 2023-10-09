@@ -12,11 +12,11 @@ const prisma = new PrismaClient()
 export class UsersDataSource {
 
   async getUsers(): Promise<User[]> {
-    console.log("prisma findMany")
+    // console.log("prisma findMany")
     const users = await prisma.user.findMany({})
 
-    console.dir(users, { depth: Infinity })
-    console.log('----------')
+    // console.dir(users, { depth: Infinity })
+    // console.log('----------')
     console.table(users)
     return users;
   }
@@ -31,7 +31,6 @@ export class UsersDataSource {
   }
 
   async addUser(user: User): Promise<AddUserMutationResponse> {
-    console.log('in addUser...')
     await prisma.user.create({
       data: {
         name: user.name,
@@ -43,7 +42,7 @@ export class UsersDataSource {
 
     const allUsers = await prisma.user.findMany({
     })
-    console.dir(allUsers, { depth: null })
+    // console.dir(allUsers, { depth: null })
 
     // if (user.name) {
     //   prisma.user.create({

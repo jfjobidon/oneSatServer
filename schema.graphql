@@ -2,6 +2,7 @@ type Query {
   getUsers: [User]
   # getUser(userID: Int): User
   getUser(name: String): User
+  getVotes: getVotesQueryResponse
 }
 
 type User {
@@ -11,6 +12,7 @@ type User {
   age:    Int
 }
 
+
 type AddUserMutationResponse {
   code: String!
   success: Boolean!
@@ -18,6 +20,27 @@ type AddUserMutationResponse {
   user: User
 }
 
+type Vote {
+  voterID: String!
+  invoice: String!
+  date: String!
+  campaignID: String!
+  pollID: String!
+  certified: Boolean!
+}
+
+type AddVoteMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  vote: Vote
+}
+
+type getVotesQueryResponse {
+  votes: [Vote]!
+}
+
 type Mutation {
   addUser(email: String, name: String, address: String, age: Int): AddUserMutationResponse
+  addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
 }
