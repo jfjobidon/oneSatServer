@@ -4,7 +4,7 @@
     // "rootDir": "./src",
     "outDir": "dist",
     "sourceMap": true,
-    "lib": ["es2020"],
+    "lib": ["es2020", "esnext.asynciterable"],
     "target": "es2020",
     "module": "esnext",
     "moduleResolution": "node",
