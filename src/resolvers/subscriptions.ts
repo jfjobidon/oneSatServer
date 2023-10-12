@@ -14,13 +14,13 @@ import { pubsub } from "./pubsub.js";
 //     },
 //   }
 const subscriptions: SubscriptionResolvers = {
-//     voteAdded: {
-//         // subscribe: () => pubsub.asyncIterator(['EVENT_VOTEADDED'])
-//         // https://github.com/apollographql/apollo-server/issues/4556
-//         subscribe: () => ({
-//             [Symbol.asyncIterator]: () => pubsub.asyncIterator(['EVENT_VOTEADDED']),
-//         }),
-//     }
+    voteAdded: {
+        // subscribe: () => pubsub.asyncIterator(['EVENT_VOTEADDED'])
+        // https://github.com/apollographql/apollo-server/issues/4556
+        subscribe: () => ({
+            [Symbol.asyncIterator]: () => pubsub.asyncIterator(['EVENT_VOTEADDED']),
+        }),
+    },
     newsFeed: {
         // subscribe: () => pubsub.asyncIterator(['EVENT_CREATED'])
         subscribe: () => ({

@@ -63,7 +63,7 @@ type Mutation {
 
 type Subscription {
   newsFeed: NewsEvent
-  voteAdded(vote: VoteInput): Vote
+  voteAdded: Vote
 }
 
 # type Query {

@@ -8,8 +8,7 @@ const dataSourcesRedis = new DataSourcesRedis();
 
 
 const validateVote = (vote: VoteInput): Boolean => {
-    const isEmpty = Object.values(vote).some(x => x === null || x === '');
-    console.log('vote has null value(s): ', isEmpty)
+    const isEmpty: Boolean = Object.values(vote).some(x => x === null || x === '');
     return isEmpty
 }
 
