@@ -64,7 +64,7 @@ const pubsub = new PubSub()
 // import { AddVoteMutationResponse, Vote, VoteInput } from './__generated__/resolvers-types';
 
 
-// import resolvers from "./resolvers/index.js";
+import resolvers from "./resolvers/index.js";
 const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
 // import { typeDefs, resolvers } from './schema';
 
@@ -72,33 +72,33 @@ interface MyContext {
   token?: string;
 }
 
-interface createNewsEventInput {
-  title: string
-  description: string
-}
+// interface createNewsEventInput {
+//   title: string
+//   description: string
+// }
 
-const resolvers = {
-  Query: {
-      placeholder: () => { return true }
-  },
-  Mutation: {
-      createNewsEvent: (_parent : any, args : createNewsEventInput ) => {
-          console.log(args);
-          pubsub.publish('EVENT_CREATED', { newsFeed: args });
+// const resolvers = {
+//   Query: {
+//       placeholder: () => { return true }
+//   },
+//   Mutation: {
+//       createNewsEvent: (_parent : any, args : createNewsEventInput ) => {
+//           console.log(args);
+//           pubsub.publish('EVENT_CREATED', { newsFeed: args });
 
-          // Save news events to a database: you can do that here!
+//           // Save news events to a database: you can do that here!
 
-          // Create something : EVENT_CREATED
-          // Subscribe to something: EVENT_CREATED
-          return args;
-      }
-  },
-  Subscription: {
-      newsFeed: {
-          subscribe: () => pubsub.asyncIterator(['EVENT_CREATED'])
-      }
-  }
-}
+//           // Create something : EVENT_CREATED
+//           // Subscribe to something: EVENT_CREATED
+//           return args;
+//       }
+//   },
+//   Subscription: {
+//       newsFeed: {
+//           subscribe: () => pubsub.asyncIterator(['EVENT_CREATED'])
+//       }
+//   }
+// }
 // const resolvers = {
 //   Query: {
 //     getUsers: async (_, __, args) => {

@@ -1,5 +1,5 @@
 import { createClient } from 'redis'
-import { Repository, EntityId } from 'redis-om'
+import { Repository, EntityId, EntityKeyName, Entity } from 'redis-om'
 const redisClient = createClient({
     // host: 'localhost',
     // port: 6379,
@@ -10,24 +10,8 @@ await redisClient.connect()
 const aString = await redisClient.ping()
 console.log('redis PING: ', aString)
 
-import { Vote, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
-
-// import { voteSchema } from './schema.redis'; // ??? DEBUG:
-import { Schema } from 'redis-om';
-
-// Valid types are: string, number, boolean, string[], number[], date, point, and text
-// number[] is only possible when working with JSON
-const voteSchema = new Schema('vote', {
-  voterID: { type: 'string' },
-  invoice: { type: 'string' },
-  date: { type: 'string' },
-  campaignID: { type: 'string' },
-  pollID: { type: 'string' },
-  certified: { type: 'boolean' },
-  // songDurations: { type: 'number[]' } only valid for JSON !!!
-}, {
-  dataStructure: 'HASH'
-})
+import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
+import { voteSchema } from './schema.redis.js';
 
 let voteRepository = new Repository(voteSchema, redisClient)
 // await voteRepository.dropIndex();
@@ -36,11 +20,13 @@ await voteRepository.createIndex();  // required to use search (RediSearch)
 export class DataSourcesRedis {
   // async addVote(voterID: string, invoice: string, date: number, campaignID: string, certified: boolean) {
   // async addVote({ voterID, invoice, date, campaignID, pollID, certified }: Vote): Promise<AddVoteMutationResponse> {
-  async addVote(theVote: Vote): Promise<AddVoteMutationResponse> {
-    let vote = await voteRepository.save(theVote);
-    // console.table(vote)
-    // console.log('vote EntityId: ' + vote[EntityId])
-    const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
+  async addVote(theVote: VoteInput): Promise<AddVoteMutationResponse> {
+    const vote: Entity = await voteRepository.save(theVote);
+    // console.log('entityId: ', vote[EntityId])
+    // console.log('entityKeyName: ', vote[EntityKeyName])
+    console.table(vote)
+    // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
+    const exists = await redisClient.exists(vote[EntityKeyName])
     if (exists) {
       return {
         code: "200",

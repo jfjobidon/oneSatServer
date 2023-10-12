@@ -3,16 +3,9 @@ type NewsEvent {
   description: String
 }
 
-type Query {
-  placeholder: Boolean
-}
-
-type Mutation {
-  createNewsEvent(title: String, description: String): NewsEvent
-}
-
-type Subscription {
-  newsFeed: NewsEvent
+input CreateNewsEventInput {
+  title: String
+  description: String
 }
 
 # type User {
@@ -29,49 +22,64 @@ type Subscription {
 #   user: User
 # }
 
-# type Vote {
-#   voterID: String!
-#   invoice: String!
-#   date: String!
-#   campaignID: String!
-#   pollID: String!
-#   certified: Boolean!
-# }
+type Vote {
+  voterID: String!
+  invoice: String!
+  date: String!
+  campaignID: String!
+  pollID: String!
+  certified: Boolean!
+}
 
-# input VoteInput {
-#   voterID: String!
-#   invoice: String!
-#   date: String!
-#   campaignID: String!
-#   pollID: String!
-#   certified: Boolean!
-# }
+input VoteInput {
+  voterID: String!
+  invoice: String!
+  date: String!
+  campaignID: String!
+  pollID: String!
+  certified: Boolean!
+}
 
-# type AddVoteMutationResponse {
-#   code: String!
-#   success: Boolean!
-#   message: String!
-#   vote: Vote
-# }
+type AddVoteMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  vote: Vote
+}
 
-# type getVotesQueryResponse {
-#   votes: [Vote]!
-# }
+type getVotesQueryResponse {
+  votes: [Vote]!
+}
+
+type Query {
+  placeholder: Boolean
+  getVotes: getVotesQueryResponse
+}
+
+type Mutation {
+  createNewsEvent(title: String, description: String): NewsEvent
+  addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
+}
+
+type Subscription {
+  newsFeed: NewsEvent
+  voteAdded(vote: VoteInput): Vote
+}
 
 # type Query {
 #   getUsers: [User]
 #   # getUser(userID: Int): User
 #   # getUser(name: String): User
-#   # getVotes: getVotesQueryResponse
+  # 
 # }
 
 # type Mutation {
 #   # addUser(email: String, name: String, address: String, age: Int): AddUserMutationResponse
-#   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
+  # 
 # }
 
 # type Subscription {
-# #   # voteAdded(voteID: ID!): Vote
-#   voteAdded(vote: Vote): Vote
+#   # voteAdded(voteID: ID!): Vote
+  # 
 # #   # newsFeed: NewsEvent
 # }
