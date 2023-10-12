@@ -1,10 +1,12 @@
-// import { AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, User, Vote, VoteInput } from '../__generated__/resolvers-types';
-import {AddVoteMutationResponse, MutationResolvers, Vote, VoteInput } from '../__generated__/resolvers-types';
+
+import {User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
 import { DataSourcesRedis } from '../datasourcesredis.js';
 const dataSourcesRedis = new DataSourcesRedis();
+import { DataSourcesMongo } from '../datasourcesmongo.js';
+const dataSourcesMongo = new DataSourcesMongo();
 
 
 const validateVote = (vote: VoteInput): Boolean => {
@@ -12,8 +14,7 @@ const validateVote = (vote: VoteInput): Boolean => {
     return isEmpty
 }
 
-
-// // Use the generated `MutationResolvers` type to type check our mutations!
+// Use the generated `MutationResolvers` type to type check our mutations!
 const mutations: MutationResolvers = {
 
     createNewsEvent: (_parent : any, args : CreateNewsEventInput ) => {
@@ -27,18 +28,15 @@ const mutations: MutationResolvers = {
         return args;
     },
 
-//   // Below, we mock adding a new user. Our data set is static for this
-//   // example, so we won't actually modify our data.
-//   addUser: async (_, { name, email, address, age }: User, { dataSources }): Promise<AddUserMutationResponse> => {
-//     console.log("mutation adding user....")
-//     return dataSources.usersAPI.addUser({ name: name, email: email, address: address, age: age });
-//   },
+  addUser: async (_, { name, email, address, age }: User): Promise<AddUserMutationResponse> => {
+    console.log("mutation addUser....")
+    return dataSourcesMongo.addUser({ name: name, email: email, address: address, age: age });
+  },
 
 //   addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, vote: VoteInput): Promise<AddVoteMutationResponse>  => {
     console.log("addVote async mutations...")
     pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
-    // return dataSources.redisAPI.addVote(vote);
     if (validateVote(vote)) {
         return {
             code: "400",

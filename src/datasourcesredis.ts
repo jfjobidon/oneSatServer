@@ -65,7 +65,7 @@ export class DataSourcesRedis {
     return {votes: votesResponse}
   }
 
-  async getVote(voteID: string): Promise<Vote>{
+  async getVoteById(voteID: string): Promise<Vote>{
     // const exists = await redisClient.exists(voteID)
     const exists = await redisClient.exists(`vote:${voteID}`)
     if (exists) {
