@@ -13,9 +13,11 @@ const queries: QueryResolvers = {
     return true
   },
 
-  getUsers: async (_, __) => {
+  getUsers: async (_, __, contextValue) => {
     let users = await dataSourcesMongo.getUsers();
-    console.table(users);
+    // console.table(users);
+    console.log("context: ")
+    console.table(contextValue)
     return users
   },
   

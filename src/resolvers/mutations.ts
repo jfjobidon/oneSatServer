@@ -20,11 +20,6 @@ const mutations: MutationResolvers = {
     createNewsEvent: (_parent : any, args : CreateNewsEventInput ) => {
         console.log('args:', args);
         pubsub.publish('EVENT_CREATED', { newsFeed: args });
-
-        // Save news events to a database: you can do that here!
-
-        // Create something : EVENT_CREATED
-        // Subscribe to something: EVENT_CREATED
         return args;
     },
 
@@ -36,8 +31,9 @@ const mutations: MutationResolvers = {
 //   addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, vote: VoteInput): Promise<AddVoteMutationResponse>  => {
     console.log("addVote async mutations...")
-    pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
     if (validateVote(vote)) {
+        // possibility to filter publish: withFilter
+        pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
         return {
             code: "400",
             success: false,
