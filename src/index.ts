@@ -17,6 +17,9 @@ import { PubSub } from 'graphql-subscriptions';
 const pubsub = new PubSub()
 // import { AddVoteMutationResponse, Vote, VoteInput } from './__generated__/resolvers-types';
 
+import 'dotenv/config'
+console.log(`server started on ${process.env.NODE_ENV} mode`)
+
 
 import resolvers from "./resolvers/index.js";
 const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
@@ -76,7 +79,31 @@ app.use(
   // an Apollo Server instance and optional configuration options
   expressMiddleware(
     server,
-    { context: async ({ req }) => ({ token: req.headers.token }) })
+    {
+      context: async ({ req }) => ({ token: req.headers.token })
+      // context: async ({ req }) => {
+      //   // get the user token from the headers
+      //   const token = req.headers.authorization || '';
+    
+      //   // try to retrieve a user with the token
+      //   const user = getUser(token);
+    
+      //   // optionally block the user
+      //   // we could also check user roles/permissions here
+      //   if (!user)
+      //     // throwing a `GraphQLError` here allows us to specify an HTTP status code,
+      //     // standard `Error`s will have a 500 status code by default
+      //     throw new GraphQLError('User is not authenticated', {
+      //       extensions: {
+      //         code: 'UNAUTHENTICATED',
+      //         http: { status: 401 },
+      //       },
+      //     });
+    
+      //   // add the user to the context
+      //   return { user };
+      // },
+    })
 );
 
 await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));

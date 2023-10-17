@@ -9,10 +9,9 @@ input CreateNewsEventInput {
 }
 
 type User {
-  email:  String
-  name:   String
-  address: String
-  age:    Int
+  email:  String!
+  name:   String!
+  password: String!
 }
 
 type AddUserMutationResponse {
@@ -51,19 +50,30 @@ type getVotesQueryResponse {
   votes: [Vote]!
 }
 
+type SignupMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  token: String
+  user: User
+}
+
 type Query {
   placeholder: Boolean
   getVotes: getVotesQueryResponse
   getUsers: [User]
-  getUserByName(name: String): User
   getUserById(id: String): User
+  getUserByName(name: String): User
+  getUserByEmail(email: String): User
   getVoteById(id: String): Vote
+  login(email: String!, password: String!): SignupMutationResponse
 }
 
 type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
-  addUser(email: String, name: String, address: String, age: Int): AddUserMutationResponse
+  addUser(email: String, name: String, password: String): AddUserMutationResponse
+  signup(email: String!, name: String!, password: String!): SignupMutationResponse
 }
 
 type Subscription {

@@ -1,5 +1,5 @@
 
-import {User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput } from '../__generated__/resolvers-types';
+import { User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput, SignupMutationResponse } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
@@ -7,41 +7,97 @@ import { DataSourcesRedis } from '../datasourcesredis.js';
 const dataSourcesRedis = new DataSourcesRedis();
 import { DataSourcesMongo } from '../datasourcesmongo.js';
 const dataSourcesMongo = new DataSourcesMongo();
-
+import bcrypt from "bcrypt";
+const saltRounds = 10;
+import { JwtUtil } from "../utils/jwt.js";
+const jwtUtil = new JwtUtil()
 
 const validateVote = (vote: VoteInput): Boolean => {
-    const isEmpty: Boolean = Object.values(vote).some(x => x === null || x === '');
-    return isEmpty
+  const isEmpty: Boolean = Object.values(vote).some(x => x === null || x === '');
+  return isEmpty
 }
 
 // Use the generated `MutationResolvers` type to type check our mutations!
 const mutations: MutationResolvers = {
 
-    createNewsEvent: (_parent : any, args : CreateNewsEventInput ) => {
-        console.log('args:', args);
-        pubsub.publish('EVENT_CREATED', { newsFeed: args });
-        return args;
-    },
-
-  addUser: async (_, { name, email, address, age }: User): Promise<AddUserMutationResponse> => {
-    console.log("mutation addUser....")
-    return dataSourcesMongo.addUser({ name: name, email: email, address: address, age: age });
+  createNewsEvent: (_parent: any, args: CreateNewsEventInput) => {
+    console.log('args:', args);
+    pubsub.publish('EVENT_CREATED', { newsFeed: args });
+    return args;
   },
 
-//   addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
-  addVote: async (_, vote: VoteInput): Promise<AddVoteMutationResponse>  => {
+  addUser: async (_, { name, email, password }: User): Promise<AddUserMutationResponse> => {
+    console.log("mutation addUser....")
+    return dataSourcesMongo.addUser({ name: name, email: email, password: password });
+  },
+
+  // signup: async (_, { name, email, password }: User): Promise<SignupMutationResponse> => {
+  signup: async (_, user: User): Promise<SignupMutationResponse> => {
+    console.log("mutation signup....")
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashPassword = bcrypt.hashSync(user.password, salt);
+    const user2 = { ...user, password: hashPassword}
+    // const userMutationResponse = await dataSourcesMongo.signup({ name: user.name, email: user.email, password: hashPassword });
+    const userMutationResponse = await dataSourcesMongo.signup(user2);
+    const token = await jwtUtil.sign();
+    return {
+      code: userMutationResponse.code,
+      success: userMutationResponse.success,
+      message: userMutationResponse.message,
+      token: token,
+      user: userMutationResponse.user
+    }
+    
+    // REVIEW: refaire en sync
+    // https://www.npmjs.com/package/bcrypt
+
+    // bcrypt.genSalt(saltRounds, function(err, salt) {
+    //   bcrypt.hash(password, salt, function(err, hashPassword) {
+    //     dataSourcesMongo.signup({ name: name, email: email, password: hashPassword });
+    //   });
+    // });
+
+
+
+    // bcrypt.hash(myPlaintextPassword, saltRounds).then(function(hash) {
+    //   // Store hash in your password DB.
+    // });
+    // bcrypt.genSalt(saltRounds).then(
+    //   salt => bcrypt.hash(password, salt).then(
+        // hashPassword => dataSourcesMongo.signup({ name: name, email: email, password: hashPassword }).then(
+        //   () => {
+        //     return {
+        //       token: "jfdkalflkja",
+        //       user: {
+        //         email: email,
+        //         name: name,
+        //         password: hashPassword
+        //       }
+        //     }
+        //   }
+        // )
+        // hashPassword => ()
+        //    return dataSourcesMongo.signup({ name: name, email: email, password: hashPassword })
+        // }
+    //   )
+    // )
+
+  },
+
+  //   addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
+  addVote: async (_, vote: VoteInput): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
     if (validateVote(vote)) {
-        // possibility to filter publish: withFilter
-        pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
-        return {
-            code: "400",
-            success: false,
-            message: "Problem adding new vote!",
-            vote: null
-          }
+      // possibility to filter publish: withFilter
+      pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
+      return {
+        code: "400",
+        success: false,
+        message: "Problem adding new vote!",
+        vote: null
+      }
     } else {
-        return await dataSourcesRedis.addVote(vote);
+      return await dataSourcesRedis.addVote(vote);
     }
   }
 };

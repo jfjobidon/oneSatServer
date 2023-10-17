@@ -3,7 +3,7 @@
 // // Use our automatically generated USER and AddUserMutationResponse types
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { AddUserMutationResponse, User } from "./__generated__/resolvers-types";
+import { User, AddUserMutationResponse, SignupMutationResponse } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -25,7 +25,14 @@ export class DataSourcesMongo {
   async getUserByName(name: string): Promise<User> {
     console.log("in getUserByName")
     console.log(name)
-    const user = prisma.user.findFirst({where: {name: name}});
+    const user = prisma.user.findUnique({where: {name: name}});
+    return user;
+  }
+  
+  async getUserByEmail(email: string): Promise<User> {
+    console.log("in getUserByEmail")
+    console.log(email)
+    const user = prisma.user.findUnique({where: {email: email}});
     return user;
   }
 
@@ -43,8 +50,7 @@ export class DataSourcesMongo {
       data: {
         name: user.name,
         email: user.email,
-        address: user.email,
-        age: user.age
+        password: user.password
       },
     })
 
@@ -52,8 +58,7 @@ export class DataSourcesMongo {
     //   prisma.user.create({
     //     email: user.email,
     //     name: user.name,
-    //     address: user.address,
-    //     age: user.age
+    //     password: user.password
     //   });
 
     return {
@@ -71,5 +76,30 @@ export class DataSourcesMongo {
     //   };
     // }
   }
+
+  async signup(user: User): Promise<SignupMutationResponse> {
+    await prisma.user.create({
+      data: user,
+    })
+    return {
+      code: "200",
+      success: true,
+      message: "New user added!",
+      user: {
+        name: user.name,
+        email: user.email,
+        password: "********"
+      },
+    }
+    // } else {
+    //   return {
+    //     code: "400",
+    //     success: false,
+    //     message: "Invalid input",
+    //     user: null,
+    //   };
+    // }
+  }
+
 }
 
