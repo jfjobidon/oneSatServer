@@ -18,7 +18,7 @@ const queries: QueryResolvers = {
   },
 
   getUsers: async (_, __) => {
-    // testenv()
+    testenv()
 
     let users = await dataSourcesMongo.getUsers();
     // if (true) throw new GraphQLError("you must be logged in to query this schema", {
@@ -33,6 +33,7 @@ const queries: QueryResolvers = {
     //     alpha: 'beta'
     //   },
     // });
+    // console.table(users)
     return users.map((user) => {
       return { ...user, password: "********" };
     });

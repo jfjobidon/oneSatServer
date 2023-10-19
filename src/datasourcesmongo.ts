@@ -13,13 +13,10 @@ const prisma = new PrismaClient()
 export class DataSourcesMongo {
 
   async getUsers(): Promise<User[]> {
-    console.log("prisma findMany")
+    // console.log("getUsers: prisma findMany")
     const users = await prisma.user.findMany({})
-
-    // console.dir(users, { depth: Infinity })
-    // console.log('----------')
-    console.table(users)
-    return null;
+    // console.table(users)
+    return users;
   }
 
   async getUserByName(name: string): Promise<User> {

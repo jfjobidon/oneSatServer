@@ -18,6 +18,7 @@ type Campaign {
   # xyz      String @unique @default(uuid())
 }
 
+# Input types can't have fields that are other objects, only basic scalar types, list types, and other input types.
 input CreateNewsEventInput {
   title: String
   description: String
@@ -33,7 +34,7 @@ type User {
   # updatedAt: String!
 }
 
-# REVIEW: devrait hériter de code, success et message
+# REVIEW: devrait hériter de type:  code, success et message
 type AddUserMutationResponse {
   code: String!
   success: Boolean!
