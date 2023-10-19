@@ -23,8 +23,8 @@ export class DataSourcesMongo {
     console.log("in getUserByName")
     console.log(name)
     const user = prisma.user.findUnique({where: {name: name}});
-    // return user;
-    return null;
+    return user;
+    // return null;
   }
   
   async getUserByEmail(email: string): Promise<User> {
@@ -79,6 +79,7 @@ export class DataSourcesMongo {
       data: {
         name: user.name,
         email: user.email,
+        roles: user.roles,
         password: user.password
       },
     })

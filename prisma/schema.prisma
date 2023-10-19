@@ -11,8 +11,9 @@ datasource db {
   url      = "mongodb+srv://osovAdmin:rRTGwNDL7a@cluster0.3t8mxys.mongodb.net/onesatonevote"
 }
 
+// REVIEW: not compatible with graphql
 // enum Role {
-//   USER
+//   USER = 'USER',
 //   ADMIN
 //   SUPERADMIN
 // }
@@ -38,14 +39,11 @@ model User {
   email   String  @unique
   name    String  @unique
   password String?
-  // role    Role     @default(USER)
+  roles    String[] @default(["USER"])
   campaigns Campaign[]
   // creationDate DateTime @default(now())
   // updatedAt DateTime @updatedAt
 }
-
-
-
 
 // model Post {
 //   id       String    @id @default(auto()) @map("_id") @db.ObjectId

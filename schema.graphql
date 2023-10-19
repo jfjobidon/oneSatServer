@@ -3,10 +3,11 @@ type NewsEvent {
   description: String
 }
 
-# enum Role {
-#   USER
-#   ADMIN
+# enum not compatible with prisma
+# export enum Role {
 #   SUPERADMIN
+#   ADMIN
+#   USER
 # }
 
 type Campaign {
@@ -28,7 +29,7 @@ type User {
   email:  String!
   name:   String!
   password: String!
-  # role: Role!
+  roles: [String]
   # campaigns: [String]
   # creationDate: String!
   # updatedAt: String!
@@ -102,7 +103,7 @@ type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
   # addUser(email: String, name: String, password: String): AddUserMutationResponse
-  signup(email: String!, name: String!, password: String!): SignupMutationResponse
+  signup(email: String!, name: String!, roles: [String], password: String!): SignupMutationResponse
   createCampaign(author: String, title: String): CampaignMutationResponse
 }
 
