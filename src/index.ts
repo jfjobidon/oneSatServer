@@ -13,9 +13,9 @@ import { useServer } from 'graphql-ws/lib/use/ws';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { readFileSync } from 'fs';
-import { PubSub } from 'graphql-subscriptions';
-const pubsub = new PubSub()
-// import { AddVoteMutationResponse, Vote, VoteInput } from './__generated__/resolvers-types';
+
+import { applyMiddleware } from 'graphql-middleware'
+import { permissions } from './permissions.js';
 
 import 'dotenv/config'
 console.log(`server started on ${process.env.NODE_ENV} mode`)
@@ -27,9 +27,11 @@ const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
 
 interface MyContext {
   token?: string;
+  roles?: string;
 }
 
-const schema = makeExecutableSchema({ typeDefs, resolvers });
+let schema = makeExecutableSchema({ typeDefs, resolvers });
+schema = applyMiddleware(schema, permissions)
 
 // Create an Express app and HTTP server; we will attach both the WebSocket
 // server and the ApolloServer to this HTTP server.
@@ -80,7 +82,7 @@ app.use(
   expressMiddleware(
     server,
     {
-      context: async ({ req }) => ({ token: req.headers.token })
+      context: async ({ req }) => ({ token: req.headers.token, roles: req.headers.roles })
       // context: async ({ req }) => {
       //   // get the user token from the headers
       //   const token = req.headers.authorization || '';

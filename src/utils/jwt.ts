@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"
 export class JwtUtil {
     private privateKey: string = config.get<string>('PRIVATE_KEY')
 
+    // https://www.iana.org/assignments/jwt/jwt.xhtml: email, roles
     async sign(): Promise<string> {
         const token = jwt.sign({ data: 'foobar' }, this.privateKey);
         // const token = jwt.sign("jkdjdla", this.privateKey);

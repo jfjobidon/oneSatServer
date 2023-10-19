@@ -17,9 +17,10 @@ const queries: QueryResolvers = {
     return true
   },
 
-  getUsers: async (_, __) => {
-    testenv()
-
+  getUsers: async (_, __, context) => {
+    // testenv()
+    console.table(context)
+    console.log(typeof context.roles)
     let users = await dataSourcesMongo.getUsers();
     // if (true) throw new GraphQLError("you must be logged in to query this schema", {
     //   extensions: {
