@@ -1,5 +1,4 @@
 import config from "config";
-
 import jwt from "jsonwebtoken"
 
 // const publicKey = Buffer.from( config.get<string>('PUBLIC_KEY'), "base64" ).toString('ascii');

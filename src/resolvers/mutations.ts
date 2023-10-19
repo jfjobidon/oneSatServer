@@ -1,5 +1,5 @@
 
-import { User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput, SignupMutationResponse } from '../__generated__/resolvers-types';
+import { User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput, SignupMutationResponse, CampaignMutationResponse, Campaign } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
@@ -10,6 +10,7 @@ const dataSourcesMongo = new DataSourcesMongo();
 import bcrypt from "bcrypt";
 const saltRounds = 10;
 import { JwtUtil } from "../utils/jwt.js";
+import { ChildProcess } from 'child_process';
 const jwtUtil = new JwtUtil()
 
 const validateVote = (vote: VoteInput): Boolean => {
@@ -26,10 +27,11 @@ const mutations: MutationResolvers = {
     return args;
   },
 
-  addUser: async (_, { name, email, password }: User): Promise<AddUserMutationResponse> => {
-    console.log("mutation addUser....")
-    return dataSourcesMongo.addUser({ name: name, email: email, password: password });
-  },
+  // TODO: enlever cette fonction...
+  // addUser: async (_, { name, email, password }: User): Promise<AddUserMutationResponse> => {
+  //   console.log("mutation addUser....")
+  //   return dataSourcesMongo.addUser({ name: name, email: email, password: password });
+  // },
 
   // signup: async (_, { name, email, password }: User): Promise<SignupMutationResponse> => {
   signup: async (_, user: User): Promise<SignupMutationResponse> => {
@@ -84,12 +86,19 @@ const mutations: MutationResolvers = {
 
   },
 
+  createCampaign: async (_, campaign: Campaign, context): Promise<CampaignMutationResponse> => {
+    console.log("create campaign")
+    const authorId = "652da064c9ce6e592f061486" // HACK: TODO: get from context
+    console.log(context)
+    let c =  await dataSourcesMongo.createCampaign(authorId, campaign);
+    console.log(c)
+    return c
+  },
+
   //   addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, vote: VoteInput): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
     if (validateVote(vote)) {
-      // possibility to filter publish: withFilter
-      pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
       return {
         code: "400",
         success: false,
@@ -97,6 +106,8 @@ const mutations: MutationResolvers = {
         vote: null
       }
     } else {
+      // possibility to filter publish: withFilter
+      pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
       return await dataSourcesRedis.addVote(vote);
     }
   }

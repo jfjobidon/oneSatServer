@@ -17,8 +17,9 @@ const queries: QueryResolvers = {
     return true
   },
 
-  getUsers: async (_, __, contextValue) => {
-    testenv()
+  getUsers: async (_, __) => {
+    // testenv()
+
     let users = await dataSourcesMongo.getUsers();
     // if (true) throw new GraphQLError("you must be logged in to query this schema", {
     //   extensions: {
@@ -47,7 +48,9 @@ const queries: QueryResolvers = {
     return { ...user, password: "********"}
   },
 
-  getUserByEmail: async (_, args) => {
+  getUserByEmail: async (_, args, contextValue) => {
+    console.log("contextValue: ", contextValue.token)
+    // TODO: check permissions...
     const user = await dataSourcesMongo.getUserByEmail(args.email);
     return { ...user, password: "********"}
   },

@@ -3,6 +3,21 @@ type NewsEvent {
   description: String
 }
 
+# enum Role {
+#   USER
+#   ADMIN
+#   SUPERADMIN
+# }
+
+type Campaign {
+  # authorEmail:  String!
+  authorId:  String!
+  title:   String!
+  # creationDate DateTime @default(now())
+  # updatedAt DateTime @updatedAt
+  # xyz      String @unique @default(uuid())
+}
+
 input CreateNewsEventInput {
   title: String
   description: String
@@ -12,8 +27,13 @@ type User {
   email:  String!
   name:   String!
   password: String!
+  # role: Role!
+  # campaigns: [String]
+  # creationDate: String!
+  # updatedAt: String!
 }
 
+# REVIEW: devrait hériter de code, success et message
 type AddUserMutationResponse {
   code: String!
   success: Boolean!
@@ -58,6 +78,13 @@ type SignupMutationResponse {
   user: User
 }
 
+type CampaignMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  campaign: Campaign
+}
+
 type Query {
   placeholder: Boolean
   getVotes: getVotesQueryResponse
@@ -69,11 +96,13 @@ type Query {
   login(email: String!, password: String!): SignupMutationResponse
 }
 
+# TODO: ajouter les types inputVote, inputCampaign, inputUser
 type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
-  addUser(email: String, name: String, password: String): AddUserMutationResponse
+  # addUser(email: String, name: String, password: String): AddUserMutationResponse
   signup(email: String!, name: String!, password: String!): SignupMutationResponse
+  createCampaign(author: String, title: String): CampaignMutationResponse
 }
 
 type Subscription {

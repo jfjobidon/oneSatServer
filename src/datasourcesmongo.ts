@@ -3,7 +3,7 @@
 // // Use our automatically generated USER and AddUserMutationResponse types
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, AddUserMutationResponse, SignupMutationResponse } from "./__generated__/resolvers-types";
+import { User, AddUserMutationResponse, SignupMutationResponse, CampaignMutationResponse, Campaign } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -19,21 +19,52 @@ export class DataSourcesMongo {
     // console.dir(users, { depth: Infinity })
     // console.log('----------')
     console.table(users)
-    return users;
+    return null;
   }
 
   async getUserByName(name: string): Promise<User> {
     console.log("in getUserByName")
     console.log(name)
     const user = prisma.user.findUnique({where: {name: name}});
-    return user;
+    // return user;
+    return null;
   }
   
   async getUserByEmail(email: string): Promise<User> {
     console.log("in getUserByEmail")
     console.log(email)
     const user = prisma.user.findUnique({where: {email: email}});
-    return user;
+    // return user;
+    return null;
+  }
+
+  async createCampaign(authorId: string, campaign: Campaign): Promise<CampaignMutationResponse> {
+    console.table(campaign)
+
+    const result = await prisma.user.update({
+      where: {
+        id: authorId,
+      },
+      data: {
+        campaigns: {
+          createMany: {
+            // data: [{ title: 'My 3rd campaign' }],
+            data: [{ title: campaign.title }],
+            // data: [campaign],
+          },
+        },
+      },
+      include: {
+        campaigns: true,
+      } 
+    })
+      
+    return {
+      code: "200",
+      success: true,
+      message: "Campaign created!",
+      campaign,
+    }
   }
 
   async getUserById(id: string): Promise<User> {
@@ -42,7 +73,8 @@ export class DataSourcesMongo {
     const user = prisma.user.findUnique({where: {id: id}});
     // const user = prisma.user.findUnique({where: {id: "651efe317ef84f6cd52a4476"}});
     // const user = prisma.user.findUnique({where: {name: name}});
-    return user;
+    // return user;
+    return null;
   }
 
   async addUser(user: User): Promise<AddUserMutationResponse> {
@@ -84,12 +116,8 @@ export class DataSourcesMongo {
     return {
       code: "200",
       success: true,
-      message: "New user added!",
-      user: {
-        name: user.name,
-        email: user.email,
-        password: "********"
-      },
+      message: "New user created!",
+      user: { ...user, password: "********" },
     }
     // } else {
     //   return {

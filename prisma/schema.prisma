@@ -5,18 +5,46 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// TODO: get url from config
 datasource db {
   provider = "mongodb"
   url      = "mongodb+srv://osovAdmin:rRTGwNDL7a@cluster0.3t8mxys.mongodb.net/onesatonevote"
-
 }
 
+// enum Role {
+//   USER
+//   ADMIN
+//   SUPERADMIN
+// }
+
+model Campaign {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  // author   User @relation(fields: [authorEmail], references: [email])
+  // authorEmail String
+  author   User @relation(fields: [authorId], references: [id])
+  authorId String @db.ObjectId
+  title    String
+  // creationDate DateTime @default(now())
+  // updatedAt DateTime @updatedAt
+  // xyz      String @unique @default(uuid())
+}
+
+// TODO: ajouter date of creation: creationDate: Timestamp
+// TODO: tester uuid: myuuid String @default(uuid())
+// TODO: define an index on something
+// data DateTime @default("2020-03-19T14:21:00+02:00")
 model User {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
   email   String  @unique
   name    String  @unique
   password String?
+  // role    Role     @default(USER)
+  campaigns Campaign[]
+  // creationDate DateTime @default(now())
+  // updatedAt DateTime @updatedAt
 }
+
+
 
 
 // model Post {
