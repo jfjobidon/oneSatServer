@@ -14,10 +14,15 @@ type Campaign {
   # authorEmail:  String!
   authorId:  String!
   title:   String!
-  # creationDate DateTime @default(now())
-  # updatedAt DateTime @updatedAt
-  # xyz      String @unique @default(uuid())
+  # creationDate: DateTime @default(now())
+  # updatedAt: DateTime @updatedAt
+  # xyz:      String @unique @default(uuid())
 }
+
+# input CampaignInput {
+#   authorId:  String!
+#   title:   String!
+# }
 
 # Input types can't have fields that are other objects, only basic scalar types, list types, and other input types.
 input CreateNewsEventInput {
@@ -104,7 +109,8 @@ type Mutation {
   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
   # addUser(email: String, name: String, password: String): AddUserMutationResponse
   signup(email: String!, name: String!, roles: [String], password: String!): SignupMutationResponse
-  createCampaign(author: String, title: String): CampaignMutationResponse
+  # createCampaign(campaign: CampaignInput): CampaignMutationResponse
+  createCampaign(authorId: String, title: String): CampaignMutationResponse
 }
 
 type Subscription {

@@ -88,9 +88,8 @@ const mutations: MutationResolvers = {
 
   createCampaign: async (_, campaign: Campaign, context): Promise<CampaignMutationResponse> => {
     console.log("create campaign")
-    const authorId = "652da064c9ce6e592f061486" // HACK: TODO: get from context
     console.log(context)
-    let c =  await dataSourcesMongo.createCampaign(authorId, campaign);
+    let c =  await dataSourcesMongo.createCampaign(context.userid, campaign);
     console.log(c)
     return c
   },

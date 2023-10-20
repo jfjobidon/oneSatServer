@@ -14,12 +14,12 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { readFileSync } from 'fs';
 
+// TODO: put roles in token instead of headers
 import { applyMiddleware } from 'graphql-middleware'
 import { permissions } from './permissions.js';
 
 import 'dotenv/config'
 console.log(`server started on ${process.env.NODE_ENV} mode`)
-
 
 import resolvers from "./resolvers/index.js";
 const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
@@ -28,6 +28,7 @@ const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
 interface MyContext {
   token?: string;
   roles?: string;
+  userid?: string;
 }
 
 let schema = makeExecutableSchema({ typeDefs, resolvers });
@@ -82,7 +83,11 @@ app.use(
   expressMiddleware(
     server,
     {
-      context: async ({ req }) => ({ token: req.headers.token, roles: req.headers.roles })
+      context: async ({ req }) => ({
+        token: req.headers.token,
+        roles: req.headers.roles,
+        userid: req.headers.userid
+      })
       // context: async ({ req }) => {
       //   // get the user token from the headers
       //   const token = req.headers.authorization || '';
