@@ -11,3 +11,5 @@ generates:
       useIndexSignature: true
       # More on this below!
       # contextType: "../index#MyContext"
+      scalars:
+        Date: string

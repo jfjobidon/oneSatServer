@@ -1,5 +1,5 @@
 
-import { User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput, SignupMutationResponse, CampaignMutationResponse, Campaign } from '../__generated__/resolvers-types';
+import { User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput, SignupMutationResponse, CampaignMutationResponse, CampaignInput } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
@@ -86,7 +86,7 @@ const mutations: MutationResolvers = {
 
   },
 
-  createCampaign: async (_, campaign: Campaign, context): Promise<CampaignMutationResponse> => {
+  createCampaign: async (_, campaign: CampaignInput, context): Promise<CampaignMutationResponse> => {
     console.log("create campaign")
     console.log(context)
     let c =  await dataSourcesMongo.createCampaign(context.userid, campaign);

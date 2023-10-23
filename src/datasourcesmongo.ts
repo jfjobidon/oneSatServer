@@ -15,24 +15,25 @@ export class DataSourcesMongo {
   async getUsers(): Promise<User[]> {
     // console.log("getUsers: prisma findMany")
     const users = await prisma.user.findMany({})
-    // console.table(users)
+    console.table(users)
     return users;
   }
 
   async getUserByName(name: string): Promise<User> {
     console.log("in getUserByName")
     console.log(name)
-    const user = prisma.user.findUnique({where: {name: name}});
-    return user;
-    // return null;
+    const user = prisma.user.findUnique({ where: { name: name } });
+    // return user;
+    return null;
   }
-  
+
   async getUserByEmail(email: string): Promise<User> {
     console.log("in getUserByEmail")
     console.log(email)
-    const user = prisma.user.findUnique({where: {email: email}});
-    // return user;
-    return null;
+    const user = await prisma.user.findUnique({ where: { email: email } });
+    console.log("date user: " + user.creationDate)
+    return user;
+    // return null;
   }
 
   async createCampaign(authorId: string, campaign: Campaign): Promise<CampaignMutationResponse> {
@@ -53,9 +54,9 @@ export class DataSourcesMongo {
       },
       include: {
         campaigns: true,
-      } 
+      }
     })
-      
+
     return {
       code: "200",
       success: true,
@@ -67,7 +68,7 @@ export class DataSourcesMongo {
   async getUserById(id: string): Promise<User> {
     console.log("in getUser")
     console.log(id)
-    const user = prisma.user.findUnique({where: {id: id}});
+    const user = prisma.user.findUnique({ where: { id: id } });
     // const user = prisma.user.findUnique({where: {id: "651efe317ef84f6cd52a4476"}});
     // const user = prisma.user.findUnique({where: {name: name}});
     // return user;
@@ -108,15 +109,33 @@ export class DataSourcesMongo {
   }
 
   async signup(user: User): Promise<SignupMutationResponse> {
-    await prisma.user.create({
+    // await prisma.user.create({
+    //   data: user,
+    // }).then((userx) => {
+    //   return {
+    //     code: "200",
+    //     success: true,
+    //     message: "New user created!",
+    //     user: { ...userx, password: "********" },
+    //   }
+    // })
+
+    let user2 = await prisma.user.create({
       data: user,
     })
     return {
       code: "200",
       success: true,
       message: "New user created!",
-      user: { ...user, password: "********" },
+      user: { ...user2, password: "********" },
     }
+
+    // return {
+    //   code: "200",
+    //   success: true,
+    //   message: "New user created!",
+    //   user: { ...user, password: "********" },
+    // }
     // } else {
     //   return {
     //     code: "400",

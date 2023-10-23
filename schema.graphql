@@ -1,3 +1,5 @@
+scalar DateScalar
+
 type NewsEvent {
   title: String
   description: String
@@ -30,14 +32,17 @@ input CreateNewsEventInput {
   description: String
 }
 
+# new Date('2023-02-03T01:00:00Z') // 2023-02-03
+# new Date('2023-02-03T01:00:00+0500') // 2023-02-02
+
 type User {
   email:  String!
   name:   String!
   password: String!
   roles: [String]
   # campaigns: [String]
-  # creationDate: String!
-  # updatedAt: String!
+  creationDate: DateScalar!
+  # updatedDate: String!
 }
 
 # REVIEW: devrait hériter de type:  code, success et message
@@ -64,6 +69,11 @@ input VoteInput {
   campaignID: String!
   pollID: String!
   certified: Boolean!
+}
+
+input CampaignInput {
+  authorId: String!
+  title: String!
 }
 
 type AddVoteMutationResponse {

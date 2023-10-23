@@ -19,6 +19,10 @@ const isUser = rule()(async (_, __, ctx) => {
   return roleArray.includes(Roles.USER)
 })
 
+const isAllow = rule()(async (_, __, ctx) => {
+  return true
+})
+
 // const isOwner = rule()(async (_, __, ctx) => {
 //   let roleArray = JSON.parse(ctx.roles)
 //   return roleArray.includes(Roles.OWNER)
@@ -27,10 +31,12 @@ const isUser = rule()(async (_, __, ctx) => {
 
 export const permissions = shield({
   Query: {
-    getUsers: isAdmin
+    getUsers: isAdmin,
+    getUserByEmail: isUser
   },
   Mutation: {
-    createCampaign: isUser
+    createCampaign: isUser,
+    signup: isAllow
   }
 }
 )

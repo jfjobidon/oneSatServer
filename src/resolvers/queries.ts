@@ -42,19 +42,19 @@ const queries: QueryResolvers = {
 
   getUserById: async (_, args) => {
     const user = await dataSourcesMongo.getUserById(args.id);
-    return { ...user, password: "********"}
+    return { ...user, password: "********" }
   },
 
   getUserByName: async (_, args) => {
     const user = await dataSourcesMongo.getUserByName(args.name);
-    return { ...user, password: "********"}
+    return { ...user, password: "********" }
   },
 
   getUserByEmail: async (_, args, contextValue) => {
     console.log("contextValue: ", contextValue.token)
     // TODO: check permissions...
     const user = await dataSourcesMongo.getUserByEmail(args.email);
-    return { ...user, password: "********"}
+    return { ...user, password: "********" }
   },
 
   login: async (_, { email, password }): Promise<SignupMutationResponse> => {
@@ -69,7 +69,7 @@ const queries: QueryResolvers = {
           success: true,
           message: "user successfully logged",
           token: token,
-          user: { ...user, password: "********"}
+          user: { ...user, password: "********" }
         }
       } else {
         return {
