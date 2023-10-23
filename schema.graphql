@@ -113,7 +113,7 @@ type Mutation {
   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
   # addUser(email: String, name: String, password: String): AddUserMutationResponse
   signup(email: String!, name: String!, roles: [String], password: String!): SignupMutationResponse
-  createCampaign(campaign: CampaignInput): CampaignMutationResponse
+  createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
   # createCampaign(title: String): CampaignMutationResponse
 }
 
