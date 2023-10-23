@@ -19,8 +19,11 @@ import { applyMiddleware } from 'graphql-middleware'
 import { permissions } from './permissions.js';
 
 import 'dotenv/config'
+import config from "config";
 console.log(`server started on ${process.env.NODE_ENV} mode`)
+process.env.DBURI = config.get<string>('DBURI')
 
+console.log(`server started on ${process.env.DBURI} mode`)
 
 import { GraphQLScalarType, Kind } from 'graphql';
 

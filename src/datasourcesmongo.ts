@@ -3,7 +3,7 @@
 // // Use our automatically generated USER and AddUserMutationResponse types
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, AddUserMutationResponse, SignupMutationResponse, CampaignMutationResponse, Campaign } from "./__generated__/resolvers-types";
+import { User, AddUserMutationResponse, SignupMutationResponse, CampaignMutationResponse, CampaignInput } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -36,32 +36,41 @@ export class DataSourcesMongo {
     // return null;
   }
 
-  async createCampaign(authorId: string, campaign: Campaign): Promise<CampaignMutationResponse> {
-    console.table(campaign)
+  // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
+  async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
+    console.table(campaignInput)
 
-    const result = await prisma.user.update({
-      where: {
-        id: authorId,
-      },
-      data: {
-        campaigns: {
-          createMany: {
-            // data: [{ title: 'My 3rd campaign' }],
-            data: [{ title: campaign.title }],
-            // data: [campaign],
+    try {
+      const result = await prisma.user.update({
+        where: {
+          id: authorId,
+        },
+        data: {
+          campaigns: {
+            createMany: {
+              // data: [{ title: 'My 3rd campaign' }],
+              // data: [{ title: campaignInput.title}],
+              data: [campaignInput],
+            },
           },
         },
-      },
-      include: {
-        campaigns: true,
+        include: {
+          campaigns: true,
+        }
+      })
+      console.log(result)
+      return {
+        code: "200",
+        success: true,
+        message: "Campaign created!",
+        campaign: {
+          title: campaignInput.title,
+          authorId: authorId,
+          // creationDate: new Date()
+        },
       }
-    })
-
-    return {
-      code: "200",
-      success: true,
-      message: "Campaign created!",
-      campaign,
+    } catch (err) {
+      console.log(err)
     }
   }
 

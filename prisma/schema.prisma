@@ -9,6 +9,7 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = "mongodb+srv://osovAdmin:rRTGwNDL7a@cluster0.3t8mxys.mongodb.net/onesatonevote"
+  // url = env("DBURI") // TODO: DEBUG:
 }
 
 // REVIEW: not compatible with graphql
@@ -19,10 +20,10 @@ datasource db {
 // }
 
 model Campaign {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
   // author   User @relation(fields: [authorEmail], references: [email])
   // authorEmail String
-  author   User @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id])
   authorId String @db.ObjectId
   title    String
   // creationDate DateTime @default(now())
@@ -35,13 +36,13 @@ model Campaign {
 // TODO: define an index on something
 // data DateTime @default("2020-03-19T14:21:00+02:00")
 model User {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  email   String  @unique
-  name    String  @unique
-  password String?
-  roles    String[] @default(["USER"])
-  campaigns Campaign[]
-  creationDate DateTime @default(now())
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  email        String     @unique
+  name         String     @unique
+  password     String?
+  roles        String[]   @default(["USER"])
+  campaigns    Campaign[]
+  creationDate DateTime   @default(now())
   // updatedDate DateTime @updatedAt
 }
 

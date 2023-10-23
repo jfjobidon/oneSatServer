@@ -16,7 +16,8 @@ const isAdmin = rule()(async (_, __, ctx) => {
 
 const isUser = rule()(async (_, __, ctx) => {
   let roleArray = JSON.parse(ctx.roles)
-  return roleArray.includes(Roles.USER)
+  let x =  roleArray.includes(Roles.ADMIN) || roleArray.includes(Roles.USER)
+  return x;
 })
 
 const isAllow = rule()(async (_, __, ctx) => {

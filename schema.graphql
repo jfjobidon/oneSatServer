@@ -12,20 +12,6 @@ type NewsEvent {
 #   USER
 # }
 
-type Campaign {
-  # authorEmail:  String!
-  authorId:  String!
-  title:   String!
-  # creationDate: DateTime @default(now())
-  # updatedAt: DateTime @updatedAt
-  # xyz:      String @unique @default(uuid())
-}
-
-# input CampaignInput {
-#   authorId:  String!
-#   title:   String!
-# }
-
 # Input types can't have fields that are other objects, only basic scalar types, list types, and other input types.
 input CreateNewsEventInput {
   title: String
@@ -71,11 +57,6 @@ input VoteInput {
   certified: Boolean!
 }
 
-input CampaignInput {
-  authorId: String!
-  title: String!
-}
-
 type AddVoteMutationResponse {
   code: String!
   success: Boolean!
@@ -93,6 +74,19 @@ type SignupMutationResponse {
   message: String!
   token: String
   user: User
+}
+
+type Campaign {
+  # authorEmail:  String!
+  authorId:  String!
+  title:   String!
+  # creationDate: DateScalar!
+  # updatedAt: DateTime @updatedAt
+  # xyz:      String @unique @default(uuid())
+}
+
+input CampaignInput {
+  title: String!
 }
 
 type CampaignMutationResponse {
@@ -119,8 +113,8 @@ type Mutation {
   addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
   # addUser(email: String, name: String, password: String): AddUserMutationResponse
   signup(email: String!, name: String!, roles: [String], password: String!): SignupMutationResponse
-  # createCampaign(campaign: CampaignInput): CampaignMutationResponse
-  createCampaign(authorId: String, title: String): CampaignMutationResponse
+  createCampaign(campaign: CampaignInput): CampaignMutationResponse
+  # createCampaign(title: String): CampaignMutationResponse
 }
 
 type Subscription {
