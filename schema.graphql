@@ -80,7 +80,7 @@ type Campaign {
   # authorEmail:  String!
   authorId:  String!
   title:   String!
-  # creationDate: DateScalar!
+  creationDate: DateScalar!
   # updatedAt: DateTime @updatedAt
   # xyz:      String @unique @default(uuid())
 }

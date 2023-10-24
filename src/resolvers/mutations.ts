@@ -90,7 +90,7 @@ const mutations: MutationResolvers = {
     console.log("create campaign")
     console.log(context)
     let c =  await dataSourcesMongo.createCampaign(context.userid, args.campaignInput);
-    console.log(c)
+    console.log("createCampaign return: ", c)
     return c
   },
 
