@@ -80,6 +80,8 @@ type Campaign {
   # authorEmail:  String!
   authorId:  String!
   title:   String!
+  question:   String!
+  description:   String!
   creationDate: DateScalar!
   # updatedAt: DateTime @updatedAt
   # xyz:      String @unique @default(uuid())
@@ -87,6 +89,8 @@ type Campaign {
 
 input CampaignInput {
   title: String!
+  question:   String!
+  description:   String!
 }
 
 type CampaignMutationResponse {

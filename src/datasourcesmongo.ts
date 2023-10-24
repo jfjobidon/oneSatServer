@@ -75,6 +75,8 @@ export class DataSourcesMongo {
         // campaign: result.campaigns[1]
         campaign: {
           title: campaignInput.title,
+          question: campaignInput.question,
+          description: campaignInput.description,
           authorId: authorId,
           // creationDate: result.campaigns[1].creationDate
           creationDate: theIsoDate

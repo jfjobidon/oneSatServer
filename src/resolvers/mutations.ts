@@ -86,10 +86,10 @@ const mutations: MutationResolvers = {
 
   },
 
-  createCampaign: async (_, args, context): Promise<CampaignMutationResponse> => {
+  createCampaign: async (_, { campaignInput }, context): Promise<CampaignMutationResponse> => {
     console.log("create campaign")
     console.log(context)
-    let c =  await dataSourcesMongo.createCampaign(context.userid, args.campaignInput);
+    let c =  await dataSourcesMongo.createCampaign(context.userid, campaignInput);
     console.log("createCampaign return: ", c)
     return c
   },

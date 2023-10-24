@@ -20,12 +20,14 @@ datasource db {
 // }
 
 model Campaign {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
   // author   User @relation(fields: [authorEmail], references: [email])
   // authorEmail String
-  author   User   @relation(fields: [authorId], references: [id])
-  authorId String @db.ObjectId
-  title    String
+  author       User   @relation(fields: [authorId], references: [id])
+  authorId     String @db.ObjectId
+  title        String
+  question     String
+  description  String
   // creationDate DateTime 
   // creationDate DateTime @default(now())
   creationDate String
