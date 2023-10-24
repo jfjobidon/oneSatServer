@@ -77,20 +77,20 @@ type SignupMutationResponse {
 }
 
 type Campaign {
-  # authorEmail:  String!
   authorId:  String!
   title:   String!
   question:   String!
   description:   String!
   creationDate: DateScalar!
-  # updatedAt: DateTime @updatedAt
-  # xyz:      String @unique @default(uuid())
+  minSatPerVote: Int
+  paused: Boolean
 }
 
 input CampaignInput {
   title: String!
   question:   String!
   description:   String!
+  minSatPerVote: Int
 }
 
 type CampaignMutationResponse {

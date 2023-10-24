@@ -1,4 +1,4 @@
-
+import config from "config";
 
 // // Use our automatically generated USER and AddUserMutationResponse types
 // // for type safety in our data source class
@@ -6,6 +6,11 @@
 import { User, AddUserMutationResponse, SignupMutationResponse, CampaignMutationResponse, CampaignInput } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
+
+const minSatPerVoteDefault = config.get<string>('minSatPerVoteDefault') 
+console.log(minSatPerVoteDefault)
+const campaignPausedDefault = config.get<string>('campaignPausedDefault') 
+console.log(campaignPausedDefault)
 
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
@@ -39,9 +44,11 @@ export class DataSourcesMongo {
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
   async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
     console.table(campaignInput)
-    let theIsoDate = new Date()
+    const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault;
+    let isoDate = new Date()
     // console.log(theIsoDate)
-    var isodate = new Date().toISOString()
+    // const isodate = new Date().toISOString()
+    const isoDateStr = isoDate.toISOString()
 
     try {
       const result = await prisma.user.update({
@@ -54,9 +61,16 @@ export class DataSourcesMongo {
             // create: { ...campaignInput, creationDate: isodate },
             // create: { ...campaignInput, creationDate: Date() },
             createMany: {
+              data: [
+                {
+                  ...campaignInput,
+                  minSatPerVote: minSatPerVote,
+                  creationDate: isoDateStr,
+                  paused: campaignPausedDefault
+                }
+              ],
               // data: [{...campaignInput, creationDate: Date()}],
               // data: [{...campaignInput}],
-              data: [{...campaignInput, creationDate: isodate}],
               // data: [{...campaignInput, creationDate: "2023-10-23T19:13:38.357+00:00"}],
               // data: [{...campaignInput, creationDate: new Date(isodate)}],
               // data: [{...campaignInput, creationDate: (new Date()).toISOString()}],
@@ -65,21 +79,25 @@ export class DataSourcesMongo {
           },
         },
         include: {
-          campaigns: true,
+          campaigns: true
         },
       })
+      console.table(result)
+      console.table(result.campaigns)
       return {
         code: "200",
         success: true,
         message: "Campaign created!",
         // campaign: result.campaigns[1]
         campaign: {
+          authorId: authorId,
           title: campaignInput.title,
           question: campaignInput.question,
           description: campaignInput.description,
-          authorId: authorId,
+          minSatPerVote: minSatPerVote,
+          paused: campaignPausedDefault,
           // creationDate: result.campaigns[1].creationDate
-          creationDate: theIsoDate
+          creationDate: isoDate
         },
       }
       // const result = await prisma.user.update({

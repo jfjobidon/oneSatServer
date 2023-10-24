@@ -28,9 +28,11 @@ model Campaign {
   title        String
   question     String
   description  String
+  minSatPerVote Int // default in config file
   // creationDate DateTime 
   // creationDate DateTime @default(now())
-  creationDate String
+  creationDate String // NOTE: no Default possible for related records
+  paused Boolean
   // updatedAt DateTime @updatedAt
   // xyz      String @unique @default(uuid())
 }
