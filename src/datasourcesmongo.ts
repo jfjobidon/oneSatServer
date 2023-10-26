@@ -61,10 +61,7 @@ export class DataSourcesMongo {
     const blindAmount = campaignInput.blindAmount || blindAmountDefault;
     const blindRank = campaignInput.blindRank || blindRankDefault;
     const allowMultipleVotes = campaignInput.allowMultipleVotes || allowMultipleVotesDefault;
-    let isoDate = new Date()
-    // console.log(theIsoDate)
-    // const isodate = new Date().toISOString()
-    const isoDateStr = isoDate.toISOString()
+    const isoDate = new Date()
 
     try {
       const result = await prisma.user.update({
@@ -84,8 +81,7 @@ export class DataSourcesMongo {
                   maxSatPerVote: maxSatPerVote,
                   suggestedSatPerVote: suggestedSatPerVote,
                   totalSat: 0,
-                  creationDate: isoDateStr,
-                  // startingDate: campaignInput.startingDate,
+                  creationDate: isoDate,
                   startingDate: new Date(campaignInput.startingDate),
                   paused: campaignPausedDefault,
                   blindAmount: blindAmount,
