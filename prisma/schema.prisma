@@ -33,10 +33,10 @@ model Campaign {
   maxSatPerVote Int // default in config file
   suggestedSatPerVote Int // default in config file
   totalSat Int
-  // creationDate DateTime 
-  // creationDate DateTime @default(now())
-  creationDate DateTime // NOTE: no Default possible for related records
+  creationDate DateTime // NOTE: no Default possible for related records (@default(now()))
   startingDate DateTime
+  updatedDate DateTime
+  endingDate DateTime
   blindAmount Boolean
   blindRank Boolean
   allowMultipleVotes Boolean
@@ -45,7 +45,6 @@ model Campaign {
   // xyz      String @unique @default(uuid())
 }
 
-// TODO: ajouter date of creation: creationDate: Timestamp
 // TODO: tester uuid: myuuid String @default(uuid())
 // TODO: define an index on something
 // data DateTime @default("2020-03-19T14:21:00+02:00")

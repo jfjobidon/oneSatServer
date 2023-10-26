@@ -24,6 +24,7 @@ console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 import { PrismaClient } from '@prisma/client'
 import { commandOptions } from "redis";
+import { clearScreenDown } from "readline";
 const prisma = new PrismaClient()
 
 export class DataSourcesMongo {
@@ -61,7 +62,21 @@ export class DataSourcesMongo {
     const blindAmount = campaignInput.blindAmount || blindAmountDefault;
     const blindRank = campaignInput.blindRank || blindRankDefault;
     const allowMultipleVotes = campaignInput.allowMultipleVotes || allowMultipleVotesDefault;
-    const isoDate = new Date()
+    const creationDate = new Date()
+    const startingDate = new Date(campaignInput.startingDate)
+    const endingDate = new Date(campaignInput.endingDate)
+    // console.log("startingDate: " + startingDate)
+    // console.log("creationDate: " + creationDate)
+    
+    if (creationDate > startingDate) {
+      console.log("creationDate NOT OK")
+      // throw new Error("Creation Date cannot be in the past") // REVIEW: graphql: INTERNAL_SERVER_ERROR
+    }
+
+    if (startingDate > endingDate) {
+      console.log("Ending Date MUST be later than Starting Date")
+      // throw new Error("Creation Date cannot be in the past") // REVIEW: graphql: INTERNAL_SERVER_ERROR
+    }
 
     try {
       const result = await prisma.user.update({
@@ -81,8 +96,10 @@ export class DataSourcesMongo {
                   maxSatPerVote: maxSatPerVote,
                   suggestedSatPerVote: suggestedSatPerVote,
                   totalSat: 0,
-                  creationDate: isoDate,
-                  startingDate: new Date(campaignInput.startingDate),
+                  creationDate: creationDate,
+                  updatedDate: creationDate,
+                  startingDate: startingDate,
+                  endingDate: endingDate,
                   paused: campaignPausedDefault,
                   blindAmount: blindAmount,
                   blindRank: blindRank,
@@ -102,8 +119,8 @@ export class DataSourcesMongo {
           campaigns: true
         },
       })
-      console.table(result)
-      console.table(result.campaigns)
+      // console.table(result)
+      // console.table(result.campaigns)
       return {
         code: "200",
         success: true,
@@ -114,7 +131,8 @@ export class DataSourcesMongo {
           title: campaignInput.title,
           question: campaignInput.question,
           description: campaignInput.description,
-          startingDate: campaignInput.startingDate,
+          startingDate: startingDate,
+          endingDate: endingDate,
           message: null,
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,
@@ -125,7 +143,8 @@ export class DataSourcesMongo {
           blindRank: blindRank,
           allowMultipleVotes: allowMultipleVotes,
           // creationDate: result.campaigns[1].creationDate
-          creationDate: isoDate
+          creationDate: creationDate,
+          updatedDate: creationDate
         },
       }
       // const result = await prisma.user.update({

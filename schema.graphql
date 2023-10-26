@@ -84,6 +84,8 @@ type Campaign {
   message: String
   creationDate: DateScalar!
   startingDate: DateScalar!
+  endingDate: DateScalar!
+  updatedDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
@@ -99,6 +101,7 @@ input CampaignInput {
   question: String!
   description: String!
   startingDate: DateScalar!
+  endingDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
@@ -144,7 +147,6 @@ type Mutation {
     password: String!
   ): SignupMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
-  # createCampaign(title: String): CampaignMutationResponse
 }
 
 type Subscription {
