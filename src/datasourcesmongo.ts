@@ -3,7 +3,7 @@ import config from "config";
 // // Use our automatically generated USER and AddUserMutationResponse types
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, AddUserMutationResponse, SignupMutationResponse, CampaignMutationResponse, CampaignInput } from "./__generated__/resolvers-types";
+import { User, AddUserMutationResponse, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -222,7 +222,7 @@ export class DataSourcesMongo {
     // }
   }
 
-  async signup(user: User): Promise<SignupMutationResponse> {
+  async signup(userInput: UserInput): Promise<UserMutationResponse> {
     // await prisma.user.create({
     //   data: user,
     // }).then((userx) => {
@@ -234,14 +234,14 @@ export class DataSourcesMongo {
     //   }
     // })
 
-    let user2 = await prisma.user.create({
-      data: user,
+    let user = await prisma.user.create({
+      data: userInput,
     })
     return {
       code: "200",
       success: true,
       message: "New user created!",
-      user: { ...user2, password: "********" },
+      user: { ...user, password: "********" },
     }
 
     // return {

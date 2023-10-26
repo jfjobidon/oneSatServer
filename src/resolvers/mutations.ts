@@ -1,5 +1,5 @@
 
-import { User, AddUserMutationResponse, AddVoteMutationResponse, MutationResolvers, VoteInput, SignupMutationResponse, CampaignMutationResponse, CampaignInput } from '../__generated__/resolvers-types';
+import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
@@ -27,20 +27,13 @@ const mutations: MutationResolvers = {
     return args;
   },
 
-  // TODO: enlever cette fonction...
-  // addUser: async (_, { name, email, password }: User): Promise<AddUserMutationResponse> => {
-  //   console.log("mutation addUser....")
-  //   return dataSourcesMongo.addUser({ name: name, email: email, password: password });
-  // },
-
-  // signup: async (_, { name, email, password }: User): Promise<SignupMutationResponse> => {
-  signup: async (_, user: User): Promise<SignupMutationResponse> => {
+  // signup: async (_, { name, email, password }: User): Promise<UserMutationResponse> => {
+  // signup: async (_, user: User): Promise<UserMutationResponse> => {
+  signup: async (_, { userInput }): Promise<UserMutationResponse> => {
     console.log("mutation signup....")
     const salt = bcrypt.genSaltSync(saltRounds);
-    const hashPassword = bcrypt.hashSync(user.password, salt);
-    const user2 = { ...user, password: hashPassword}
-    // const userMutationResponse = await dataSourcesMongo.signup({ name: user.name, email: user.email, password: hashPassword });
-    const userMutationResponse = await dataSourcesMongo.signup(user2);
+    const hashPassword = bcrypt.hashSync(userInput.password, salt);
+    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: hashPassword});
     const token = await jwtUtil.sign();
     return {
       code: userMutationResponse.code,

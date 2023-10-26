@@ -1,4 +1,4 @@
-import { QueryResolvers, SignupMutationResponse } from "../__generated__/resolvers-types";
+import { QueryResolvers, UserMutationResponse } from "../__generated__/resolvers-types";
 
 import { DataSourcesRedis } from '../datasourcesredis.js';
 const dataSourcesRedis = new DataSourcesRedis();
@@ -57,7 +57,7 @@ const queries: QueryResolvers = {
     return { ...user, password: "********" }
   },
 
-  login: async (_, { email, password }): Promise<SignupMutationResponse> => {
+  login: async (_, { email, password }): Promise<UserMutationResponse> => {
     let user = await dataSourcesMongo.getUserByEmail(email);
     const token = await jwtUtil.sign();
 

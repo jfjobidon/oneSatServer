@@ -9,7 +9,7 @@ export class JwtUtil {
 
     // https://www.iana.org/assignments/jwt/jwt.xhtml: email, roles
     async sign(): Promise<string> {
-        const token = jwt.sign({ data: 'foobar' }, this.privateKey);
+        const token = jwt.sign({ data: 'foobar' }, this.privateKey);    // TODO:
         // const token = jwt.sign("jkdjdla", this.privateKey);
         console.log("token: ", token)
         return token

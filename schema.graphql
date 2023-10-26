@@ -26,18 +26,25 @@ type User {
   name: String!
   password: String!
   roles: [String]
-  # campaigns: [String]
   creationDate: DateScalar!
   # updatedDate: String!
 }
 
-# REVIEW: devrait hériter de type:  code, success et message
-type AddUserMutationResponse {
+input UserInput {
+  email: String!
+  name: String!
+  password: String!
+}
+
+# REVIEW: devrait hériter de type:  code, success et message --> fragment ?
+type UserMutationResponse {
   code: String!
   success: Boolean!
   message: String!
+  token: String
   user: User
 }
+
 
 type Vote {
   voterID: String!
@@ -66,14 +73,6 @@ type AddVoteMutationResponse {
 
 type getVotesQueryResponse {
   votes: [Vote]!
-}
-
-type SignupMutationResponse {
-  code: String!
-  success: Boolean!
-  message: String!
-  token: String
-  user: User
 }
 
 type Campaign {
@@ -125,7 +124,7 @@ type Query {
   getUserByName(name: String): User
   getUserByEmail(email: String): User
   getVoteById(id: String): Vote
-  login(email: String!, password: String!): SignupMutationResponse
+  login(email: String!, password: String!): UserMutationResponse
 }
 
 # TODO: ajouter les types inputVote, inputCampaign, inputUser
@@ -139,13 +138,13 @@ type Mutation {
     pollID: String
     certified: Boolean
   ): AddVoteMutationResponse
-  # addUser(email: String, name: String, password: String): AddUserMutationResponse
-  signup(
-    email: String!
-    name: String!
-    roles: [String]
-    password: String!
-  ): SignupMutationResponse
+  signup(userInput: UserInput): UserMutationResponse
+  # signup(
+  #   email: String!
+  #   name: String!
+  #   roles: [String]
+  #   password: String!
+  # ): UserMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
 }
 
