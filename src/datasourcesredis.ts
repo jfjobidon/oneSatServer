@@ -11,6 +11,7 @@ const aString = await redisClient.ping()
 console.log('redis PING: ', aString)
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
+// import { voteSchema } from './schema.redis.js';
 import { voteSchema } from './schema.redis.js';
 
 let voteRepository = new Repository(voteSchema, redisClient)

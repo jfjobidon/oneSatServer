@@ -54,8 +54,7 @@ const DateScalar = new GraphQLScalarType({
 
 import resolvers from "./resolvers/index.js";
 
-const typeDefs = readFileSync('./schema.graphql', { encoding: 'utf-8' });
-// import { typeDefs, resolvers } from './schema';
+const typeDefs = readFileSync('schema.graphql', { encoding: 'utf-8' });
 
 interface MyContext {
   token?: string;
