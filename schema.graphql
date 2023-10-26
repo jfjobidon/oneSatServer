@@ -83,6 +83,12 @@ type Campaign {
   description:   String!
   creationDate: DateScalar!
   minSatPerVote: Int
+  maxSatPerVote: Int
+  suggestedSatPerVote: Int
+  totalSat: Int!
+  blindAmount: Boolean
+  blindRank: Boolean
+  allowMultipleVotes: Boolean
   paused: Boolean
 }
 
@@ -91,6 +97,11 @@ input CampaignInput {
   question:   String!
   description:   String!
   minSatPerVote: Int
+  maxSatPerVote: Int
+  suggestedSatPerVote: Int
+  blindAmount: Boolean
+  blindRank: Boolean
+  allowMultipleVotes: Boolean
 }
 
 type CampaignMutationResponse {

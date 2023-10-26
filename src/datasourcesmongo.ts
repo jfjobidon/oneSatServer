@@ -8,9 +8,19 @@ import { User, AddUserMutationResponse, SignupMutationResponse, CampaignMutation
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
 const minSatPerVoteDefault = config.get<string>('minSatPerVoteDefault') 
-console.log(minSatPerVoteDefault)
+const maxSatPerVoteDefault = config.get<string>('maxSatPerVoteDefault') 
+const suggestedSatPerVoteDefault = config.get<string>('suggestedSatPerVoteDefault') 
 const campaignPausedDefault = config.get<string>('campaignPausedDefault') 
-console.log(campaignPausedDefault)
+const blindAmountDefault = config.get<string>('blindAmount') 
+const blindRankDefault = config.get<string>('blindRank') 
+const allowMultipleVotesDefault = config.get<string>('allowMultipleVotes') 
+console.log("minSatPerVoteDefault " + minSatPerVoteDefault)
+console.log("maxSatPerVoteDefault " + maxSatPerVoteDefault)
+console.log("suggestedSatPerVoteDefault " + suggestedSatPerVoteDefault)
+console.log("campaignPausedDefault " + campaignPausedDefault)
+console.log("blindAmountDefault " + blindAmountDefault)
+console.log("blindRankDefault " + blindRankDefault)
+console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
@@ -45,6 +55,11 @@ export class DataSourcesMongo {
   async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
     console.table(campaignInput)
     const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault;
+    const maxSatPerVote = campaignInput.maxSatPerVote || maxSatPerVoteDefault;
+    const suggestedSatPerVote = campaignInput.suggestedSatPerVote || suggestedSatPerVoteDefault;
+    const blindAmount = campaignInput.blindAmount || blindAmountDefault;
+    const blindRank = campaignInput.blindRank || blindRankDefault;
+    const allowMultipleVotes = campaignInput.allowMultipleVotes || allowMultipleVotesDefault;
     let isoDate = new Date()
     // console.log(theIsoDate)
     // const isodate = new Date().toISOString()
@@ -65,8 +80,14 @@ export class DataSourcesMongo {
                 {
                   ...campaignInput,
                   minSatPerVote: minSatPerVote,
+                  maxSatPerVote: maxSatPerVote,
+                  suggestedSatPerVote: suggestedSatPerVote,
+                  totalSat: 0,
                   creationDate: isoDateStr,
-                  paused: campaignPausedDefault
+                  paused: campaignPausedDefault,
+                  blindAmount: blindAmount,
+                  blindRank: blindRank,
+                  allowMultipleVotes: allowMultipleVotes
                 }
               ],
               // data: [{...campaignInput, creationDate: Date()}],
@@ -95,7 +116,13 @@ export class DataSourcesMongo {
           question: campaignInput.question,
           description: campaignInput.description,
           minSatPerVote: minSatPerVote,
+          maxSatPerVote: maxSatPerVote,
+          suggestedSatPerVote: suggestedSatPerVote,
+          totalSat: 0,
           paused: campaignPausedDefault,
+          blindAmount: blindAmount,
+          blindRank: blindRank,
+          allowMultipleVotes: allowMultipleVotes,
           // creationDate: result.campaigns[1].creationDate
           creationDate: isoDate
         },

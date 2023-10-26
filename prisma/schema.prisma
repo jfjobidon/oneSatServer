@@ -29,9 +29,15 @@ model Campaign {
   question     String
   description  String
   minSatPerVote Int // default in config file
+  maxSatPerVote Int // default in config file
+  suggestedSatPerVote Int // default in config file
+  totalSat Int
   // creationDate DateTime 
   // creationDate DateTime @default(now())
   creationDate String // NOTE: no Default possible for related records
+  blindAmount Boolean
+  blindRank Boolean
+  allowMultipleVotes Boolean
   paused Boolean
   // updatedAt DateTime @updatedAt
   // xyz      String @unique @default(uuid())
