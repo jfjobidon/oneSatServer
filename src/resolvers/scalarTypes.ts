@@ -2,7 +2,7 @@ import { GraphQLScalarType, Kind } from 'graphql';
 
 export const DateScalar = new GraphQLScalarType({
   name: 'DateScalar',
-  description: 'Date custom scalar type',
+  description: 'Date: ISOdate: ex "05 October 2011 14:48 UTC", "1997-07-16T19:22:37+01:00" https://www.w3.org/TR/NOTE-datetime',
   serialize(value) {
     if (value instanceof Date) {
       return value
@@ -13,6 +13,9 @@ export const DateScalar = new GraphQLScalarType({
   parseValue(value) {
     if (typeof value === 'number') {
       return new Date(value); // Convert incoming integer to Date
+    }
+    if (typeof value === 'string') {
+      return new Date(value); // Convert incoming string ("05 October 2011 14:48 UTC") to Date
     }
     throw new Error('GraphQL Date Scalar parser expected a `number`');
   },
