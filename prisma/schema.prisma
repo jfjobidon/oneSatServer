@@ -28,6 +28,7 @@ model Campaign {
   title        String
   question     String
   description  String
+  message      String?
   minSatPerVote Int // default in config file
   maxSatPerVote Int // default in config file
   suggestedSatPerVote Int // default in config file

@@ -81,6 +81,7 @@ type Campaign {
   title:   String!
   question:   String!
   description:   String!
+  message:   String
   creationDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int

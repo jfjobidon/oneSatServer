@@ -115,6 +115,7 @@ export class DataSourcesMongo {
           title: campaignInput.title,
           question: campaignInput.question,
           description: campaignInput.description,
+          message: null,
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,
           suggestedSatPerVote: suggestedSatPerVote,
