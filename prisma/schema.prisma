@@ -36,6 +36,7 @@ model Campaign {
   // creationDate DateTime 
   // creationDate DateTime @default(now())
   creationDate String // NOTE: no Default possible for related records
+  startingDate DateTime
   blindAmount Boolean
   blindRank Boolean
   allowMultipleVotes Boolean

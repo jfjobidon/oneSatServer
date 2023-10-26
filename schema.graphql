@@ -22,8 +22,8 @@ input CreateNewsEventInput {
 # new Date('2023-02-03T01:00:00+0500') // 2023-02-02
 
 type User {
-  email:  String!
-  name:   String!
+  email: String!
+  name: String!
   password: String!
   roles: [String]
   # campaigns: [String]
@@ -77,12 +77,13 @@ type SignupMutationResponse {
 }
 
 type Campaign {
-  authorId:  String!
-  title:   String!
-  question:   String!
-  description:   String!
-  message:   String
+  authorId: String!
+  title: String!
+  question: String!
+  description: String!
+  message: String
   creationDate: DateScalar!
+  startingDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
@@ -95,8 +96,9 @@ type Campaign {
 
 input CampaignInput {
   title: String!
-  question:   String!
-  description:   String!
+  question: String!
+  description: String!
+  startingDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
@@ -126,9 +128,21 @@ type Query {
 # TODO: ajouter les types inputVote, inputCampaign, inputUser
 type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
-  addVote(voterID: String, invoice: String, date: String, campaignID: String, pollID: String, certified: Boolean): AddVoteMutationResponse
+  addVote(
+    voterID: String
+    invoice: String
+    date: String
+    campaignID: String
+    pollID: String
+    certified: Boolean
+  ): AddVoteMutationResponse
   # addUser(email: String, name: String, password: String): AddUserMutationResponse
-  signup(email: String!, name: String!, roles: [String], password: String!): SignupMutationResponse
+  signup(
+    email: String!
+    name: String!
+    roles: [String]
+    password: String!
+  ): SignupMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
   # createCampaign(title: String): CampaignMutationResponse
 }
@@ -137,4 +151,3 @@ type Subscription {
   newsFeed: NewsEvent
   voteAdded: Vote
 }
-

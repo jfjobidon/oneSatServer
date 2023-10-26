@@ -23,6 +23,7 @@ console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 import { PrismaClient } from '@prisma/client'
+import { commandOptions } from "redis";
 const prisma = new PrismaClient()
 
 export class DataSourcesMongo {
@@ -84,6 +85,8 @@ export class DataSourcesMongo {
                   suggestedSatPerVote: suggestedSatPerVote,
                   totalSat: 0,
                   creationDate: isoDateStr,
+                  // startingDate: campaignInput.startingDate,
+                  startingDate: new Date(campaignInput.startingDate),
                   paused: campaignPausedDefault,
                   blindAmount: blindAmount,
                   blindRank: blindRank,
@@ -115,6 +118,7 @@ export class DataSourcesMongo {
           title: campaignInput.title,
           question: campaignInput.question,
           description: campaignInput.description,
+          startingDate: campaignInput.startingDate,
           message: null,
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,
