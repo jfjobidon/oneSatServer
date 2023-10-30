@@ -45,6 +45,23 @@ type UserMutationResponse {
   user: User
 }
 
+type Poll {
+  campaignId: String!
+  title: String!
+}
+
+input PollInput {
+  title: String!
+  campaignId: String!
+}
+
+type PollMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  poll: Poll
+}
+
 
 type Vote {
   voterID: String!
@@ -130,6 +147,7 @@ type Query {
 # TODO: ajouter les types inputVote, inputCampaign, inputUser
 type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
+  createPoll(pollInput: PollInput): PollMutationResponse
   addVote(
     voterID: String
     invoice: String

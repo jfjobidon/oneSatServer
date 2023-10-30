@@ -20,27 +20,28 @@ datasource db {
 // }
 
 model Campaign {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
   // author   User @relation(fields: [authorEmail], references: [email])
   // authorEmail String
-  author       User   @relation(fields: [authorId], references: [id])
-  authorId     String @db.ObjectId
-  title        String
-  question     String
-  description  String
-  message      String?
-  minSatPerVote Int // default in config file
-  maxSatPerVote Int // default in config file
+  author              User     @relation(fields: [authorId], references: [id])
+  authorId            String   @db.ObjectId
+  title               String
+  question            String
+  description         String
+  message             String?
+  polls               Poll[]
+  minSatPerVote       Int // default in config file
+  maxSatPerVote       Int // default in config file
   suggestedSatPerVote Int // default in config file
-  totalSat Int
-  creationDate DateTime // NOTE: no Default possible for related records (@default(now()))
-  startingDate DateTime
-  updatedDate DateTime
-  endingDate DateTime
-  blindAmount Boolean
-  blindRank Boolean
-  allowMultipleVotes Boolean
-  paused Boolean
+  totalSat            Int
+  creationDate        DateTime // NOTE: no Default possible for related records (@default(now()))
+  startingDate        DateTime
+  updatedDate         DateTime
+  endingDate          DateTime
+  blindAmount         Boolean
+  blindRank           Boolean
+  allowMultipleVotes  Boolean
+  paused              Boolean
   // updatedAt DateTime @updatedAt
   // xyz      String @unique @default(uuid())
 }
@@ -57,6 +58,13 @@ model User {
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
   // updatedDate DateTime @updatedAt
+}
+
+model Poll {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String   @db.ObjectId
+  title      String
 }
 
 // model Post {

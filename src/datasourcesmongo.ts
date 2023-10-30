@@ -1,9 +1,8 @@
 import config from "config";
 
-// // Use our automatically generated USER and AddUserMutationResponse types
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, AddUserMutationResponse, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, PollInput, PollMutationResponse  } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -23,8 +22,8 @@ console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 import { PrismaClient } from '@prisma/client'
-import { commandOptions } from "redis";
-import { clearScreenDown } from "readline";
+// import { commandOptions } from "redis";
+// import { clearScreenDown } from "readline";
 const prisma = new PrismaClient()
 
 export class DataSourcesMongo {
@@ -179,6 +178,43 @@ export class DataSourcesMongo {
     }
   }
 
+  async createPoll(authorId: String, pollInput: PollInput): Promise<PollMutationResponse> {
+    const campaignId = pollInput.campaignId;
+    try {
+      const result = await prisma.campaign.update({
+        where: {
+          id: campaignId,
+        },
+        data: {
+          polls: {
+            createMany: {
+              data: [
+                {
+                  title: pollInput.title
+                }
+              ]
+            }
+          }
+        },
+        include: {
+          polls: true
+        }
+      })
+      return {
+        code: "200",
+        success: true,
+        message: "poll created!",
+        poll: {
+          // authorId: authorId,
+          campaignId: campaignId,
+          title: pollInput.title,
+        },
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  } 
+
   async getUserById(id: string): Promise<User> {
     console.log("in getUser")
     console.log(id)
@@ -187,39 +223,6 @@ export class DataSourcesMongo {
     // const user = prisma.user.findUnique({where: {name: name}});
     // return user;
     return null;
-  }
-
-  async addUser(user: User): Promise<AddUserMutationResponse> {
-    await prisma.user.create({
-      data: {
-        name: user.name,
-        email: user.email,
-        roles: user.roles,
-        password: user.password
-      },
-    })
-
-    // if (user.name) {
-    //   prisma.user.create({
-    //     email: user.email,
-    //     name: user.name,
-    //     password: user.password
-    //   });
-
-    return {
-      code: "200",
-      success: true,
-      message: "New user added!",
-      user,
-    }
-    // } else {
-    //   return {
-    //     code: "400",
-    //     success: false,
-    //     message: "Invalid input",
-    //     user: null,
-    //   };
-    // }
   }
 
   async signup(userInput: UserInput): Promise<UserMutationResponse> {
