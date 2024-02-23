@@ -1,4 +1,4 @@
-// NOTE: pour merger cette branche sur master et écraser master
+// NOTE3: pour merger cette branche sur master et écraser master
 // https://javaetmoi.com/2013/08/ecraser-une-branche-par-une-autre-avec-git/
 
 import { ApolloServer } from '@apollo/server';
