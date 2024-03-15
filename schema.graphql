@@ -51,8 +51,8 @@ type Poll {
 }
 
 input PollInput {
-  title: String!
   campaignId: String!
+  title: String!
 }
 
 type PollMutationResponse {
@@ -133,6 +133,25 @@ type CampaignMutationResponse {
   campaign: Campaign
 }
 
+type PollOption {
+  pollId: String!
+  title: String!
+  description: String
+}
+
+input PollOptionInput {
+  pollId: String!
+  title: String!
+  description: String 
+}
+
+type PollOptionMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  pollOption: PollOption
+}
+
 type Query {
   placeholder: Boolean
   getVotes: getVotesQueryResponse
@@ -148,6 +167,7 @@ type Query {
 type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
   createPoll(pollInput: PollInput): PollMutationResponse
+  createPollOption(pollOptionInput: PollOptionInput): PollOptionMutationResponse
   addVote(
     voterID: String
     invoice: String

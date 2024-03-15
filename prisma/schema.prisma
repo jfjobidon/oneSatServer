@@ -65,6 +65,15 @@ model Poll {
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId String   @db.ObjectId
   title      String
+  pollOptions PollOption[]
+}
+
+model PollOption {
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  poll  Poll @relation(fields: [pollId], references: [id])
+  pollId  String @db.ObjectId
+  title String
+  description String
 }
 
 // model Post {

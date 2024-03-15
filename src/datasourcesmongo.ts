@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, PollInput, PollMutationResponse  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOptionInput  } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -22,6 +22,7 @@ console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 import { PrismaClient } from '@prisma/client'
+// import { describe } from "node:test";
 // import { commandOptions } from "redis";
 // import { clearScreenDown } from "readline";
 const prisma = new PrismaClient()
@@ -39,8 +40,7 @@ export class DataSourcesMongo {
     console.log("in getUserByName")
     console.log(name)
     const user = prisma.user.findUnique({ where: { name: name } });
-    // return user;
-    return null;
+    return user;
   }
 
   async getUserByEmail(email: string): Promise<User> {
@@ -64,8 +64,8 @@ export class DataSourcesMongo {
     const creationDate = new Date()
     const startingDate = new Date(campaignInput.startingDate)
     const endingDate = new Date(campaignInput.endingDate)
-    // console.log("startingDate: " + startingDate)
-    // console.log("creationDate: " + creationDate)
+    console.log("startingDate: " + startingDate)
+    console.log("creationDate: " + creationDate)
     
     if (creationDate > startingDate) {
       console.log("creationDate NOT OK")
@@ -213,16 +213,55 @@ export class DataSourcesMongo {
     } catch (err) {
       console.log(err)
     }
-  } 
+  }
+
+  // createPollOption(context.userid, pollOptionInput);
+  async createPollOption(authorId: String, pollOptionInput: PollOptionInput): Promise<PollOptionMutationResponse> {
+     const pollId = pollOptionInput.pollId;
+     try {
+      const result = await prisma.poll.update({
+        where: {
+          id: pollId
+        },
+        data: {
+          pollOptions: {
+            createMany: {
+              data: [
+                {
+                  title: pollOptionInput.title,
+                  description: pollOptionInput.description
+                }
+              ]
+            }
+          }
+        },
+        include: {
+          pollOptions: true
+        }
+      })
+      return {
+        code: "200",
+        success: true,
+        message: "poll option created",
+        pollOption: {
+          pollId: pollId,
+          title: pollOptionInput.title,
+          description: pollOptionInput.description
+        }
+      }
+     } catch (err) {
+      console.log(err)
+     }
+  }
 
   async getUserById(id: string): Promise<User> {
     console.log("in getUser")
     console.log(id)
     const user = prisma.user.findUnique({ where: { id: id } });
-    // const user = prisma.user.findUnique({where: {id: "651efe317ef84f6cd52a4476"}});
-    // const user = prisma.user.findUnique({where: {name: name}});
-    // return user;
-    return null;
+    // const user = prisma.user.findUnique({where: {id: "65df66779ebcb78f689a4803"}});
+    // const user = prisma.user.findUnique({where: {name: id}});
+    return user;
+    // return null;
   }
 
   async signup(userInput: UserInput): Promise<UserMutationResponse> {

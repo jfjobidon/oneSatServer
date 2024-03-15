@@ -33,6 +33,7 @@ const isAllow = rule()(async (_, __, ctx) => {
 export const permissions = shield({
   Query: {
     getUsers: isAdmin,
+    getUserById: isAdmin,
     getUserByEmail: isUser
   },
   Mutation: {
