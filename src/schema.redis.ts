@@ -8,6 +8,7 @@ export const voteSchema = new Schema('vote', {
   date: { type: 'string' },
   campaignID: { type: 'string'},
   pollID: { type: 'string'},
+  pollOptionID: { type: 'string'},
   certified: { type: 'boolean' },
   // songDurations: { type: 'number[]' } only valid for JSON !!!
 }, {

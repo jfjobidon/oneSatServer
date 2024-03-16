@@ -103,10 +103,10 @@ const mutations: MutationResolvers = {
     return pollOption
   },
 
-  //   addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
-  addVote: async (_, vote: VoteInput): Promise<AddVoteMutationResponse> => {
+    // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
+  addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
-    if (validateVote(vote)) {
+    if (validateVote(voteInput)) {
       return {
         code: "400",
         success: false,
@@ -115,8 +115,8 @@ const mutations: MutationResolvers = {
       }
     } else {
       // possibility to filter publish: withFilter
-      pubsub.publish('EVENT_VOTEADDED', { voteAdded: vote });
-      return await dataSourcesRedis.addVote(vote);
+      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
+      return await dataSourcesRedis.addVote(voteInput);
     }
   }
 };

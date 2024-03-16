@@ -69,6 +69,7 @@ type Vote {
   date: String!
   campaignID: String!
   pollID: String!
+  pollOptionID: String!
   certified: Boolean!
 }
 
@@ -78,6 +79,7 @@ input VoteInput {
   date: String!
   campaignID: String!
   pollID: String!
+  pollOptionID: String!
   certified: Boolean!
 }
 
@@ -168,14 +170,15 @@ type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
   createPoll(pollInput: PollInput): PollMutationResponse
   createPollOption(pollOptionInput: PollOptionInput): PollOptionMutationResponse
-  addVote(
-    voterID: String
-    invoice: String
-    date: String
-    campaignID: String
-    pollID: String
-    certified: Boolean
-  ): AddVoteMutationResponse
+  # addVote(
+  #   voterID: String
+  #   invoice: String
+  #   date: String
+  #   campaignID: String
+  #   pollID: String
+  #   certified: Boolean
+  # ): AddVoteMutationResponse
+  addVote(voteInput: VoteInput): AddVoteMutationResponse
   signup(userInput: UserInput): UserMutationResponse
   # signup(
   #   email: String!
