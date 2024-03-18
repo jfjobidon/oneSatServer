@@ -24,6 +24,7 @@ input CreateNewsEventInput {
 type User {
   email: String!
   name: String!
+  sats: Int!
   password: String!
   roles: [String]
   creationDate: DateScalar!
@@ -45,14 +46,37 @@ type UserMutationResponse {
   user: User
 }
 
+input FundingInput {
+  userId: String!
+  sats: Int!
+  invoice: String!
+}
+
+type Funding {
+  userId: String!
+  sats: Int!
+  invoice: String!
+  date: DateScalar!
+}
+
+type FundingMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  funding: Funding
+}
+
 type Poll {
   campaignId: String!
   title: String!
+  description: String!
+  totalSats: Int!
 }
 
 input PollInput {
   campaignId: String!
   title: String!
+  description: String!
 }
 
 type PollMutationResponse {
@@ -64,8 +88,9 @@ type PollMutationResponse {
 
 
 type Vote {
-  voterID: String!
+  userID: String!
   invoice: String!
+  sats: Int!
   date: String!
   campaignID: String!
   pollID: String!
@@ -74,8 +99,9 @@ type Vote {
 }
 
 input VoteInput {
-  voterID: String!
+  userID: String!
   invoice: String!
+  sats: Int!
   date: String!
   campaignID: String!
   pollID: String!
@@ -107,7 +133,7 @@ type Campaign {
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
-  totalSat: Int!
+  totalSats: Int!
   blindAmount: Boolean
   blindRank: Boolean
   allowMultipleVotes: Boolean
@@ -139,6 +165,7 @@ type PollOption {
   pollId: String!
   title: String!
   description: String
+  totalSats: Int
 }
 
 input PollOptionInput {
@@ -161,6 +188,7 @@ type Query {
   getUserById(id: String): User
   getUserByName(name: String): User
   getUserByEmail(email: String): User
+  getCampaignByID(id: String): Campaign
   getVoteById(id: String): Vote
   login(email: String!, password: String!): UserMutationResponse
 }
@@ -171,7 +199,7 @@ type Mutation {
   createPoll(pollInput: PollInput): PollMutationResponse
   createPollOption(pollOptionInput: PollOptionInput): PollOptionMutationResponse
   # addVote(
-  #   voterID: String
+  #   userID: String
   #   invoice: String
   #   date: String
   #   campaignID: String
@@ -187,6 +215,7 @@ type Mutation {
   #   password: String!
   # ): UserMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
+  accountFunding(fundingInput: FundingInput): FundingMutationResponse
 }
 
 type Subscription {

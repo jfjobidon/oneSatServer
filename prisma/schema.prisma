@@ -33,7 +33,7 @@ model Campaign {
   minSatPerVote       Int // default in config file
   maxSatPerVote       Int // default in config file
   suggestedSatPerVote Int // default in config file
-  totalSat            Int
+  totalSats           Int
   creationDate        DateTime // NOTE: no Default possible for related records (@default(now()))
   startingDate        DateTime
   updatedDate         DateTime
@@ -57,23 +57,37 @@ model User {
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
+  sats         Int @default(0)
+  fundings     Funding[]
   // updatedDate DateTime @updatedAt
 }
 
+model Funding {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime   @default(now())
+  invoice   String
+  sats      Int
+  author    User       @relation(fields: [authorId], references: [id])
+  authorId  String     @db.ObjectId
+}
+
 model Poll {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
-  campaignId String   @db.ObjectId
-  title      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  campaignId  String   @db.ObjectId
+  title       String
+  description String
+  totalSats   Int      @default(0)
   pollOptions PollOption[]
 }
 
 model PollOption {
-  id    String   @id @default(auto()) @map("_id") @db.ObjectId
-  poll  Poll @relation(fields: [pollId], references: [id])
-  pollId  String @db.ObjectId
-  title String
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  poll        Poll   @relation(fields: [pollId], references: [id])
+  pollId      String @db.ObjectId
+  title       String
   description String
+  totalSats   Int    @default(0)
 }
 
 // model Post {

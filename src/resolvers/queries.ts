@@ -45,6 +45,11 @@ const queries: QueryResolvers = {
     return { ...user, password: "********" }
   },
 
+  getCampaignByID: async(_, args) => {
+    const campaign = await dataSourcesMongo.getCampaignByID(args.id);
+    return campaign;
+  },
+
   getUserByName: async (_, args) => {
     const user = await dataSourcesMongo.getUserByName(args.name);
     return { ...user, password: "********" }

@@ -1,5 +1,5 @@
 
-import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse } from '../__generated__/resolvers-types';
+import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse, FundingMutationResponse } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
@@ -16,6 +16,33 @@ const jwtUtil = new JwtUtil()
 const validateVote = (vote: VoteInput): Boolean => {
   const isEmpty: Boolean = Object.values(vote).some(x => x === null || x === '');
   return isEmpty
+}
+
+const checkVoteValidity = async (voteInput: VoteInput): Promise<User> => {
+  // check if enough sats
+  let user = await dataSourcesMongo.getUserById(voteInput.userID)
+  let userSats = user.sats;
+  let voteInputSats = voteInput.sats
+  if (userSats >= voteInputSats) {
+    console.log("assez de sats")
+  } else {
+    console.log("PAS assez de sats")
+  }
+
+  // check poll parameters: min and max sat per vote
+  let campaign = await dataSourcesMongo.getCampaignByID(voteInput.campaignID);
+  console.table(campaign);
+  // TODO: WRONG: should check with Poll
+  if ((voteInputSats >= campaign.minSatPerVote) && (voteInputSats <= campaign.maxSatPerVote) )
+  {
+    console.log("sats ok for campaign")
+  } else {
+    console.log("sats NOT ok for campaign")
+  }
+
+  // check if campaign is ongoing and not paused
+
+  return user
 }
 
 // Use the generated `MutationResolvers` type to type check our mutations!
@@ -79,6 +106,14 @@ const mutations: MutationResolvers = {
 
   },
 
+  accountFunding: async (_, {fundingInput}, context): Promise<FundingMutationResponse> => {
+    console.log("account funding...")
+    console.table(context)
+    let af = await dataSourcesMongo.accountFunding(context.userid, fundingInput);
+    console.log("accountFunding return: ", af);
+    return af;
+  },
+
   createCampaign: async (_, { campaignInput }, context): Promise<CampaignMutationResponse> => {
     console.log("create campaign")
     console.table(context)
@@ -103,7 +138,8 @@ const mutations: MutationResolvers = {
     return pollOption
   },
 
-    // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
+  // TODO: transformer en ACID transaction
+  // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
     if (validateVote(voteInput)) {
@@ -114,6 +150,10 @@ const mutations: MutationResolvers = {
         vote: null
       }
     } else {
+      // check if campaign is ongoing...
+      let voteValid = await checkVoteValidity(voteInput)
+      console.log(voteValid)
+
       // possibility to filter publish: withFilter
       pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
       return await dataSourcesRedis.addVote(voteInput);

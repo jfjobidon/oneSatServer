@@ -19,8 +19,8 @@ let voteRepository = new Repository(voteSchema, redisClient)
 await voteRepository.createIndex();  // required to use search (RediSearch)
 
 export class DataSourcesRedis {
-  // async addVote(voterID: string, invoice: string, date: number, campaignID: string, certified: boolean) {
-  // async addVote({ voterID, invoice, date, campaignID, pollID, certified }: Vote): Promise<AddVoteMutationResponse> {
+  // async addVote(userID: string, invoice: string, date: number, campaignID: string, certified: boolean) {
+  // async addVote({ userID, invoice, date, campaignID, pollID, certified }: Vote): Promise<AddVoteMutationResponse> {
   async addVote(theVote: VoteInput): Promise<AddVoteMutationResponse> {
     const vote: Entity = await voteRepository.save(theVote);
     // console.log('entityId: ', vote[EntityId])

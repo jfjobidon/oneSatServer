@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOptionInput  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOptionInput, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -21,13 +21,61 @@ console.log("blindAmountDefault " + blindAmountDefault)
 console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
-import { PrismaClient } from '@prisma/client'
+import { Campaign, Funding, PrismaClient } from '@prisma/client'
 // import { describe } from "node:test";
 // import { commandOptions } from "redis";
 // import { clearScreenDown } from "readline";
 const prisma = new PrismaClient()
 
 export class DataSourcesMongo {
+
+  async accountFunding(userId: string, fundingInput: FundingInput): Promise<FundingMutationResponse> {
+    try {
+      let amountSat = fundingInput.sats;
+      const result1 = await prisma.user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          sats: {increment: amountSat}
+        }
+      })
+
+      const result = await prisma.user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          fundings: {
+            createMany: {
+              data: [
+                {
+                  invoice: fundingInput.invoice,
+                  sats: fundingInput.sats,
+                }
+              ]
+            }
+          }
+        },
+        include: {
+          fundings: true
+        }
+      })
+      return {
+        code: "200",
+        success: true,
+        message: "funding done",
+        funding: {
+          userId: userId,
+          invoice: fundingInput.invoice,
+          sats: fundingInput.sats,
+          date: result.creationDate
+        }
+      }
+    } catch(err) {
+      console.log(err)
+    }
+  }
 
   async getUsers(): Promise<User[]> {
     // console.log("getUsers: prisma findMany")
@@ -50,6 +98,12 @@ export class DataSourcesMongo {
     console.log("date user: " + user.creationDate)
     return user;
     // return null;
+  }
+
+  async getCampaignByID(campaignID: string): Promise<Campaign> {
+    const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
+    console.table(campaign);
+    return campaign;
   }
 
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
@@ -94,7 +148,7 @@ export class DataSourcesMongo {
                   minSatPerVote: minSatPerVote,
                   maxSatPerVote: maxSatPerVote,
                   suggestedSatPerVote: suggestedSatPerVote,
-                  totalSat: 0,
+                  totalSats: 0,
                   creationDate: creationDate,
                   updatedDate: creationDate,
                   startingDate: startingDate,
@@ -136,7 +190,7 @@ export class DataSourcesMongo {
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,
           suggestedSatPerVote: suggestedSatPerVote,
-          totalSat: 0,
+          totalSats: 0,
           paused: campaignPausedDefault,
           blindAmount: blindAmount,
           blindRank: blindRank,
@@ -190,7 +244,10 @@ export class DataSourcesMongo {
             createMany: {
               data: [
                 {
-                  title: pollInput.title
+                  title: pollInput.title,
+                  // description: pollInput.description,
+                  description: "test desc",
+                  totalSats: 0
                 }
               ]
             }
@@ -208,6 +265,8 @@ export class DataSourcesMongo {
           // authorId: authorId,
           campaignId: campaignId,
           title: pollInput.title,
+          description: pollInput.description,
+          totalSats: 0
         },
       }
     } catch (err) {
@@ -246,7 +305,8 @@ export class DataSourcesMongo {
         pollOption: {
           pollId: pollId,
           title: pollOptionInput.title,
-          description: pollOptionInput.description
+          description: pollOptionInput.description,
+          totalSats: 0
         }
       }
      } catch (err) {
@@ -277,7 +337,8 @@ export class DataSourcesMongo {
     // })
 
     let user = await prisma.user.create({
-      data: userInput,
+      // data: {...userInput, sats: 0},
+      data: userInput,  // sats default = 0
     })
     return {
       code: "200",
