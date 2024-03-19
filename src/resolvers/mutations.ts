@@ -13,36 +13,74 @@ import { JwtUtil } from "../utils/jwt.js";
 import { ChildProcess } from 'child_process';
 const jwtUtil = new JwtUtil()
 
-const validateVote = (vote: VoteInput): Boolean => {
-  const isEmpty: Boolean = Object.values(vote).some(x => x === null || x === '');
-  return isEmpty
-}
-
-const checkVoteValidity = async (voteInput: VoteInput): Promise<User> => {
-  // check if enough sats
-  let user = await dataSourcesMongo.getUserById(voteInput.userID)
-  let userSats = user.sats;
-  let voteInputSats = voteInput.sats
-  if (userSats >= voteInputSats) {
-    console.log("assez de sats")
+const validateVote = async (voteInput: VoteInput): Promise<Boolean> => {
+  // 1) check if voteInput is empty
+  // 2) check if user has enough sats to vote
+  // 3) check campaign parameters: min and max sat per vote
+  // 4) check campaign parameters: paused ?
+  // 5) check poll parameters: paused ?
+  const isEmpty: Boolean = Object.values(voteInput).some(x => x === null || x === '');
+  let errorMessage = "";
+  let voteValidity = true;
+  if (isEmpty) {
+    errorMessage = "vote is empty";
+    voteValidity = false;
   } else {
-    console.log("PAS assez de sats")
+    // 2) check if enough sats
+    let user = await dataSourcesMongo.getUserById(voteInput.userID);
+    let userSats = user.sats;
+    let voteInputSats = voteInput.sats
+    if (userSats < voteInputSats) {
+      console.log("PAS assez de sats");
+      voteValidity = false;
+    } else {
+      console.log("assez de sats");
+      // 3) check campaign parameters: min and max sat per vote
+      let campaign = await dataSourcesMongo.getCampaignByID(voteInput.campaignID);
+      console.table(campaign);
+      if ((voteInputSats >= campaign.minSatPerVote) && (voteInputSats <= campaign.maxSatPerVote)) {
+        console.log("sats ok for campaign");
+        // 4) check campaign parameters: paused ?
+        if (campaign.paused) {
+          console.log("Campaign Paused");
+          errorMessage = "Campaign paused";
+          voteValidity = false;
+        } else {
+          console.log("Campaign NOT paused");
+          // 5) check poll parameters: paused ?
+          let poll = await dataSourcesMongo.getPollByID(voteInput.pollID);
+          if (poll.paused) {
+            console.log("poll paused");
+            errorMessage = "poll paused";
+            voteValidity = false;
+          } else {
+            console.log("poll NOT paused");
+            // 6) check campaign dates
+            let startingDate = campaign.startingDate;
+            let endingDate = campaign.endingDate;
+            let currentDate = new Date();
+            if (currentDate < startingDate) {
+              console.log("Campaign has not started yet");
+              voteValidity = false;
+            } else {
+              if (currentDate > endingDate) {
+              console.log("Campaign has ended");
+              errorMessage = "Campaign has ended";
+              voteValidity = false;
+              } else {
+                console.log("vote is valid");
+              }
+            }
+          }
+        }
+      } else {
+        console.log("sats NOT ok for campaign");
+        errorMessage = "sats NOT ok for campaign";
+        voteValidity = false;
+      }
+    }
   }
-
-  // check poll parameters: min and max sat per vote
-  let campaign = await dataSourcesMongo.getCampaignByID(voteInput.campaignID);
-  console.table(campaign);
-  // TODO: WRONG: should check with Poll
-  if ((voteInputSats >= campaign.minSatPerVote) && (voteInputSats <= campaign.maxSatPerVote) )
-  {
-    console.log("sats ok for campaign")
-  } else {
-    console.log("sats NOT ok for campaign")
-  }
-
-  // check if campaign is ongoing and not paused
-
-  return user
+  return voteValidity;
 }
 
 // Use the generated `MutationResolvers` type to type check our mutations!
@@ -60,7 +98,7 @@ const mutations: MutationResolvers = {
     console.log("mutation signup....")
     const salt = bcrypt.genSaltSync(saltRounds);
     const hashPassword = bcrypt.hashSync(userInput.password, salt);
-    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: hashPassword});
+    const userMutationResponse = await dataSourcesMongo.signup({ ...userInput, password: hashPassword });
     const token = await jwtUtil.sign();
     return {
       code: userMutationResponse.code,
@@ -69,7 +107,7 @@ const mutations: MutationResolvers = {
       token: token,
       user: userMutationResponse.user
     }
-    
+
     // REVIEW: refaire en sync
     // https://www.npmjs.com/package/bcrypt
 
@@ -86,27 +124,27 @@ const mutations: MutationResolvers = {
     // });
     // bcrypt.genSalt(saltRounds).then(
     //   salt => bcrypt.hash(password, salt).then(
-        // hashPassword => dataSourcesMongo.signup({ name: name, email: email, password: hashPassword }).then(
-        //   () => {
-        //     return {
-        //       token: "jfdkalflkja",
-        //       user: {
-        //         email: email,
-        //         name: name,
-        //         password: hashPassword
-        //       }
-        //     }
-        //   }
-        // )
-        // hashPassword => ()
-        //    return dataSourcesMongo.signup({ name: name, email: email, password: hashPassword })
-        // }
+    // hashPassword => dataSourcesMongo.signup({ name: name, email: email, password: hashPassword }).then(
+    //   () => {
+    //     return {
+    //       token: "jfdkalflkja",
+    //       user: {
+    //         email: email,
+    //         name: name,
+    //         password: hashPassword
+    //       }
+    //     }
+    //   }
+    // )
+    // hashPassword => ()
+    //    return dataSourcesMongo.signup({ name: name, email: email, password: hashPassword })
+    // }
     //   )
     // )
 
   },
 
-  accountFunding: async (_, {fundingInput}, context): Promise<FundingMutationResponse> => {
+  accountFunding: async (_, { fundingInput }, context): Promise<FundingMutationResponse> => {
     console.log("account funding...")
     console.table(context)
     let af = await dataSourcesMongo.accountFunding(context.userid, fundingInput);
@@ -117,7 +155,7 @@ const mutations: MutationResolvers = {
   createCampaign: async (_, { campaignInput }, context): Promise<CampaignMutationResponse> => {
     console.log("create campaign")
     console.table(context)
-    let c =  await dataSourcesMongo.createCampaign(context.userid, campaignInput);
+    let c = await dataSourcesMongo.createCampaign(context.userid, campaignInput);
     console.log("createCampaign return: ", c)
     return c
   },
@@ -125,7 +163,7 @@ const mutations: MutationResolvers = {
   createPoll: async (_, { pollInput }, context): Promise<PollMutationResponse> => {
     console.log("create poll")
     console.log(context)
-    let p =  await dataSourcesMongo.createPoll(context.userid, pollInput);
+    let p = await dataSourcesMongo.createPoll(context.userid, pollInput);
     console.log("createPoll return: ", p)
     return p
   },
@@ -133,7 +171,7 @@ const mutations: MutationResolvers = {
   createPollOption: async (_, { pollOptionInput }, context): Promise<PollOptionMutationResponse> => {
     console.log("create poll option")
     console.log(context)
-    let pollOption =  await dataSourcesMongo.createPollOption(context.userid, pollOptionInput);
+    let pollOption = await dataSourcesMongo.createPollOption(context.userid, pollOptionInput);
     console.log("createPollOption return: ", pollOption)
     return pollOption
   },
@@ -142,21 +180,26 @@ const mutations: MutationResolvers = {
   // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
-    if (validateVote(voteInput)) {
+    let voteValid = await validateVote(voteInput);
+    // console.table(error)
+    if (voteValid) {
+      console.log("VOTE NOT VALID")
+      return {
+        code: "200",
+        success: true,
+        message: "Vote added",
+        vote: null
+      }
+    } else {
       return {
         code: "400",
         success: false,
         message: "Problem adding new vote!",
         vote: null
       }
-    } else {
-      // check if campaign is ongoing...
-      let voteValid = await checkVoteValidity(voteInput)
-      console.log(voteValid)
-
       // possibility to filter publish: withFilter
-      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
-      return await dataSourcesRedis.addVote(voteInput);
+      // pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
+      // return await dataSourcesRedis.addVote(voteInput);
     }
   }
 };

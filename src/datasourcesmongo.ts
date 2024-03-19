@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOptionInput, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOptionInput, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -104,6 +104,12 @@ export class DataSourcesMongo {
     const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
     console.table(campaign);
     return campaign;
+  }
+
+  async getPollByID(pollID: string): Promise<Poll> {
+    const poll = await prisma.poll.findUnique({ where: {id: pollID} });
+    console.table(poll);
+    return poll;
   }
 
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
@@ -247,7 +253,8 @@ export class DataSourcesMongo {
                   title: pollInput.title,
                   // description: pollInput.description,
                   description: "test desc",
-                  totalSats: 0
+                  totalSats: 0,
+                  paused: false
                 }
               ]
             }
@@ -266,7 +273,8 @@ export class DataSourcesMongo {
           campaignId: campaignId,
           title: pollInput.title,
           description: pollInput.description,
-          totalSats: 0
+          totalSats: 0,
+          paused: false
         },
       }
     } catch (err) {

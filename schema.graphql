@@ -71,6 +71,7 @@ type Poll {
   title: String!
   description: String!
   totalSats: Int!
+  paused: Boolean!
 }
 
 input PollInput {

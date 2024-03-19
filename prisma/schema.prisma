@@ -71,6 +71,7 @@ model Funding {
   authorId  String     @db.ObjectId
 }
 
+// REVIEW: change default minSatPerVote and maxSatsPerVote ?
 model Poll {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   campaign    Campaign @relation(fields: [campaignId], references: [id])
@@ -78,6 +79,7 @@ model Poll {
   title       String
   description String
   totalSats   Int      @default(0)
+  paused      Boolean  @default(false)
   pollOptions PollOption[]
 }
 
