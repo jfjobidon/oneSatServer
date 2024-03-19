@@ -103,7 +103,6 @@ input VoteInput {
   userID: String!
   invoice: String!
   sats: Int!
-  date: String!
   campaignID: String!
   pollID: String!
   pollOptionID: String!
@@ -111,7 +110,7 @@ input VoteInput {
 }
 
 type AddVoteMutationResponse {
-  code: String!
+  code: Int!
   success: Boolean!
   message: String!
   vote: Vote

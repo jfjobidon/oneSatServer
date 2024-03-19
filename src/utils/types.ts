@@ -3,3 +3,9 @@ export enum Role {
     ADMIN,
     SUPERADMIN
 }
+
+export type responseObject = {
+    code: number;
+    success: boolean;
+    message: string;
+}

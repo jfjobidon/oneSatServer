@@ -30,14 +30,14 @@ export class DataSourcesRedis {
     const exists = await redisClient.exists(vote[EntityKeyName])
     if (exists) {
       return {
-        code: "200",
+        code: 200,
         success: true,
         message: "New vote added!",
         vote: Object(vote), // vote is of type Symbol
       }
     } else {
       return {
-        code: "400",
+        code: 400,
         success: false,
         message: "Problem adding new vote!",
         vote: null

@@ -11,76 +11,110 @@ import bcrypt from "bcrypt";
 const saltRounds = 10;
 import { JwtUtil } from "../utils/jwt.js";
 import { ChildProcess } from 'child_process';
-const jwtUtil = new JwtUtil()
+const jwtUtil = new JwtUtil();
+import { responseObject } from '../utils/types';
 
-const validateVote = async (voteInput: VoteInput): Promise<Boolean> => {
+
+
+const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
   // 1) check if voteInput is empty
   // 2) check if user has enough sats to vote
-  // 3) check campaign parameters: min and max sat per vote
-  // 4) check campaign parameters: paused ?
+  // 3) check campaign parameters: min sat per vote
+  // 4) check campaign parameters: max sat per vote
   // 5) check poll parameters: paused ?
+  // 6) check campaign parameters: paused ?
+  // 7) check campaign dates: has started
+  // 8) check campaign dates: has ended
+
+  let response: responseObject = {
+    code: 200,
+    success: true,
+    message: "vote is valid"
+  }
+
+  // 1) check if voteInput is empty
   const isEmpty: Boolean = Object.values(voteInput).some(x => x === null || x === '');
-  let errorMessage = "";
-  let voteValidity = true;
   if (isEmpty) {
-    errorMessage = "vote is empty";
-    voteValidity = false;
+    response.message = "vote is empty";
+    console.log(response.message);
+    response.success = false;
+    response.code = 400;
   } else {
     // 2) check if enough sats
     let user = await dataSourcesMongo.getUserById(voteInput.userID);
     let userSats = user.sats;
     let voteInputSats = voteInput.sats
     if (userSats < voteInputSats) {
-      console.log("PAS assez de sats");
-      voteValidity = false;
+      response.message = `You dont have enough sats to vote: you have ${userSats}, you need ${voteInput.sats}`;
+      console.log(response.message);
+      response.success = false;
+      response.code = 400;
     } else {
-      console.log("assez de sats");
-      // 3) check campaign parameters: min and max sat per vote
+      // console.log("enough sats");
       let campaign = await dataSourcesMongo.getCampaignByID(voteInput.campaignID);
       console.table(campaign);
-      if ((voteInputSats >= campaign.minSatPerVote) && (voteInputSats <= campaign.maxSatPerVote)) {
-        console.log("sats ok for campaign");
-        // 4) check campaign parameters: paused ?
-        if (campaign.paused) {
-          console.log("Campaign Paused");
-          errorMessage = "Campaign paused";
-          voteValidity = false;
+      // 3) check campaign parameters: min sat per vote
+      if (voteInputSats < campaign.minSatPerVote) {
+        response.message = `vote should be at least ${campaign.minSatPerVote} sats`;
+        console.log(response.message);
+        response.success = false;
+        response.code = 400;
+      } else {
+        // vote has >= minimum sats per vote
+        // 4) check campaign parameters: max sat per vote
+        if (voteInputSats > campaign.maxSatPerVote) {
+          response.message = `vote should be at max ${campaign.maxSatPerVote} sats`;
+          console.log(response.message);
+          response.success = false;
+          response.code = 400;
         } else {
-          console.log("Campaign NOT paused");
+          // vote has <= maximum sats per vote
+          // console.log("sats ok for campaign");
           // 5) check poll parameters: paused ?
           let poll = await dataSourcesMongo.getPollByID(voteInput.pollID);
           if (poll.paused) {
-            console.log("poll paused");
-            errorMessage = "poll paused";
-            voteValidity = false;
+            response.message = "Poll is Paused";
+            console.log(response.message);
+            response.success = false;
+            response.code = 400;
           } else {
-            console.log("poll NOT paused");
-            // 6) check campaign dates
-            let startingDate = campaign.startingDate;
-            let endingDate = campaign.endingDate;
-            let currentDate = new Date();
-            if (currentDate < startingDate) {
-              console.log("Campaign has not started yet");
-              voteValidity = false;
+            // console.log("Campaign is NOT paused");
+            // 6) check campaign parameters: paused ?
+            if (campaign.paused) {
+              response.message = "Campaign is Paused";
+              console.log(response.message);
+              response.success = false;
+              response.code = 400;
             } else {
-              if (currentDate > endingDate) {
-              console.log("Campaign has ended");
-              errorMessage = "Campaign has ended";
-              voteValidity = false;
+              // console.log("poll is NOT paused");
+              // 7) check campaign dates: has started
+              let startingDate = campaign.startingDate;
+              let endingDate = campaign.endingDate;
+              let currentDate = new Date();
+              if (currentDate < startingDate) {
+                response.message = "Campaign has not started yet"
+                console.log(response.message);
+                response.success = false;
+                response.code = 400;
               } else {
-                console.log("vote is valid");
+                // 8) check campaign dates: has ended
+                if (currentDate > endingDate) {
+                  response.message = "Campaign has ended"
+                  console.log(response.message);
+                  response.success = false;
+                  response.code = 400;
+                } else {
+                  console.log(response.message);
+                }
               }
             }
           }
         }
-      } else {
-        console.log("sats NOT ok for campaign");
-        errorMessage = "sats NOT ok for campaign";
-        voteValidity = false;
       }
     }
   }
-  return voteValidity;
+  // console.log(response.message);
+  return response;
 }
 
 // Use the generated `MutationResolvers` type to type check our mutations!
@@ -180,21 +214,23 @@ const mutations: MutationResolvers = {
   // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
-    let voteValid = await validateVote(voteInput);
+    let responseObject = await validateVote(voteInput);
     // console.table(error)
-    if (voteValid) {
-      console.log("VOTE NOT VALID")
+    if (responseObject.success) {
+      console.log("VOTE IS VALID");
       return {
-        code: "200",
+        code: 200,
         success: true,
         message: "Vote added",
         vote: null
       }
     } else {
+      console.log("VOTE IS NOT VALID");
+      console.log(responseObject.message)
       return {
-        code: "400",
+        code: responseObject.code,
         success: false,
-        message: "Problem adding new vote!",
+        message: responseObject.message,
         vote: null
       }
       // possibility to filter publish: withFilter
