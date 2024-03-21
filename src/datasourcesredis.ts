@@ -12,28 +12,40 @@ console.log('redis PING: ', aString)
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
 // import { voteSchema } from './schema.redis.js';
-import { voteSchema } from './schema.redis.js';
+import { voteSchema, satsPollOptionSchema, satsPollSchema, satsCampaignSchema } from './schema.redis.js';
 
-let voteRepository = new Repository(voteSchema, redisClient)
+let voteRepository = new Repository(voteSchema, redisClient);
 // await voteRepository.dropIndex();
 await voteRepository.createIndex();  // required to use search (RediSearch)
+
+let satsPollOptionRepository = new Repository(satsPollOptionSchema, redisClient);
+await satsPollOptionRepository.createIndex();
+let satsPollRepository = new Repository(satsPollSchema, redisClient);
+await satsPollRepository.createIndex();
+let satsCampaignRepository   = new Repository(satsCampaignSchema, redisClient);
+await satsCampaignRepository.createIndex();
 
 export class DataSourcesRedis {
   // async addVote(userID: string, invoice: string, date: number, campaignID: string, certified: boolean) {
   // async addVote({ userID, invoice, date, campaignID, pollID, certified }: Vote): Promise<AddVoteMutationResponse> {
-  async addVote(theVote: VoteInput): Promise<AddVoteMutationResponse> {
-    const vote: Entity = await voteRepository.save(theVote);
+  async addVote(voteInput: VoteInput): Promise<AddVoteMutationResponse> {
+    // TODO: tester createAndSave
+    // const vote: Entity = await voteRepository.save(voteInput);
+    // console.table(vote);
     // console.log('entityId: ', vote[EntityId])
     // console.log('entityKeyName: ', vote[EntityKeyName])
-    console.table(vote)
     // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
-    const exists = await redisClient.exists(vote[EntityKeyName])
+    // const exists = await redisClient.exists(vote[EntityKeyName])
+    const exists = true;
     if (exists) {
+      await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
+      await this.incrPoll(voteInput.pollID, voteInput.sats);
+      await this.incrCampaign(voteInput.campaignID, voteInput.sats);
       return {
         code: 200,
         success: true,
         message: "New vote added!",
-        vote: Object(vote), // vote is of type Symbol
+        vote: null //Object(vote), // vote is of type Symbol
       }
     } else {
       return {
@@ -44,6 +56,89 @@ export class DataSourcesRedis {
       }
     }
   }
+
+  async incrPollOption(pollOptionID: string, sats: number): Promise<Boolean> {  
+    try {
+      console.log(pollOptionID);
+      const pollOption: Entity[] = await satsPollOptionRepository.search().where('pollOptionID').equals(pollOptionID).return.all();
+      console.log(pollOption);
+      if (pollOption.length == 0) {
+        console.log("pollOption empty");
+        const pollOption2: Entity = await satsPollOptionRepository.save({"pollOptionID": pollOptionID, totalSats: sats});
+        console.log(pollOption2);
+      } else {
+        pollOption[0].totalSats = (sats + parseInt(pollOption[0].totalSats.toString()));
+        satsPollOptionRepository.save(pollOption[0]);
+      }
+    } catch(err) {
+      console.error(err);
+    }
+    // other way to do it:
+    // let pollOption0 = pollOption2[0]
+    // let entityID = pollOption0[EntityId];
+    // const pollop = await satsPollOptionRepository.fetch(entityID);
+    // pollop.totalSats = (sats + parseInt(pollop.totalSats.toString()));
+    // satsPollOptionRepository.save(pollop);
+    return true;
+  }
+
+  // TODO: DEBUG: le search ne fonctionne pas !!!
+  async incrPoll(pollID: string, sats: number): Promise<Boolean> {  
+    try {
+      console.log(pollID);
+      const poll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
+      console.log(poll);
+      if (poll.length == 0) {
+        console.log("poll empty");
+        const poll2: Entity = await satsPollRepository.save({"pollID": pollID, totalSats: sats});
+        console.log(poll2);
+      } else {
+        poll[0].totalSats = (sats + parseInt(poll[0].totalSats.toString()));
+        satsPollRepository.save(poll[0]);
+      }
+    } catch(err) {
+      console.error(err);
+    }
+    return true;
+  }
+
+  async incrCampaign(campaignID: string, sats: number): Promise<Boolean> {  
+    try {
+      console.log(campaignID);
+      const campaign: Entity[] = await satsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+      console.log(campaign);
+      if (campaign.length == 0) {
+        console.log("campaign empty");
+        const campaign2: Entity = await satsCampaignRepository.save({"campaignID": campaignID, totalSats: sats});
+        console.log(campaign2);
+      } else {
+        campaign[0].totalSats = (sats + parseInt(campaign[0].totalSats.toString()));
+        satsCampaignRepository.save(campaign[0]);
+      }
+    } catch(err) {
+      console.error(err);
+    }
+    return true;
+  }
+
+  // async incrPoll(pollID: string, sats: number): Promise<Boolean> {  
+  //   try {
+  //     console.log(pollID);
+  //     const poll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
+  //     console.log(poll);
+  //     if (poll.length == 0) {
+  //       console.log("poll empty");
+  //       const poll2: Entity = await satsPollRepository.save({"pollID": pollID, totalSats: sats});
+  //       console.log(poll2);
+  //     } else {
+  //       poll[0].totalSats = (sats + parseInt(poll[0].totalSats.toString()));
+  //       satsPollRepository.save(poll[0]);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  //   return true;
+  // }
 
   async getVotes(): Promise<GetVotesQueryResponse> {
     console.log("in getVotes...")

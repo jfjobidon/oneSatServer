@@ -14,7 +14,17 @@ import { ChildProcess } from 'child_process';
 const jwtUtil = new JwtUtil();
 import { responseObject } from '../utils/types';
 
-
+// TODO: un/pause campaign
+//       un/pause poll
+// cron job: campaign ended: send 50% sats to user
+// check addVote: increment: pollOprion, Poll, Camapaign (and user ?)
+// modifier la campagne tant qu'elle n'est pas lancée ?
+// ajouter un filtre pour les subscriptions aux votes
+// script simulation votes pour une campaign
+// vérifier multiple votes...
+// produire rapport PDF votes de la campagne
+// add subscription poll, pollOption, campaign pour chaque voteur
+// add subscription : how much sats you make 
 
 const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
   // 1) check if voteInput is empty
@@ -214,16 +224,26 @@ const mutations: MutationResolvers = {
   // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
-    let responseObject = await validateVote(voteInput);
-    // console.table(error)
+    // let responseObject = await validateVote(voteInput);
+    let responseObject = {  // DEBUG: REVIEW: delete this object
+      success: true,
+      code: 200,
+      message: "ok"
+    }
     if (responseObject.success) {
       console.log("VOTE IS VALID");
-      return {
-        code: 200,
-        success: true,
-        message: "Vote added",
-        vote: null
-      }
+      // possibility to filter publish: withFilter
+      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
+      // 1) add vote in redis db
+      return await dataSourcesRedis.addVote(voteInput);
+      // 2) update totalSats in poll
+      // 3) update totalSats in campaign
+      // return {
+      //   code: 200,
+      //   success: true,
+      //   message: "Vote added",
+      //   vote: null
+      // }
     } else {
       console.log("VOTE IS NOT VALID");
       console.log(responseObject.message)
@@ -233,9 +253,6 @@ const mutations: MutationResolvers = {
         message: responseObject.message,
         vote: null
       }
-      // possibility to filter publish: withFilter
-      // pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
-      // return await dataSourcesRedis.addVote(voteInput);
     }
   }
 };
