@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -104,19 +104,27 @@ export class DataSourcesMongo {
     console.log("in getPollOption");
     // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionID}});
     const pollOption = await prisma.pollOption.findUnique({ where: { id: pollOptionID}});
-    console.log(pollOption);
+    // console.log(pollOption);
     return pollOption;
   }
 
   async getCampaign(campaignID: string): Promise<Campaign> {
     const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
-    console.table(campaign);
+    // console.table(campaign);
+    return campaign;
+  }
+
+  async getCampaignAll(campaignID: string): Promise<CampaignAll> {
+    const campaign: CampaignAll = await prisma.campaign.findUnique({ where: {id: campaignID} });
+    // console.table(campaign);
+    const polls = await this.getPollsAllForCampaign(campaignID);
+    campaign.pollsAll = polls;
     return campaign;
   }
 
   async getPoll(pollID: string): Promise<Poll> {
     const poll = await prisma.poll.findUnique({ where: {id: pollID} });
-    console.table(poll);
+    // console.table(poll);
     return poll;
   }
 
@@ -126,6 +134,23 @@ export class DataSourcesMongo {
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignID}});
     const polls = await prisma.poll.findMany({ where: {campaignId: campaignID} });
     return polls;
+  }
+
+  async getPollsAllForCampaign(campaignID: string): Promise<PollAll[]> {
+    // const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
+    // return campaign.polls;
+    // const polls = await prisma.poll.findMany({ where: {campaignId: campaignID}});
+    const pollsAll: PollAll[] = await prisma.poll.findMany({ where: {campaignId: campaignID} });
+    // pollsAll.forEach(poll => {
+    for (const pollAll of pollsAll) {
+      // console.table(pollAll);
+      // poll.pollOptions = await this.getPollOptionsForPoll(poll.id);
+      const pollOptions = await this.getPollOptionsForPoll(pollAll.id);
+      // console.table(pollOptions);
+      pollAll.pollOptions = pollOptions;
+      // const pollOptions = await this.getPollOptionsForPoll(pollAll.id);
+    };
+    return pollsAll;
   }
 
   async getPollOptionsForPoll(pollID: string): Promise<PollOption[]> {

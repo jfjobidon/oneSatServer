@@ -74,6 +74,16 @@ type Poll {
   paused: Boolean!
 }
 
+type PollAll {
+  id: String
+  campaignId: String!
+  title: String!
+  description: String!
+  totalSats: Int!
+  paused: Boolean!
+  pollOptions: [PollOption]
+}
+
 input PollInput {
   campaignId: String!
   title: String!
@@ -140,6 +150,27 @@ type Campaign {
   paused: Boolean
 }
 
+type CampaignAll {
+  authorId: String!
+  title: String!
+  question: String!
+  description: String!
+  message: String
+  creationDate: DateScalar!
+  startingDate: DateScalar!
+  endingDate: DateScalar!
+  updatedDate: DateScalar!
+  minSatPerVote: Int
+  maxSatPerVote: Int
+  suggestedSatPerVote: Int
+  totalSats: Int!
+  blindAmount: Boolean
+  blindRank: Boolean
+  allowMultipleVotes: Boolean
+  paused: Boolean
+  pollsAll: [PollAll]
+}
+
 input CampaignInput {
   title: String!
   question: String!
@@ -188,8 +219,9 @@ type Query {
   getUserById(id: String): User
   getUserByName(name: String): User
   getUserByEmail(email: String): User
-  getCampaign(id: String): Campaign
   getPollOption(id: String): PollOption
+  getCampaign(id: String): Campaign
+  getCampaignAll(id: String): CampaignAll
   getPoll(id: String): Poll
   getPollsForCampaign(campaignId: String): [Poll]
   getPollOptionsForPoll(pollId: String): [PollOption]
