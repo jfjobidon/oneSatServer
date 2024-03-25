@@ -16,6 +16,8 @@ import { responseObject } from '../utils/types';
 
 // TODO: un/pause campaign
 //       un/pause poll
+// getPollsForCampaign  <-- TODO:
+// getPollOptionsForPoll
 // cron job: campaign ended: send 50% sats to user
 // check addVote for user
 // modifier la campagne tant qu'elle n'est pas lancée ?

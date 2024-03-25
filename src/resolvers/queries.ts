@@ -65,6 +65,11 @@ const queries: QueryResolvers = {
     return poll;
   },
 
+  getPollsForCampaign: async (_, args) => {
+    const polls = await dataSourcesMongo.getPollsForCampaign(args.campaignId);
+    return polls;
+  },
+
   getUserByEmail: async (_, args, contextValue) => {
     console.log("contextValue: ", contextValue.token)
     // TODO: check permissions...

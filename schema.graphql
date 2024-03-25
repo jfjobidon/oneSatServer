@@ -191,6 +191,7 @@ type Query {
   getCampaign(id: String): Campaign
   getPollOption(id: String): PollOption
   getPoll(id: String): Poll
+  getPollsForCampaign(campaignId: String): [Poll]
   getVoteById(id: String): Vote
   login(email: String!, password: String!): UserMutationResponse
 }
