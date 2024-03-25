@@ -188,7 +188,7 @@ type Query {
   getUserById(id: String): User
   getUserByName(name: String): User
   getUserByEmail(email: String): User
-  getCampaignByID(id: String): Campaign
+  getCampaign(id: String): Campaign
   getPollOption(id: String): PollOption
   getPoll(id: String): Poll
   getVoteById(id: String): Vote

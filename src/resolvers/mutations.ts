@@ -61,7 +61,7 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
       response.code = 400;
     } else {
       // console.log("enough sats");
-      let campaign = await dataSourcesMongo.getCampaignByID(voteInput.campaignID);
+      let campaign = await dataSourcesMongo.getCampaign(voteInput.campaignID);
       console.table(campaign);
       // 3) check campaign parameters: min sat per vote
       if (voteInputSats < campaign.minSatPerVote) {
