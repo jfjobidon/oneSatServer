@@ -81,7 +81,7 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
           // vote has <= maximum sats per vote
           // console.log("sats ok for campaign");
           // 5) check poll parameters: paused ?
-          let poll = await dataSourcesMongo.getPollByID(voteInput.pollID);
+          let poll = await dataSourcesMongo.getPoll(voteInput.pollID);
           if (poll.paused) {
             response.message = "Poll is Paused";
             console.log(response.message);

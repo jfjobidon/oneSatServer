@@ -190,6 +190,7 @@ type Query {
   getUserByEmail(email: String): User
   getCampaignByID(id: String): Campaign
   getPollOption(id: String): PollOption
+  getPoll(id: String): Poll
   getVoteById(id: String): Vote
   login(email: String!, password: String!): UserMutationResponse
 }

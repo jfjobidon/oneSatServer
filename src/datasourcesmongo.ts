@@ -114,7 +114,7 @@ export class DataSourcesMongo {
     return campaign;
   }
 
-  async getPollByID(pollID: string): Promise<Poll> {
+  async getPoll(pollID: string): Promise<Poll> {
     const poll = await prisma.poll.findUnique({ where: {id: pollID} });
     console.table(poll);
     return poll;
