@@ -41,7 +41,7 @@ model Campaign {
   blindAmount         Boolean
   blindRank           Boolean
   allowMultipleVotes  Boolean
-  paused              Boolean
+  paused              Boolean @default(false) // REVIEW: how to get the variable from config file ?
   // updatedAt DateTime @updatedAt
   // xyz      String @unique @default(uuid())
 }

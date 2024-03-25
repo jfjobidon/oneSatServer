@@ -34,7 +34,8 @@ export const permissions = shield({
   Query: {
     getUsers: isAdmin,
     getUserById: isAdmin,
-    getUserByEmail: isUser
+    getUserByEmail: isUser,
+    // getPollOption: isUser
   },
   Mutation: {
     createCampaign: isUser,

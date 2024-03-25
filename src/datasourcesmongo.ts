@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOptionInput, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
 
 // // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -98,6 +98,14 @@ export class DataSourcesMongo {
     console.log("date user: " + user.creationDate)
     return user;
     // return null;
+  }
+
+  async getPollOption(pollOptionID: string): Promise<PollOption> {
+    console.log("in getPollOption");
+    // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionID}});
+    const pollOption = await prisma.pollOption.findUnique({ where: { id: pollOptionID}});
+    console.log(pollOption);
+    return pollOption;
   }
 
   async getCampaignByID(campaignID: string): Promise<Campaign> {

@@ -73,7 +73,7 @@ export class DataSourcesRedis {
     } catch(err) {
       console.error(err);
     }
-    // other way to do it:
+    // REVIEW: other way to do it:
     // let pollOption0 = pollOption2[0]
     // let entityID = pollOption0[EntityId];
     // const pollop = await satsPollOptionRepository.fetch(entityID);

@@ -17,7 +17,7 @@ import { responseObject } from '../utils/types';
 // TODO: un/pause campaign
 //       un/pause poll
 // cron job: campaign ended: send 50% sats to user
-// check addVote: increment: pollOprion, Poll, Camapaign (and user ?)
+// check addVote for user
 // modifier la campagne tant qu'elle n'est pas lancée ?
 // ajouter un filtre pour les subscriptions aux votes
 // script simulation votes pour une campaign
