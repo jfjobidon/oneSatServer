@@ -124,8 +124,13 @@ export class DataSourcesMongo {
     // const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
     // return campaign.polls;
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignID}});
-    const polls = await prisma.poll.findMany({});
+    const polls = await prisma.poll.findMany({ where: {campaignId: campaignID} });
     return polls;
+  }
+
+  async getPollOptionsForPoll(pollID: string): Promise<PollOption[]> {
+    const pollOptions = await prisma.pollOption.findMany({ where: {pollId: pollID} });
+    return pollOptions;
   }
 
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
