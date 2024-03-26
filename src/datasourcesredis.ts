@@ -6,9 +6,11 @@ const redisClient = createClient({
     password: 'rRTGwNDL7a'
 })
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
-await redisClient.connect()
-const aString = await redisClient.ping()
-console.log('redis PING: ', aString)
+await redisClient.connect();
+const aString = await redisClient.ping();
+console.log('redis PING: ', aString);
+
+import randomstring from "randomstring";
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
 // import { voteSchema } from './schema.redis.js';
@@ -30,13 +32,16 @@ export class DataSourcesRedis {
   // async addVote({ userID, invoice, date, campaignID, pollID, certified }: Vote): Promise<AddVoteMutationResponse> {
   async addVote(voteInput: VoteInput): Promise<AddVoteMutationResponse> {
     // TODO: tester createAndSave
-    // const vote: Entity = await voteRepository.save(voteInput);
-    // console.table(vote);
-    // console.log('entityId: ', vote[EntityId])
-    // console.log('entityKeyName: ', vote[EntityKeyName])
+    const voteCode = randomstring.generate(12);
+    console.log(voteCode);
+    const currentDate = new Date;
+    const vote: Entity = await voteRepository.save({...voteInput, voteCode: voteCode, date: currentDate.toString() });
+    console.table(vote);
+    console.log('entityId: ', vote[EntityId])
+    console.log('entityKeyName: ', vote[EntityKeyName])
     // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
-    // const exists = await redisClient.exists(vote[EntityKeyName])
-    const exists = true;
+    const exists = await redisClient.exists(vote[EntityKeyName])
+    // const exists = true;
     if (exists) {
       await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
       await this.incrPoll(voteInput.pollID, voteInput.sats);
@@ -45,7 +50,7 @@ export class DataSourcesRedis {
         code: 200,
         success: true,
         message: "New vote added!",
-        vote: null //Object(vote), // vote is of type Symbol
+        vote: Object(vote), // vote is of type Symbol
       }
     } else {
       return {

@@ -234,16 +234,9 @@ const mutations: MutationResolvers = {
       console.log("VOTE IS VALID");
       // possibility to filter publish: withFilter
       pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
-      // 1) add vote in redis db
-      return await dataSourcesRedis.addVote(voteInput);
-      // 2) update totalSats in poll
-      // 3) update totalSats in campaign
-      // return {
-      //   code: 200,
-      //   success: true,
-      //   message: "Vote added",
-      //   vote: null
-      // }
+      let vote = await dataSourcesRedis.addVote(voteInput);
+      console.table(vote);
+      return vote;
     } else {
       console.log("VOTE IS NOT VALID");
       console.log(responseObject.message)

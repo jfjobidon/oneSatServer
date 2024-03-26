@@ -5,6 +5,7 @@ import { Schema } from 'redis-om';
 // export const voteSchema = new Schema('vote', {
 export const voteSchema = new Schema('vote', {
   userID: { type: 'string' },
+  voteCode: { type: 'string'},
   invoice: { type: 'string' },
   date: { type: 'string' },
   campaignID: { type: 'string'},

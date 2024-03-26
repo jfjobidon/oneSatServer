@@ -21,11 +21,11 @@ console.log("blindAmountDefault " + blindAmountDefault)
 console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
-import { Campaign, Funding, PrismaClient } from '@prisma/client'
+import { Campaign, Funding, PrismaClient } from '@prisma/client';
 // import { describe } from "node:test";
 // import { commandOptions } from "redis";
 // import { clearScreenDown } from "readline";
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export class DataSourcesMongo {
 

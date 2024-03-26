@@ -97,9 +97,9 @@ type PollMutationResponse {
   poll: Poll
 }
 
-
 type Vote {
   userID: String!
+  voteCode: String!
   invoice: String!
   sats: Int!
   date: String!
