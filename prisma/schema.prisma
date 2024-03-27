@@ -29,19 +29,19 @@ model Campaign {
   question            String
   description         String
   message             String?
-  polls               Poll[]
+  creationDate        DateTime // NOTE: no Default possible for related records (@default(now()))
+  startingDate        DateTime
+  endingDate          DateTime
+  updatedDate         DateTime
   minSatPerVote       Int // default in config file
   maxSatPerVote       Int // default in config file
   suggestedSatPerVote Int // default in config file
   totalSats           Int
-  creationDate        DateTime // NOTE: no Default possible for related records (@default(now()))
-  startingDate        DateTime
-  updatedDate         DateTime
-  endingDate          DateTime
   blindAmount         Boolean
   blindRank           Boolean
   allowMultipleVotes  Boolean
   paused              Boolean @default(false) // REVIEW: how to get the variable from config file ?
+  polls               Poll[]
   // updatedAt DateTime @updatedAt
   // xyz      String @unique @default(uuid())
 }
@@ -53,7 +53,8 @@ model User {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   email        String     @unique
   name         String     @unique
-  password     String?
+  password     String
+  userCode     String
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())

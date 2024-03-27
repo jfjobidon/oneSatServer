@@ -13,6 +13,7 @@ import { JwtUtil } from "../utils/jwt.js";
 import { ChildProcess } from 'child_process';
 const jwtUtil = new JwtUtil();
 import { responseObject } from '../utils/types';
+import randomstring from "randomstring";
 
 // TODO: un/pause campaign
 //       un/pause poll
@@ -141,8 +142,9 @@ const mutations: MutationResolvers = {
   signup: async (_, { userInput }): Promise<UserMutationResponse> => {
     console.log("mutation signup....")
     const salt = bcrypt.genSaltSync(saltRounds);
-    const hashPassword = bcrypt.hashSync(userInput.password, salt);
-    const userMutationResponse = await dataSourcesMongo.signup({ ...userInput, password: hashPassword });
+    const userCode = randomstring.generate(12);
+    const passwordCrypt = bcrypt.hashSync(userInput.password, salt);
+    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: passwordCrypt}, userCode);
     const token = await jwtUtil.sign();
     return {
       code: userMutationResponse.code,

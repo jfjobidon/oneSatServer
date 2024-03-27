@@ -24,10 +24,13 @@ input CreateNewsEventInput {
 type User {
   email: String!
   name: String!
-  sats: Int!
   password: String!
+  userCode: String!
   roles: [String]
+  campaigns: [Campaign]
   creationDate: DateScalar!
+  sats: Int!
+  fundings: [Funding]
   # updatedDate: String!
 }
 
@@ -234,14 +237,6 @@ type Mutation {
   createNewsEvent(title: String, description: String): NewsEvent
   createPoll(pollInput: PollInput): PollMutationResponse
   createPollOption(pollOptionInput: PollOptionInput): PollOptionMutationResponse
-  # addVote(
-  #   userID: String
-  #   invoice: String
-  #   date: String
-  #   campaignID: String
-  #   pollID: String
-  #   certified: Boolean
-  # ): AddVoteMutationResponse
   addVote(voteInput: VoteInput): AddVoteMutationResponse
   signup(userInput: UserInput): UserMutationResponse
   # signup(

@@ -4,7 +4,7 @@ import config from "config";
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
 import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
 
-// // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
+// const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
 const minSatPerVoteDefault = config.get<string>('minSatPerVoteDefault') 
 const maxSatPerVoteDefault = config.get<string>('maxSatPerVoteDefault') 
@@ -378,43 +378,23 @@ export class DataSourcesMongo {
     // return null;
   }
 
-  async signup(userInput: UserInput): Promise<UserMutationResponse> {
-    // await prisma.user.create({
-    //   data: user,
-    // }).then((userx) => {
-    //   return {
-    //     code: "200",
-    //     success: true,
-    //     message: "New user created!",
-    //     user: { ...userx, password: "********" },
-    //   }
-    // })
-
-    let user = await prisma.user.create({
-      // data: {...userInput, sats: 0},
-      data: userInput,  // sats default = 0
-    })
-    return {
-      code: "200",
-      success: true,
-      message: "New user created!",
-      user: { ...user, password: "********" },
+  async signup(userInput: UserInput, userCode: string): Promise<UserMutationResponse> {
+    try {
+      let userResponse = await prisma.user.create({
+        data: {
+          ...userInput,
+          userCode: userCode
+        }
+      })
+      return {
+        code: "200",
+        success: true,
+        message: "New user created!",
+        user: { ...userResponse, password: "********" },
+      }
+    } catch (err) {
+      console.log(err)
     }
-
-    // return {
-    //   code: "200",
-    //   success: true,
-    //   message: "New user created!",
-    //   user: { ...user, password: "********" },
-    // }
-    // } else {
-    //   return {
-    //     code: "400",
-    //     success: false,
-    //     message: "Invalid input",
-    //     user: null,
-    //   };
-    // }
   }
 
 }
