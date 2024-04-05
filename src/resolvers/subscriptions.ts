@@ -13,6 +13,15 @@ import { pubsub } from "./pubsub.js";
 //       }),
 //     },
 //   }
+
+// TODO: REVIEW:
+// testing tuto series: https://www.prisma.io/blog/series/ultimate-guide-to-testing-eTzz0U4wwV
+// The PubSub class is not recommended for production environments, 
+// because it's an in-memory event system that only supports a single server instance. 
+// After you get subscriptions working in development, 
+// we strongly recommend switching it out for a different subclass of the abstract PubSubEngine class.
+//  Recommended subclasses are listed in Production PubSub libraries.
+
 const subscriptions: SubscriptionResolvers = {
     voteAdded: {
         // subscribe: () => pubsub.asyncIterator(['EVENT_VOTEADDED'])

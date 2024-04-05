@@ -227,7 +227,7 @@ const mutations: MutationResolvers = {
   addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
     // let responseObject = await validateVote(voteInput);
-    let responseObject = {  // DEBUG: REVIEW: delete this object
+    let responseObject = {  // TODO: DEBUG: REVIEW: delete this object
       success: true,
       code: 200,
       message: "ok"
@@ -235,10 +235,10 @@ const mutations: MutationResolvers = {
     if (responseObject.success) {
       console.log("VOTE IS VALID");
       // possibility to filter publish: withFilter
-      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteInput });
-      let vote = await dataSourcesRedis.addVote(voteInput);
-      console.table(vote);
-      return vote;
+      let voteResponse = await dataSourcesRedis.addVote(voteInput);
+      console.table(voteResponse);
+      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteResponse.vote });
+      return voteResponse;
     } else {
       console.log("VOTE IS NOT VALID");
       console.log(responseObject.message)
