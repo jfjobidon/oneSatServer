@@ -1,5 +1,5 @@
 
-import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse, FundingMutationResponse } from '../__generated__/resolvers-types';
+import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse, FundingMutationResponse, PauseMutationResponse } from '../__generated__/resolvers-types';
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types';
 import { pubsub } from './pubsub.js';
@@ -41,6 +41,7 @@ import randomstring from "randomstring";
 // √ getVotesforPollOption(pollOption, [userID])
 // admin: getStats([campaignID | userID | pollID | pollOptionID])
 // ? campaign: add field: numberVotes ?
+// createPoll: vérifier que le titre est unique: idem pour campaign, pollOption...
 
 
 const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
@@ -223,11 +224,11 @@ const mutations: MutationResolvers = {
   },
 
   createPoll: async (_, { pollInput }, context): Promise<PollMutationResponse> => {
-    console.log("create poll")
-    console.log(context)
-    let p = await dataSourcesMongo.createPoll(context.userid, pollInput);
-    console.log("createPoll return: ", p)
-    return p
+    console.log("create poll");
+    console.log(context);
+    let poll = await dataSourcesMongo.createPoll(context.userid, pollInput);
+    console.log("createPoll return: ", poll);
+    return poll;
   },
 
   createPollOption: async (_, { pollOptionInput }, context): Promise<PollOptionMutationResponse> => {
@@ -237,6 +238,24 @@ const mutations: MutationResolvers = {
     console.log("createPollOption return: ", pollOption)
     return pollOption
   },
+
+  togglePausePoll: async (_, { pausePollInput }, context): Promise<PauseMutationResponse> => {
+    console.log("toggle pause poll")
+    console.log(context)
+    let campaignStatus = await dataSourcesMongo.togglePausePoll(pausePollInput);
+    console.log("togglePausePoll return: ", campaignStatus)
+    return campaignStatus;
+  },
+
+  togglePauseCampaign: async (_, { pauseCampaignInput }, context): Promise<PauseMutationResponse> => {
+    console.log("toggle pause campaign")
+    console.log(context)
+    let campaignStatus = await dataSourcesMongo.togglePauseCampaign(pauseCampaignInput);
+    console.log("togglePauseCampaign return: ", campaignStatus)
+    return campaignStatus;
+  },
+
+  // (campaignID: String!): pauseMutationResponse
 
   // TODO: transformer en ACID transaction
   // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {

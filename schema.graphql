@@ -40,6 +40,14 @@ input UserInput {
   password: String!
 }
 
+input PausePollInput {
+  pollID: String!
+}
+
+input PauseCampaignInput {
+  campaignID: String!
+}
+
 # REVIEW: devrait hériter de type:  code, success et message --> fragment ?
 type UserMutationResponse {
   code: String!
@@ -70,6 +78,7 @@ type FundingMutationResponse {
 }
 
 type Poll {
+  id: String!
   campaignId: String!
   title: String!
   description: String!
@@ -215,6 +224,26 @@ type PollOptionMutationResponse {
   pollOption: PollOption
 }
 
+type campaignStatus {
+  campaignID: String
+  campaignPaused: Boolean
+  newItemPaused: Boolean
+  newItemID: String!
+  pollsStatus: [pollStatus]
+}
+
+type pollStatus {
+  pollID: String
+  paused: Boolean
+}
+
+type pauseMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  campaignStatus: campaignStatus
+}
+
 type Query {
   placeholder: Boolean
   # REVIEW: campaignID Not null (String!) but must provide default value !!!
@@ -252,6 +281,8 @@ type Mutation {
   # ): UserMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
   accountFunding(fundingInput: FundingInput): FundingMutationResponse
+  togglePauseCampaign(pauseCampaignInput: PauseCampaignInput): pauseMutationResponse
+  togglePausePoll(pausePollInput: PausePollInput): pauseMutationResponse
 }
 
 type Subscription {

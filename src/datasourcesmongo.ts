@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse, PauseMutationResponse  } from "./__generated__/resolvers-types";
 
 // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -120,6 +120,75 @@ export class DataSourcesMongo {
     const polls = await this.getPollsAllForCampaign(campaignID);
     campaign.pollsAll = polls;
     return campaign;
+  }
+
+  async togglePausePoll(pausePollInput) : Promise<PauseMutationResponse> {
+    const poll: Poll = await prisma.poll.findUnique({ where: {id: pausePollInput.pollID} });
+    const updatePoll = await prisma.poll.update({
+      where: {
+        id: pausePollInput.pollID,
+      },
+      data: {
+        paused: {
+          set: !poll.paused
+        },
+      },
+    })
+    const campaign: Campaign = await prisma.campaign.findUnique({ where: {id: poll.campaignId} });
+
+    const polls = await this.getPollsForCampaign(campaign.id);
+    const pollsStatus: any = polls.map(poll => {
+      return {
+        pollID: poll.id,
+        paused: poll.paused
+      }
+    });
+    return {
+      code: "404",
+      success: true,
+      message: "voila",
+      campaignStatus: {
+          campaignID: poll.campaignId,
+          campaignPaused: campaign.paused,
+          newItemID: pausePollInput.pollID,
+          newItemPaused: !poll.paused,
+          pollsStatus: pollsStatus
+        }
+    }
+  }
+
+  async togglePauseCampaign(pauseCampaignInput) : Promise<PauseMutationResponse> {
+    const campaign: Campaign = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignID} });
+    const updateCampaign = await prisma.campaign.update({
+      where: {
+        id: pauseCampaignInput.campaignID
+      },
+      data: {
+        paused: {
+          set: !campaign.paused
+        },
+      },
+    })
+
+    const polls = await this.getPollsForCampaign(campaign.id);
+    const pollsStatus: any = polls.map(poll => {
+      return {
+        pollID: poll.id,
+        paused: poll.paused
+      }
+    });
+    return {
+      code: "404",
+      success: true,
+      message: "voila",
+      campaignStatus: {
+          campaignID: campaign.id,
+          campaignPaused: !campaign.paused,
+          newItemID: campaign.id,
+          newItemPaused: !campaign.paused,
+          pollsStatus: pollsStatus
+        }
+    }
   }
 
   async getPoll(pollID: string): Promise<Poll> {
@@ -286,6 +355,10 @@ export class DataSourcesMongo {
 
   async createPoll(authorId: String, pollInput: PollInput): Promise<PollMutationResponse> {
     const campaignId = pollInput.campaignId;
+
+    // to get the new pollID, we must compare database before and after !!!
+    const pollsBefore = await this.getPollsForCampaign(campaignId);
+
     try {
       const result = await prisma.campaign.update({
         where: {
@@ -297,8 +370,7 @@ export class DataSourcesMongo {
               data: [
                 {
                   title: pollInput.title,
-                  // description: pollInput.description,
-                  description: "test desc",
+                  description: pollInput.description,
                   totalSats: 0,
                   paused: false
                 }
@@ -310,12 +382,19 @@ export class DataSourcesMongo {
           polls: true
         }
       })
+      console.table(result);
+      // iterate trough result.polls and extract new pollID
+      const pollsAfter = await this.getPollsForCampaign(campaignId);
+      // REVIEW: au lieu de includes check: pollBefore.id === pollAfter.id
+      let result2 = pollsAfter.filter(pollAfter => pollsBefore.every(pollBefore => !pollBefore.id.includes(pollAfter.id)));
+
       return {
         code: "200",
         success: true,
         message: "poll created!",
         poll: {
           // authorId: authorId,
+          id: result2[0].id,
           campaignId: campaignId,
           title: pollInput.title,
           description: pollInput.description,
