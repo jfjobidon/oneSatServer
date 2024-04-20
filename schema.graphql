@@ -217,7 +217,12 @@ type PollOptionMutationResponse {
 
 type Query {
   placeholder: Boolean
-  getVotesForCampaign(campaignID: String): getVotesQueryResponse
+  # REVIEW: campaignID Not null (String!) but must provide default value !!!
+  getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
+  # getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
+  getVotesForPoll(pollID: String! = "", userID: String): getVotesQueryResponse
+  getVotesForPollOption(pollOptionID: String! = "", userID: String): getVotesQueryResponse
+  getVotesForUser(userID: String): getVotesQueryResponse
   getUsers: [User]
   getUserById(id: String): User
   getUserByName(name: String): User

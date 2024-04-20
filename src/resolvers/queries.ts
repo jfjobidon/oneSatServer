@@ -121,9 +121,29 @@ const queries: QueryResolvers = {
     }
   },
 
-  getVotesForCampaign: async (_, args) => {
-    console.log("getVotesForCampaign from client");
-    return await dataSourcesRedis.getVotesForCampaign(args.campaignID);
+  getVotesForCampaign: async (_, {campaignID, userID}) => {
+    // console.log("getVotesForCampaign from client");
+    return await dataSourcesRedis.getVotesForCampaign(campaignID, userID);
+  },
+  // getVotesForCampaign: async (_, args) => {
+  //   console.log("getVotesForCampaign from client");
+  //   console.log(args.userID)
+  //   return await dataSourcesRedis.getVotesForCampaign(args.campaignID);
+  // },
+  
+  getVotesForPoll: async (_, {pollID, userID}) => {
+    // console.log("getVotesForPoll from client");
+    return await dataSourcesRedis.getVotesForPoll(pollID, userID);
+  },
+  
+  getVotesForPollOption: async (_, {pollOptionID, userID}) => {
+    console.log("getVotesForPollOption from client");
+    return await dataSourcesRedis.getVotesForPollOption(pollOptionID, userID);
+  },
+  
+  getVotesForUser: async (_, args) => {
+    console.log("getVotesForUser from client");
+    return await dataSourcesRedis.getVotesForUser(args.userID);
   },
 
   getVoteById: async (_, args) => {

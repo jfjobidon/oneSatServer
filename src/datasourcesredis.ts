@@ -1,9 +1,9 @@
 import { createClient } from 'redis'
 import { Repository, EntityId, EntityKeyName, Entity } from 'redis-om'
 const redisClient = createClient({
-    // host: 'localhost',
-    // port: 6379,
-    password: 'rRTGwNDL7a'
+  // host: 'localhost',
+  // port: 6379,
+  password: 'rRTGwNDL7a'
 })
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
 await redisClient.connect();
@@ -24,7 +24,7 @@ let satsPollOptionRepository = new Repository(satsPollOptionSchema, redisClient)
 await satsPollOptionRepository.createIndex();
 let satsPollRepository = new Repository(satsPollSchema, redisClient);
 await satsPollRepository.createIndex();
-let satsCampaignRepository   = new Repository(satsCampaignSchema, redisClient);
+let satsCampaignRepository = new Repository(satsCampaignSchema, redisClient);
 await satsCampaignRepository.createIndex();
 
 export class DataSourcesRedis {
@@ -35,7 +35,7 @@ export class DataSourcesRedis {
     const voteCode = randomstring.generate(12);
     console.log(voteCode);
     const currentDate = new Date;
-    const vote: Entity = await voteRepository.save({...voteInput, voteCode: voteCode, date: currentDate.toString() });
+    const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() });
     console.table(vote);
     console.log('entityId: ', vote[EntityId])
     console.log('entityKeyName: ', vote[EntityKeyName])
@@ -62,20 +62,20 @@ export class DataSourcesRedis {
     }
   }
 
-  async incrPollOption(pollOptionID: string, sats: number): Promise<Boolean> {  
+  async incrPollOption(pollOptionID: string, sats: number): Promise<Boolean> {
     try {
       console.log(pollOptionID);
       const pollOption: Entity[] = await satsPollOptionRepository.search().where('pollOptionID').equals(pollOptionID).return.all();
       console.log(pollOption);
       if (pollOption.length == 0) {
         console.log("pollOption empty");
-        const pollOption2: Entity = await satsPollOptionRepository.save({"pollOptionID": pollOptionID, totalSats: sats});
+        const pollOption2: Entity = await satsPollOptionRepository.save({ "pollOptionID": pollOptionID, totalSats: sats });
         console.log(pollOption2);
       } else {
         pollOption[0].totalSats = (sats + parseInt(pollOption[0].totalSats.toString()));
         satsPollOptionRepository.save(pollOption[0]);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
     // REVIEW: other way to do it:
@@ -88,39 +88,39 @@ export class DataSourcesRedis {
   }
 
   // TODO: DEBUG: le search ne fonctionne pas !!!
-  async incrPoll(pollID: string, sats: number): Promise<Boolean> {  
+  async incrPoll(pollID: string, sats: number): Promise<Boolean> {
     try {
       console.log(pollID);
       const poll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
       console.log(poll);
       if (poll.length == 0) {
         console.log("poll empty");
-        const poll2: Entity = await satsPollRepository.save({"pollID": pollID, totalSats: sats});
+        const poll2: Entity = await satsPollRepository.save({ "pollID": pollID, totalSats: sats });
         console.log(poll2);
       } else {
         poll[0].totalSats = (sats + parseInt(poll[0].totalSats.toString()));
         satsPollRepository.save(poll[0]);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
     return true;
   }
 
-  async incrCampaign(campaignID: string, sats: number): Promise<Boolean> {  
+  async incrCampaign(campaignID: string, sats: number): Promise<Boolean> {
     try {
       console.log(campaignID);
       const campaign: Entity[] = await satsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
       console.log(campaign);
       if (campaign.length == 0) {
         console.log("campaign empty");
-        const campaign2: Entity = await satsCampaignRepository.save({"campaignID": campaignID, totalSats: sats});
+        const campaign2: Entity = await satsCampaignRepository.save({ "campaignID": campaignID, totalSats: sats });
         console.log(campaign2);
       } else {
         campaign[0].totalSats = (sats + parseInt(campaign[0].totalSats.toString()));
         satsCampaignRepository.save(campaign[0]);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
     return true;
@@ -145,29 +145,81 @@ export class DataSourcesRedis {
   //   return true;
   // }
 
-  async getVotesForCampaign(campaignID: string): Promise<GetVotesQueryResponse> {
-    console.log("in getVotesForCampaign...")
+  async getVotesForCampaign(campaignID: string, userID: string): Promise<GetVotesQueryResponse> {
+    // console.log("in getVotesForCampaign...");
 
     // const votesNb: number = await voteRepository.search().return.count()
     // console.log(`Number of votes: ${votesNb}`)
 
-    const allVotes = await voteRepository.search()
-    // .where('date').matches('date01')  // type must be 'text'
-    .where('campaignID').equals(campaignID)
-    // .and('title').matches('butterfly')
-    // .and('year').is.greaterThan(2000)
-    .return.all()
+    let allVotes: Entity[]
 
-    console.table(allVotes)
-    console.log('getVotesForCampaign entity: ' + allVotes[EntityId])
+    if (userID === null) {
+      allVotes = await voteRepository.search()
+        // .where('date').matches('date01')  // type must be 'text'
+        .where('campaignID').equals(campaignID)
+        // .and('title').matches('butterfly')
+        // .and('year').is.greaterThan(2000)
+        .return.all()
+    } else {
+      allVotes = await voteRepository.search()
+        .where('campaignID').equals(campaignID)
+        .and('userID').equals(userID)
+        .return.all()
+    }
+
+    // console.table(allVotes)
+    // console.log('getVotesForCampaign entity: ' + allVotes[EntityId])
 
     let votesResponse: Vote[] = allVotes.map(x => Object(x)) // convert [Entity] to [Vote]  // REVIEW: send [Entity]
     // https://github.com/redis/redis-om-node/blob/main/README.md
-    return {votes: votesResponse}
+    return { votes: votesResponse }
   }
 
-  async getVoteById(voteID: string): Promise<Vote>{
-    // const exists = await redisClient.exists(voteID)
+  async getVotesForPoll(pollID: string, userID: string): Promise<GetVotesQueryResponse> {
+
+    let allVotes: Entity[];
+
+    if (userID === null) {
+      allVotes = await voteRepository.search()
+        .where('pollID').equals(pollID)
+        .return.all()
+    } else {
+      allVotes = await voteRepository.search()
+        .where('pollID').equals(pollID)
+        .and('userID').equals(userID)
+        .return.all()
+    }
+    let votesResponse: Vote[] = allVotes.map(x => Object(x));
+    return { votes: votesResponse }
+  }
+
+  async getVotesForPollOption(pollOptionID: string, userID: string): Promise<GetVotesQueryResponse> {
+    let allVotes: Entity[];
+
+     if (userID === null) {
+      allVotes = await voteRepository.search()
+        .where('pollOptionID').equals(pollOptionID)
+        .return.all()
+    } else {
+      allVotes = await voteRepository.search()
+        .where('pollOptionID').equals(pollOptionID)
+        .and('userID').equals(userID)
+        .return.all()
+    }
+
+    let votesResponse: Vote[] = allVotes.map(x => Object(x));
+    return { votes: votesResponse }
+  }
+
+  async getVotesForUser(userID: string): Promise<GetVotesQueryResponse> {
+    const allVotes = await voteRepository.search()
+      .where('userID').equals(userID)
+      .return.all()
+    let votesResponse: Vote[] = allVotes.map(x => Object(x));
+    return { votes: votesResponse }
+  }
+
+  async getVoteById(voteID: string): Promise<Vote> {
     const exists = await redisClient.exists(`vote:${voteID}`)
     if (exists) {
       let vote = await voteRepository.fetch(voteID)

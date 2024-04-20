@@ -35,10 +35,10 @@ import randomstring from "randomstring";
 // produire rapport PDF votes de la campagne
 // add users from excel file
 // (cron job): campaignReport(campaignID)
-// getVotesforUser 
-// getVotesforCampaign(campaignID, [userID | pollID | pollOptionID])
-// getVotesforPoll(pollID, [userID | pollOtion])
-// getVotesforPollOption(pollOption, [userID])
+// √ getVotesforUser(userID)
+// √ getVotesforCampaign(campaignID, [userID])
+// √ getVotesforPoll(pollID, [userID])
+// √ getVotesforPollOption(pollOption, [userID])
 // admin: getStats([campaignID | userID | pollID | pollOptionID])
 // ? campaign: add field: numberVotes ?
 
