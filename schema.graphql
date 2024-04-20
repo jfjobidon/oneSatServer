@@ -217,7 +217,7 @@ type PollOptionMutationResponse {
 
 type Query {
   placeholder: Boolean
-  getVotes: getVotesQueryResponse
+  getVotesForCampaign(campaignID: String): getVotesQueryResponse
   getUsers: [User]
   getUserById(id: String): User
   getUserByName(name: String): User

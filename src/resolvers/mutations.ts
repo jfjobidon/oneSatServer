@@ -36,7 +36,7 @@ import randomstring from "randomstring";
 // add users from excel file
 // (cron job): campaignReport(campaignID)
 // getVotesforUser 
-// getVotesforCampaign(campaignID, [userID | pollID | pollOptionID,])
+// getVotesforCampaign(campaignID, [userID | pollID | pollOptionID])
 // getVotesforPoll(pollID, [userID | pollOtion])
 // getVotesforPollOption(pollOption, [userID])
 // admin: getStats([campaignID | userID | pollID | pollOptionID])

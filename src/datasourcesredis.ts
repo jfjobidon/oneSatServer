@@ -145,21 +145,21 @@ export class DataSourcesRedis {
   //   return true;
   // }
 
-  async getVotes(): Promise<GetVotesQueryResponse> {
-    console.log("in getVotes...")
+  async getVotesForCampaign(campaignID: string): Promise<GetVotesQueryResponse> {
+    console.log("in getVotesForCampaign...")
 
     // const votesNb: number = await voteRepository.search().return.count()
     // console.log(`Number of votes: ${votesNb}`)
 
     const allVotes = await voteRepository.search()
     // .where('date').matches('date01')  // type must be 'text'
-    // .where('date').equals('date01')
+    .where('campaignID').equals(campaignID)
     // .and('title').matches('butterfly')
     // .and('year').is.greaterThan(2000)
     .return.all()
 
     console.table(allVotes)
-    console.log('getVotes entity: ' + allVotes[EntityId])
+    console.log('getVotesForCampaign entity: ' + allVotes[EntityId])
 
     let votesResponse: Vote[] = allVotes.map(x => Object(x)) // convert [Entity] to [Vote]  // REVIEW: send [Entity]
     // https://github.com/redis/redis-om-node/blob/main/README.md
@@ -171,7 +171,6 @@ export class DataSourcesRedis {
     const exists = await redisClient.exists(`vote:${voteID}`)
     if (exists) {
       let vote = await voteRepository.fetch(voteID)
-      // let vote = await voteRepository.fetch('vote:01HCAK7PMK48C61M9ME93J3WJ6')
       return Object(vote)
     } else {
       return null

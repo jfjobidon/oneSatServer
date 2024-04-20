@@ -121,9 +121,9 @@ const queries: QueryResolvers = {
     }
   },
 
-  getVotes: async (_, __) => {
-    console.log("getVotes from client");
-    return await dataSourcesRedis.getVotes();
+  getVotesForCampaign: async (_, args) => {
+    console.log("getVotesForCampaign from client");
+    return await dataSourcesRedis.getVotesForCampaign(args.campaignID);
   },
 
   getVoteById: async (_, args) => {
