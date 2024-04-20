@@ -251,5 +251,5 @@ type Mutation {
 
 type Subscription {
   newsFeed: NewsEvent
-  voteAdded: Vote
+  voteAdded(campaignID: String): Vote
 }

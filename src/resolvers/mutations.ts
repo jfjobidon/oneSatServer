@@ -17,15 +17,31 @@ import randomstring from "randomstring";
 
 // TODO: un/pause campaign
 //       un/pause poll
-// cron job: campaign ended: send 50% sats to user
 // check addVote for user
+//    vérifier multiple votes...
 // modifier la campagne tant qu'elle n'est pas lancée ?
 // ajouter un filtre pour les subscriptions aux votes
+    // le filtre sera fait sur les campaignID
+    // tout les events seront envoyés aux clients
+    // chaque client pourra mettre toutes les infos de la campagne à jour
+    // et pourra décider d'envoyer une alerte à l'usager (en fonction du pollID ou pollOptionID par exemple)
+    // c'est le client qui alertera aussi si une pollOption change de position
+    // add subscription poll, pollOption, campaign pour chaque voteur
+      // subscription campaign seulement coté serveur
+      // le client fait les test pour subsrciption campaigne, poll, pollOption, etc...
+    // add subscription : how much sats you make
+      // NON: coté client
 // script simulation votes pour une campaign
-// vérifier multiple votes...
 // produire rapport PDF votes de la campagne
-// add subscription poll, pollOption, campaign pour chaque voteur
-// add subscription : how much sats you make 
+// add users from excel file
+// (cron job): campaignReport(campaignID)
+// getVotesforUser 
+// getVotesforCampaign(campaignID, [userID | pollID | pollOptionID,])
+// getVotesforPoll(pollID, [userID | pollOtion])
+// getVotesforPollOption(pollOption, [userID])
+// admin: getStats([campaignID | userID | pollID | pollOptionID])
+// ? campaign: add field: numberVotes ?
+
 
 const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
   // 1) check if voteInput is empty
