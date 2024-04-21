@@ -356,7 +356,7 @@ export class DataSourcesMongo {
   async createPoll(authorId: String, pollInput: PollInput): Promise<PollMutationResponse> {
     const campaignId = pollInput.campaignId;
 
-    // to get the new pollID, we must compare database before and after !!!
+    // to get the new pollID, we must compare poll database before and after !!!
     const pollsBefore = await this.getPollsForCampaign(campaignId);
 
     try {
@@ -382,11 +382,11 @@ export class DataSourcesMongo {
           polls: true
         }
       })
-      console.table(result);
-      // iterate trough result.polls and extract new pollID
+      // console.table(result);
+      // extracting new pollID
       const pollsAfter = await this.getPollsForCampaign(campaignId);
-      // REVIEW: au lieu de includes check: pollBefore.id === pollAfter.id
-      let result2 = pollsAfter.filter(pollAfter => pollsBefore.every(pollBefore => !pollBefore.id.includes(pollAfter.id)));
+      let newPollArray = pollsAfter.filter(pollAfter => pollsBefore.every(pollBefore => !(pollBefore.id === pollAfter.id)));
+      const newPollID = newPollArray[0].id;
 
       return {
         code: "200",
@@ -394,7 +394,7 @@ export class DataSourcesMongo {
         message: "poll created!",
         poll: {
           // authorId: authorId,
-          id: result2[0].id,
+          id: newPollID,
           campaignId: campaignId,
           title: pollInput.title,
           description: pollInput.description,
