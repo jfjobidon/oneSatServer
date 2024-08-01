@@ -42,6 +42,9 @@ const queries: QueryResolvers = {
 
   getUserById: async (_, args) => {
     const user = await dataSourcesMongo.getUserById(args.id);
+    if (user === null) {
+      return null
+    }
     return { ...user, password: "********" }
   },
 

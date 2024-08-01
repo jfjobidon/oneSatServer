@@ -107,6 +107,17 @@ export class DataSourcesRedis {
     return true;
   }
 
+  async getSatsForCampaign(campaignID: string): Promise<number> {
+    const satCampaign: Entity[] = await satsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+    let sats: number = 0
+    if (satCampaign.length == 0) {
+      sats = 0
+    } else {
+      sats = parseInt((satCampaign[0].totalSats).toString())
+    }
+    return sats
+  }
+
   async incrCampaign(campaignID: string, sats: number): Promise<Boolean> {
     try {
       console.log(campaignID);

@@ -22,6 +22,7 @@ input CreateNewsEventInput {
 # new Date('2023-02-03T01:00:00+0500') // 2023-02-02
 
 type User {
+  id: String!
   email: String!
   name: String!
   password: String!
@@ -143,6 +144,7 @@ type getVotesQueryResponse {
 }
 
 type Campaign {
+  id: String!
   authorId: String!
   title: String!
   question: String!
@@ -160,6 +162,9 @@ type Campaign {
   blindRank: Boolean
   allowMultipleVotes: Boolean
   paused: Boolean
+  sats: Int
+  votes: Int
+  views: Int
 }
 
 type CampaignAll {

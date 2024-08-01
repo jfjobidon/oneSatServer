@@ -1,6 +1,13 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// const { v4: uuid } =require('uuid)
+// uuid()
+// or: 
+// const uuid = require('uuid')
+// uuid.v4()
+// TODO: see nanoid
+
 generator client {
   provider = "prisma-client-js"
 }

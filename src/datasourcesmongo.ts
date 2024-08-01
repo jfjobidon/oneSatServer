@@ -2,7 +2,7 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse, PauseMutationResponse  } from "./__generated__/resolvers-types";
+import { User, UserInput, UserMutationResponse, Campaign, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse, PauseMutationResponse  } from "./__generated__/resolvers-types";
 
 // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -21,7 +21,10 @@ console.log("blindAmountDefault " + blindAmountDefault)
 console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
-import { Campaign, Funding, PrismaClient } from '@prisma/client';
+// NOTE: Campaing prisma !== Campaign graphQL
+import { Campaign as CampaingMongo, Poll as PollMongo, PrismaClient } from '@prisma/client'
+import { DataSourcesRedis } from "./datasourcesredis.js"
+const dataSourcesRedis = new DataSourcesRedis();
 // import { describe } from "node:test";
 // import { commandOptions } from "redis";
 // import { clearScreenDown } from "readline";
@@ -80,7 +83,7 @@ export class DataSourcesMongo {
   async getUsers(): Promise<User[]> {
     // console.log("getUsers: prisma findMany")
     const users = await prisma.user.findMany({})
-    console.table(users)
+    // console.table(users)
     return users;
   }
 
@@ -109,21 +112,19 @@ export class DataSourcesMongo {
   }
 
   async getCampaign(campaignID: string): Promise<Campaign> {
-    const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
+    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignID} });
     // console.table(campaign);
-    return campaign;
+    return {...campaign, sats: 123, votes: 0, views: 0};
   }
 
   async getCampaignAll(campaignID: string): Promise<CampaignAll> {
-    const campaign: CampaignAll = await prisma.campaign.findUnique({ where: {id: campaignID} });
-    // console.table(campaign);
+    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignID} });
     const polls = await this.getPollsAllForCampaign(campaignID);
-    campaign.pollsAll = polls;
-    return campaign;
+    return {...campaign, pollsAll: polls}
   }
 
   async togglePausePoll(pausePollInput) : Promise<PauseMutationResponse> {
-    const poll: Poll = await prisma.poll.findUnique({ where: {id: pausePollInput.pollID} });
+    const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pausePollInput.pollID} });
     const updatePoll = await prisma.poll.update({
       where: {
         id: pausePollInput.pollID,
@@ -134,7 +135,7 @@ export class DataSourcesMongo {
         },
       },
     })
-    const campaign: Campaign = await prisma.campaign.findUnique({ where: {id: poll.campaignId} });
+    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: poll.campaignId} });
 
     const polls = await this.getPollsForCampaign(campaign.id);
     const pollsStatus: any = polls.map(poll => {
@@ -158,7 +159,7 @@ export class DataSourcesMongo {
   }
 
   async togglePauseCampaign(pauseCampaignInput) : Promise<PauseMutationResponse> {
-    const campaign: Campaign = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignID} });
+    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignID} });
     const updateCampaign = await prisma.campaign.update({
       where: {
         id: pauseCampaignInput.campaignID
@@ -191,8 +192,8 @@ export class DataSourcesMongo {
     }
   }
 
-  async getPoll(pollID: string): Promise<Poll> {
-    const poll = await prisma.poll.findUnique({ where: {id: pollID} });
+  async getPoll(pollID: string): Promise<PollMongo> {
+    const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pollID} });
     // console.table(poll);
     return poll;
   }
@@ -201,8 +202,8 @@ export class DataSourcesMongo {
     // const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
     // return campaign.polls;
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignID}});
-    const polls = await prisma.poll.findMany({ where: {campaignId: campaignID} });
-    return polls;
+    const polls: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignID} });
+    return <Poll[]>polls;
   }
 
   async getPollsAllForCampaign(campaignID: string): Promise<PollAll[]> {
@@ -318,7 +319,10 @@ export class DataSourcesMongo {
           allowMultipleVotes: allowMultipleVotes,
           // creationDate: result.campaigns[1].creationDate
           creationDate: creationDate,
-          updatedDate: creationDate
+          updatedDate: creationDate,
+          sats: 0,
+          votes: 0,
+          views: 0
         },
       }
       // const result = await prisma.user.update({
@@ -447,13 +451,62 @@ export class DataSourcesMongo {
      }
   }
 
-  async getUserById(id: string): Promise<User> {
-    console.log("in getUser")
-    console.log(id)
-    const user = prisma.user.findUnique({ where: { id: id } });
+  async getUserById(id: string): Promise<null | User> {
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { id: id } });
+      if (user === null) {
+        return null
+      }
+    }
+    catch(error) {
+      console.log("error user", error)
+      return null
+    }
     // const user = prisma.user.findUnique({where: {id: "65df66779ebcb78f689a4803"}});
     // const user = prisma.user.findUnique({where: {name: id}});
-    return user;
+    console.table(user)
+    // TODO: create a function that returns the campaigns with sats, views and votes
+    const campaigns: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: id} })
+    // const theCampaigns: Campaign[] = campaigns.map(camp => {
+    //   // const satsCampaign2 = await dataSourcesRedis.getVotesForCampaign(camp.id, null)
+    //   // const satsCampaign2 = dataSourcesRedis.getSatsForCampaign(camp.id)
+    //   const satsCampaign = 456
+    //   return {...camp, sats: satsCampaign, votes: 33, views: 44}  // TODO:
+    // })
+
+    let campaignsStats: Campaign[] = []
+    for (const campaign of campaigns) {
+      console.log(campaign.id)
+      // const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
+      let sats = 0;
+      try {
+        console.log("getSatsForCampaign", campaign.id)
+        sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
+      }
+      catch(error) {
+        console.log(error)
+      }
+      // DEBUG: error si le champ n'existe pas DEBUG:
+      // console.table(pollOptions);
+      campaignsStats.push({...campaign, sats: <number>sats})
+      // const pollOptions = await this.getPollOptionsForPoll(pollAll.id);
+    };
+
+    // for (var i = 0; i < campaigns.length; i++) {
+    //   campaigns[i] = {...campaigns[i], sats: 1, votes: 2, views: 3}
+    // }
+
+    // fruits.forEach(function(fruit) {
+    //   console.log(fruit);
+    // }); 
+
+    // for (var fruit of fruits) {
+    //   console.log(fruit);
+    // }
+
+    // console.table(campaigns)
+    return {...user, campaigns: campaignsStats}
     // return null;
   }
 

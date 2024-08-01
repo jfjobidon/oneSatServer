@@ -22,8 +22,16 @@ import 'dotenv/config'
 import config from "config";
 console.log(`server started on ${process.env.NODE_ENV} mode`);
 process.env.DBURI = config.get<string>('DBURI');
+process.env.port = config.get<string>('port');
+const PORT = process.env.port || 4000 // default dev
 
 console.log(`server started on ${process.env.DBURI} mode`);
+
+// TODO: test this: read file that doesnt exist
+// process.on('uncaughtException', err => {
+//   console.log(`There was an uncaught error: ${err}`)
+//   process.exit(1)
+// })
 
 import { GraphQLScalarType, Kind } from 'graphql';
 
@@ -54,7 +62,7 @@ const DateScalar = new GraphQLScalarType({
 
 import resolvers from "./resolvers/index.js";
 
-const typeDefs = readFileSync('schema.graphql', { encoding: 'utf-8' });
+const typeDefs = readFileSync('schema.graphql', { encoding: 'utf-8' }); // REVIEW: Error message (callback fct)
 
 interface MyContext {
   token?: string;
@@ -144,5 +152,5 @@ app.use(
     })
 );
 
-await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
-console.log(`🚀 Server ready at http://localhost:4000/`);
+await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
+console.log(`🚀 Server ready at http://localhost:${PORT}/`);
