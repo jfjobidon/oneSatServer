@@ -85,6 +85,9 @@ type Poll {
   description: String!
   totalSats: Int!
   paused: Boolean!
+  sats: Int
+  votes: Int
+  views: Int
 }
 
 type PollAll {

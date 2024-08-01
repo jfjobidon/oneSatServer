@@ -192,10 +192,10 @@ export class DataSourcesMongo {
     }
   }
 
-  async getPoll(pollID: string): Promise<PollMongo> {
+  async getPoll(pollID: string): Promise<Poll> {
     const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pollID} });
     // console.table(poll);
-    return poll;
+    return {...poll, sats: 0, votes: 0, views: 0}
   }
 
   async getPollsForCampaign(campaignID: string): Promise<Poll[]> {
@@ -294,14 +294,15 @@ export class DataSourcesMongo {
           campaigns: true
         },
       })
-      // console.table(result)
-      // console.table(result.campaigns)
+      console.table(result)
+      console.table(result.campaigns)
       return {
         code: "200",
         success: true,
         message: "Campaign created!",
         // campaign: result.campaigns[1]
         campaign: {
+          id: result.campaigns[1].id, // REVIEW: indice 1 ???
           authorId: authorId,
           title: campaignInput.title,
           question: campaignInput.question,

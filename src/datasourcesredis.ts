@@ -14,7 +14,7 @@ import randomstring from "randomstring";
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
 // import { voteSchema } from './schema.redis.js';
-import { voteSchema, satsPollOptionSchema, satsPollSchema, satsCampaignSchema } from './schema.redis.js';
+import { voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, satsCampaignSchema } from './schema.redis.js';
 
 let voteRepository = new Repository(voteSchema, redisClient);
 // await voteRepository.dropIndex();
@@ -22,17 +22,34 @@ await voteRepository.createIndex();  // required to use search (RediSearch)
 
 let satsPollOptionRepository = new Repository(satsPollOptionSchema, redisClient);
 await satsPollOptionRepository.createIndex();
+
+let votesPollOptionRepository = new Repository(votesPollOptionSchema, redisClient);
+await votesPollOptionRepository.createIndex();
+
+let viewsPollOptionRepository = new Repository(viewsPollOptionSchema, redisClient);
+await viewsPollOptionRepository.createIndex();
+
 let satsPollRepository = new Repository(satsPollSchema, redisClient);
 await satsPollRepository.createIndex();
+
 let satsCampaignRepository = new Repository(satsCampaignSchema, redisClient);
 await satsCampaignRepository.createIndex();
+
+
+//   userID: String!
+//   invoice: String!
+//   sats: Int!
+//   campaignID: String!
+//   pollID: String!
+//   pollOptionID: String!
+//   certified: Boolean!
 
 export class DataSourcesRedis {
   // async addVote(userID: string, invoice: string, date: number, campaignID: string, certified: boolean) {
   // async addVote({ userID, invoice, date, campaignID, pollID, certified }: Vote): Promise<AddVoteMutationResponse> {
   async addVote(voteInput: VoteInput): Promise<AddVoteMutationResponse> {
     // TODO: tester createAndSave
-    const voteCode = randomstring.generate(12);
+    const voteCode = randomstring.generate(12); // REVIEW: nanoID ???
     console.log(voteCode);
     const currentDate = new Date;
     const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() });
@@ -44,8 +61,8 @@ export class DataSourcesRedis {
     // const exists = true;
     if (exists) {
       await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
-      await this.incrPoll(voteInput.pollID, voteInput.sats);
-      await this.incrCampaign(voteInput.campaignID, voteInput.sats);
+      // await this.incrPoll(voteInput.pollID, voteInput.sats);
+      // await this.incrCampaign(voteInput.campaignID, voteInput.sats);
       return {
         code: 200,
         success: true,
@@ -64,17 +81,44 @@ export class DataSourcesRedis {
 
   async incrPollOption(pollOptionID: string, sats: number): Promise<Boolean> {
     try {
-      console.log(pollOptionID);
-      const pollOption: Entity[] = await satsPollOptionRepository.search().where('pollOptionID').equals(pollOptionID).return.all();
-      console.log(pollOption);
-      if (pollOption.length == 0) {
-        console.log("pollOption empty");
+      // increments sats for PollOption
+      console.log("pollOptionID", pollOptionID);
+      const satsPollOption: Entity[] = await satsPollOptionRepository.search().where('pollOptionID').equals(pollOptionID).return.all();
+      console.log(satsPollOption);
+      if (satsPollOption.length == 0) {
+        console.log("satsPollOption empty");
         const pollOption2: Entity = await satsPollOptionRepository.save({ "pollOptionID": pollOptionID, totalSats: sats });
         console.log(pollOption2);
       } else {
-        pollOption[0].totalSats = (sats + parseInt(pollOption[0].totalSats.toString()));
-        satsPollOptionRepository.save(pollOption[0]);
+        satsPollOption[0].totalSats = (sats + parseInt(satsPollOption[0].totalSats.toString()));
+        satsPollOptionRepository.save(satsPollOption[0]);
       }
+      // increments votes for PollOption
+      const votesPollOption: Entity[] = await votesPollOptionRepository.search().where('pollOptionID').equals(pollOptionID).return.all();
+      console.log(votesPollOption);
+      if (votesPollOption.length == 0) {
+        console.log("votesPollOption empty");
+        const votesPollOption2: Entity = await votesPollOptionRepository.save({ "pollOptionID": pollOptionID, totalVotes: 1 });
+        console.log(votesPollOption2);
+      } else {
+        votesPollOption[0].totalVotes = (1 + parseInt(votesPollOption[0].totalVotes.toString()));
+        votesPollOptionRepository.save(votesPollOption[0]);
+      }
+      // TODO: remove this: just for debugging now
+      // increments views for PollOption
+      // REVIEW: remplacer par INCRBY pollOptionID 1
+      const viewsPollOption: Entity[] = await viewsPollOptionRepository.search().where('pollOptionID').equals(pollOptionID).return.all();
+      console.log("viewsPollOption", viewsPollOption);
+      if (viewsPollOption.length == 0) {
+        console.log("viewsPollOption empty");
+        const viewsPollOption2: Entity = await viewsPollOptionRepository.save({ "pollOptionID": pollOptionID, totalViews: 1 });
+        console.log(viewsPollOption2);
+      } else {
+        viewsPollOption[0].totalViews = (1 + parseInt(viewsPollOption[0].totalViews.toString()));
+        viewsPollOptionRepository.save(viewsPollOption[0]);
+      }
+
+
     } catch (err) {
       console.error(err);
     }
