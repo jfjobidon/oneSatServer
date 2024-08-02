@@ -14,7 +14,7 @@ import randomstring from "randomstring";
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
 // import { voteSchema } from './schema.redis.js';
-import { voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, satsCampaignSchema } from './schema.redis.js';
+import { voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, votesPollSchema, viewsPollSchema, satsCampaignSchema, votesCampaignSchema, viewsCampaignSchema } from './schema.redis.js';
 
 let voteRepository = new Repository(voteSchema, redisClient);
 // await voteRepository.dropIndex();
@@ -32,8 +32,20 @@ await viewsPollOptionRepository.createIndex();
 let satsPollRepository = new Repository(satsPollSchema, redisClient);
 await satsPollRepository.createIndex();
 
+let votesPollRepository = new Repository(votesPollSchema, redisClient);
+await votesPollRepository.createIndex();
+
+let viewsPollRepository = new Repository(viewsPollSchema, redisClient);
+await viewsPollRepository.createIndex();
+
 let satsCampaignRepository = new Repository(satsCampaignSchema, redisClient);
 await satsCampaignRepository.createIndex();
+
+let votesCampaignRepository = new Repository(votesCampaignSchema, redisClient);
+await votesCampaignRepository.createIndex();
+
+let viewsCampaignRepository = new Repository(viewsCampaignSchema, redisClient);
+await viewsCampaignRepository.createIndex();
 
 
 //   userID: String!
@@ -58,11 +70,12 @@ export class DataSourcesRedis {
     console.log('entityKeyName: ', vote[EntityKeyName])
     // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
     const exists = await redisClient.exists(vote[EntityKeyName])
-    // const exists = true;
     if (exists) {
-      await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
+      // REVIEW: quoi faire si return false ???
+      // await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
       // await this.incrPoll(voteInput.pollID, voteInput.sats);
-      // await this.incrCampaign(voteInput.campaignID, voteInput.sats);
+      await this.incrCampaign(voteInput.campaignID, voteInput.sats);
+      // TODO: increment user
       return {
         code: 200,
         success: true,
@@ -117,36 +130,60 @@ export class DataSourcesRedis {
         viewsPollOption[0].totalViews = (1 + parseInt(viewsPollOption[0].totalViews.toString()));
         viewsPollOptionRepository.save(viewsPollOption[0]);
       }
-
-
     } catch (err) {
-      console.error(err);
+      console.error(err)
+      return false
     }
+    return true;
+  }
     // REVIEW: other way to do it:
     // let pollOption0 = pollOption2[0]
     // let entityID = pollOption0[EntityId];
     // const pollop = await satsPollOptionRepository.fetch(entityID);
     // pollop.totalSats = (sats + parseInt(pollop.totalSats.toString()));
     // satsPollOptionRepository.save(pollop);
-    return true;
-  }
 
-  // TODO: DEBUG: le search ne fonctionne pas !!!
   async incrPoll(pollID: string, sats: number): Promise<Boolean> {
     try {
       console.log(pollID);
-      const poll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
-      console.log(poll);
-      if (poll.length == 0) {
+      // increment sat for Poll
+      const satsPoll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
+      console.log(satsPoll);
+      if (satsPoll.length == 0) {
         console.log("poll empty");
         const poll2: Entity = await satsPollRepository.save({ "pollID": pollID, totalSats: sats });
         console.log(poll2);
       } else {
-        poll[0].totalSats = (sats + parseInt(poll[0].totalSats.toString()));
-        satsPollRepository.save(poll[0]);
+        satsPoll[0].totalSats = (sats + parseInt(satsPoll[0].totalSats.toString()));
+        satsPollRepository.save(satsPoll[0]);
+      }
+
+      // increment votes for Poll
+      const votesPoll: Entity[] = await votesPollRepository.search().where('pollID').equals(pollID).return.all();
+      console.log(votesPoll);
+      if (votesPoll.length == 0) {
+        console.log("poll empty");
+        const votesPoll2: Entity = await votesPollRepository.save({ "pollID": pollID, totalVotes: 1 });
+        console.log(votesPoll2);
+      } else {
+        votesPoll[0].totalVotes = (1 + parseInt(votesPoll[0].totalVotes.toString()));
+        votesPollRepository.save(votesPoll[0]);
+      }
+
+      // increments views for Poll
+      const viewsPoll: Entity[] = await viewsPollRepository.search().where('pollID').equals(pollID).return.all();
+      console.log("viewsPoll", viewsPoll);
+      if (viewsPoll.length == 0) {
+        console.log("viewsPoll empty");
+        const viewsPoll2: Entity = await viewsPollRepository.save({ "pollID": pollID, totalViews: 1 });
+        console.log(viewsPoll2);
+      } else {
+        viewsPoll[0].totalViews = (1 + parseInt(viewsPoll[0].totalViews.toString()));
+        viewsPollRepository.save(viewsPoll[0]);
       }
     } catch (err) {
-      console.error(err);
+      console.error(err)
+      return false
     }
     return true;
   }
@@ -165,16 +202,42 @@ export class DataSourcesRedis {
   async incrCampaign(campaignID: string, sats: number): Promise<Boolean> {
     try {
       console.log(campaignID);
-      const campaign: Entity[] = await satsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
-      console.log(campaign);
-      if (campaign.length == 0) {
+      // increments sats for Campaign
+      const satsCampaign: Entity[] = await satsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+      console.log(satsCampaign);
+      if (satsCampaign.length == 0) {
         console.log("campaign empty");
         const campaign2: Entity = await satsCampaignRepository.save({ "campaignID": campaignID, totalSats: sats });
         console.log(campaign2);
       } else {
-        campaign[0].totalSats = (sats + parseInt(campaign[0].totalSats.toString()));
-        satsCampaignRepository.save(campaign[0]);
+        satsCampaign[0].totalSats = (sats + parseInt(satsCampaign[0].totalSats.toString()));
+        satsCampaignRepository.save(satsCampaign[0]);
       }
+
+      // increments votes for Campaign
+      const votesCampaign: Entity[] = await votesCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+      console.log(votesCampaign);
+      if (votesCampaign.length == 0) {
+        console.log("campaign empty");
+        const campaign2: Entity = await votesCampaignRepository.save({ "campaignID": campaignID, totalVotes: 1 });
+        console.log(campaign2);
+      } else {
+        votesCampaign[0].totalVotes = (1 + parseInt(votesCampaign[0].totalVotes.toString()));
+        votesCampaignRepository.save(votesCampaign[0]);
+      }
+
+      // increments views for Campaign
+      const viewsCampaign: Entity[] = await viewsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+      console.log("viewsCampaign", viewsCampaign);
+      if (viewsCampaign.length == 0) {
+        console.log("viewsCampaign empty");
+        const viewsCampaign2: Entity = await viewsCampaignRepository.save({ "campaignID": campaignID, totalViews: 1 });
+        console.log(viewsCampaign2);
+      } else {
+        viewsCampaign[0].totalViews = (1 + parseInt(viewsCampaign[0].totalViews.toString()));
+        viewsCampaignRepository.save(viewsCampaign[0]);
+      }
+
     } catch (err) {
       console.error(err);
     }
