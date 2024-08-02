@@ -48,6 +48,11 @@ const queries: QueryResolvers = {
     return { ...user, password: "********" }
   },
 
+  getCampaigns: async(_, args) => {
+    const campaigns = await dataSourcesMongo.getCampaigns(args.id);
+    return campaigns;
+  },
+
   getCampaign: async(_, args) => {
     const campaign = await dataSourcesMongo.getCampaign(args.id);
     return campaign;
@@ -124,16 +129,17 @@ const queries: QueryResolvers = {
     }
   },
 
-  getVotesForCampaign: async (_, {campaignID, userID}) => {
-    // console.log("getVotesForCampaign from client");
-    return await dataSourcesRedis.getVotesForCampaign(campaignID, userID);
-  },
+  // getVotesForCampaign: async (_, {campaignID, userID}) => {
+  //   // console.log("getVotesForCampaign from client");
+  //   return await dataSourcesRedis.getVotesForCampaign(campaignID, userID);
+  // },
   // getVotesForCampaign: async (_, args) => {
   //   console.log("getVotesForCampaign from client");
   //   console.log(args.userID)
   //   return await dataSourcesRedis.getVotesForCampaign(args.campaignID);
   // },
   
+  // REVIEW: nécessaire dans schema graphql ???
   getVotesForPoll: async (_, {pollID, userID}) => {
     // console.log("getVotesForPoll from client");
     return await dataSourcesRedis.getVotesForPoll(pollID, userID);

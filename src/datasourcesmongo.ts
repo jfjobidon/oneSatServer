@@ -114,7 +114,17 @@ export class DataSourcesMongo {
   async getCampaign(campaignID: string): Promise<Campaign> {
     const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignID} });
     // console.table(campaign);
-    return {...campaign, sats: 123, votes: 0, views: 0};
+    const sats = await dataSourcesRedis.getSatsForCampaign(campaignID)
+    const nbVotes = await dataSourcesRedis.getNbVotesForCampaign(campaignID)
+    const nbViews = await dataSourcesRedis.getNbViewsForCampaign(campaignID)
+    return {...campaign, sats: sats, votes: nbVotes, views: nbViews};
+  }
+
+  async getCampaigns(userID: string): Promise<CampaingMongo[]> {
+    console.log("userID", userID)
+    const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userID} });
+    console.table(campaignsMongo);
+    return campaignsMongo;
   }
 
   async getCampaignAll(campaignID: string): Promise<CampaignAll> {

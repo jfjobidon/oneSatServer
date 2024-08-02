@@ -202,6 +202,28 @@ export class DataSourcesRedis {
     return sats
   }
 
+  async getNbVotesForCampaign(campaignID: string): Promise<number> {
+    const voteCampaign: Entity[] = await votesCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+    let nbVotes: number
+    if (voteCampaign.length == 0) {
+      nbVotes = 0
+    } else {
+      nbVotes = parseInt((voteCampaign[0].totalVotes).toString())
+    }
+    return nbVotes
+  }
+
+  async getNbViewsForCampaign(campaignID: string): Promise<number> {
+    const viewsCampaign: Entity[] = await viewsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
+    let nbViews: number
+    if (viewsCampaign.length == 0) {
+      nbViews = 0
+    } else {
+      nbViews = parseInt((viewsCampaign[0].totalViews).toString())
+    }
+    return nbViews
+  }
+
   async incrCampaign(campaignID: string, userID: string, sats: number): Promise<Boolean> {
     try {
       console.log(campaignID);

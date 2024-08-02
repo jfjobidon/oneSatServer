@@ -255,8 +255,8 @@ type pauseMutationResponse {
 type Query {
   placeholder: Boolean
   # REVIEW: campaignID Not null (String!) but must provide default value !!!
+  # get list of all votes
   getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
-  # getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
   getVotesForPoll(pollID: String! = "", userID: String): getVotesQueryResponse
   getVotesForPollOption(pollOptionID: String! = "", userID: String): getVotesQueryResponse
   getVotesForUser(userID: String): getVotesQueryResponse
@@ -267,6 +267,7 @@ type Query {
   getPollOption(id: String): PollOption
   getCampaign(id: String): Campaign
   getCampaignAll(id: String): CampaignAll
+  getCampaigns(id: String): [Campaign]
   getPoll(id: String): Poll
   getPollsForCampaign(campaignId: String): [Poll]
   getPollOptionsForPoll(pollId: String): [PollOption]
