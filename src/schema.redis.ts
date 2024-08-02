@@ -83,3 +83,10 @@ export const viewsPollOptionSchema = new Schema('viewsPollOption', {
 }, {
   dataStructure: 'HASH'
 })
+
+export const satsUserSchema = new Schema('satsUser', {
+  userID: { type: 'string' },
+  sats: { type: 'number' }
+}, {
+  dataStructure: 'HASH'
+})

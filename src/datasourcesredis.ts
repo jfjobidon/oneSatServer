@@ -9,12 +9,13 @@ redisClient.on('error', (err) => console.log('Redis Client Error', err));
 await redisClient.connect();
 const aString = await redisClient.ping();
 console.log('redis PING: ', aString);
+const osovID = "859058920934" // TODO: put that in config file
 
 import randomstring from "randomstring";
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types";
 // import { voteSchema } from './schema.redis.js';
-import { voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, votesPollSchema, viewsPollSchema, satsCampaignSchema, votesCampaignSchema, viewsCampaignSchema } from './schema.redis.js';
+import { voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, votesPollSchema, viewsPollSchema, satsCampaignSchema, votesCampaignSchema, viewsCampaignSchema, satsUserSchema } from './schema.redis.js';
 
 let voteRepository = new Repository(voteSchema, redisClient);
 // await voteRepository.dropIndex();
@@ -47,6 +48,8 @@ await votesCampaignRepository.createIndex();
 let viewsCampaignRepository = new Repository(viewsCampaignSchema, redisClient);
 await viewsCampaignRepository.createIndex();
 
+let satsUserRepository = new Repository(satsUserSchema, redisClient);
+await satsUserRepository.createIndex();
 
 //   userID: String!
 //   invoice: String!
@@ -74,8 +77,8 @@ export class DataSourcesRedis {
       // REVIEW: quoi faire si return false ???
       // await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
       // await this.incrPoll(voteInput.pollID, voteInput.sats);
-      await this.incrCampaign(voteInput.campaignID, voteInput.sats);
-      // TODO: increment user
+      await this.incrCampaign(voteInput.campaignID, voteInput.userID, voteInput.sats);
+      // await this.incrUser(voteInput.userID, voteInput.sats);
       return {
         code: 200,
         success: true,
@@ -199,18 +202,37 @@ export class DataSourcesRedis {
     return sats
   }
 
-  async incrCampaign(campaignID: string, sats: number): Promise<Boolean> {
+  async incrCampaign(campaignID: string, userID: string, sats: number): Promise<Boolean> {
     try {
       console.log(campaignID);
       // increments sats for Campaign
       const satsCampaign: Entity[] = await satsCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
       console.log(satsCampaign);
+      let satsUser: number  // sats won by user
+      let satsOSOV: number  // sat won by me
       if (satsCampaign.length == 0) {
         console.log("campaign empty");
+        // compute the gain of the user and osov
+        satsUser = Math.floor(sats / 2) + 1
+        satsOSOV = sats - satsUser
+        this.incrUser(userID, satsUser)
+        this.incrUser(osovID, satsOSOV)
         const campaign2: Entity = await satsCampaignRepository.save({ "campaignID": campaignID, totalSats: sats });
         console.log(campaign2);
       } else {
-        satsCampaign[0].totalSats = (sats + parseInt(satsCampaign[0].totalSats.toString()));
+        // before
+        let beforeSatsCampaign = parseInt(satsCampaign[0].totalSats.toString())
+        const beforeSatsUser = Math.floor(beforeSatsCampaign / 2) + 1
+        const beforeSatsOSOV = beforeSatsCampaign - beforeSatsUser
+        // after
+        // compute the gain of the user and osov
+        const afterSatsCampaign = beforeSatsCampaign + sats
+        const afterSatsUser = Math.floor(afterSatsCampaign / 2) + 1
+        const afterSatsOSOV = afterSatsCampaign - afterSatsUser
+        this.incrUser(userID, afterSatsUser - beforeSatsUser)
+        this.incrUser(osovID, afterSatsOSOV - beforeSatsOSOV)
+
+        satsCampaign[0].totalSats = (sats + beforeSatsCampaign);
         satsCampaignRepository.save(satsCampaign[0]);
       }
 
@@ -219,8 +241,8 @@ export class DataSourcesRedis {
       console.log(votesCampaign);
       if (votesCampaign.length == 0) {
         console.log("campaign empty");
-        const campaign2: Entity = await votesCampaignRepository.save({ "campaignID": campaignID, totalVotes: 1 });
-        console.log(campaign2);
+        const votesCampaign2: Entity = await votesCampaignRepository.save({ "campaignID": campaignID, totalVotes: 1 });
+        console.log(votesCampaign2);
       } else {
         votesCampaign[0].totalVotes = (1 + parseInt(votesCampaign[0].totalVotes.toString()));
         votesCampaignRepository.save(votesCampaign[0]);
@@ -244,24 +266,26 @@ export class DataSourcesRedis {
     return true;
   }
 
-  // async incrPoll(pollID: string, sats: number): Promise<Boolean> {  
-  //   try {
-  //     console.log(pollID);
-  //     const poll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
-  //     console.log(poll);
-  //     if (poll.length == 0) {
-  //       console.log("poll empty");
-  //       const poll2: Entity = await satsPollRepository.save({"pollID": pollID, totalSats: sats});
-  //       console.log(poll2);
-  //     } else {
-  //       poll[0].totalSats = (sats + parseInt(poll[0].totalSats.toString()));
-  //       satsPollRepository.save(poll[0]);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  //   return true;
-  // }
+  // Documentation....
+  async incrUser(userID: string, sats: number): Promise<Boolean> {
+    try {
+      console.log(userID)
+      // increments sats for User
+      const satsUser: Entity[] = await satsUserRepository.search().where('userID').equals(userID).return.all();
+      console.log(satsUser);
+      if (satsUser.length == 0) {
+        console.log("user empty");
+        const satsUser2: Entity = await satsUserRepository.save({ "userID": userID, totalSats: sats });
+        console.log(satsUser2);
+      } else {
+        satsUser[0].totalSats = (sats + parseInt(satsUser[0].totalSats.toString()));
+        satsUserRepository.save(satsUser[0]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    return true;
+  }
 
   async getVotesForCampaign(campaignID: string, userID: string): Promise<GetVotesQueryResponse> {
     // console.log("in getVotesForCampaign...");
@@ -314,7 +338,7 @@ export class DataSourcesRedis {
   async getVotesForPollOption(pollOptionID: string, userID: string): Promise<GetVotesQueryResponse> {
     let allVotes: Entity[];
 
-     if (userID === null) {
+    if (userID === null) {
       allVotes = await voteRepository.search()
         .where('pollOptionID').equals(pollOptionID)
         .return.all()

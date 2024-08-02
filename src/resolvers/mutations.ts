@@ -15,7 +15,7 @@ const jwtUtil = new JwtUtil();
 import { responseObject } from '../utils/types';
 import randomstring from "randomstring";
 
-// check addVote for user
+// check addVote authorisation for user
 //    vérifier multiple votes...
 // modifier la campagne tant qu'elle n'est pas lancée ?
 // ajouter un filtre pour les subscriptions aux votes
