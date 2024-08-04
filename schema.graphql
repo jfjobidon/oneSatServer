@@ -252,10 +252,15 @@ type pauseMutationResponse {
   campaignStatus: campaignStatus
 }
 
+type pingResponse {
+  alpha: String
+}
+
 type Query {
   placeholder: Boolean
   # REVIEW: campaignID Not null (String!) but must provide default value !!!
   # get list of all votes
+  ping: pingResponse
   getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
   getVotesForPoll(pollID: String! = "", userID: String): getVotesQueryResponse
   getVotesForPollOption(pollOptionID: String! = "", userID: String): getVotesQueryResponse

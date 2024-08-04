@@ -17,6 +17,10 @@ const queries: QueryResolvers = {
     return true
   },
 
+  ping: async (_, __) => {
+    return { alpha: "Pong"}
+  },
+
   getUsers: async (_, __, context) => {
     // testenv()
     console.table(context)
@@ -54,6 +58,7 @@ const queries: QueryResolvers = {
   },
 
   getCampaign: async(_, args) => {
+    console.log("dans getCampaign...")
     const campaign = await dataSourcesMongo.getCampaign(args.id);
     return campaign;
   },

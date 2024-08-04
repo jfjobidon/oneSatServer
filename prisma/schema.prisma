@@ -43,7 +43,7 @@ model Campaign {
   minSatPerVote       Int // default in config file
   maxSatPerVote       Int // default in config file
   suggestedSatPerVote Int // default in config file
-  totalSats           Int
+  totalSats           Int // TODO: remove that -> implemented in redis
   blindAmount         Boolean
   blindRank           Boolean
   allowMultipleVotes  Boolean

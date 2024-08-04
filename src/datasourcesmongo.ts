@@ -120,11 +120,23 @@ export class DataSourcesMongo {
     return {...campaign, sats: sats, votes: nbVotes, views: nbViews};
   }
 
-  async getCampaigns(userID: string): Promise<CampaingMongo[]> {
+  async getCampaigns(userID: string): Promise<Campaign[]> {
     console.log("userID", userID)
     const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userID} });
-    console.table(campaignsMongo);
-    return campaignsMongo;
+    // console.table(campaignsMongo);
+
+    let campaigns: Campaign[] = []
+
+    for (const campaign of campaignsMongo) {
+      // console.table(campaign)
+      console.log("paused", campaign.paused)
+      const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
+      const votes = await dataSourcesRedis.getNbVotesForCampaign(campaign.id)
+      const views = await dataSourcesRedis.getNbViewsForCampaign(campaign.id)
+      campaigns.push({...campaign, sats, votes, views})
+    };
+
+    return campaigns;
   }
 
   async getCampaignAll(campaignID: string): Promise<CampaignAll> {
