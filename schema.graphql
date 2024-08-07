@@ -168,6 +168,7 @@ type Campaign {
 }
 
 type CampaignAll {
+  id: String!
   authorId: String!
   title: String!
   question: String!
