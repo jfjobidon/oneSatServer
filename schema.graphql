@@ -84,9 +84,9 @@ type Poll {
   title: String!
   description: String!
   paused: Boolean!
-  sats: Int
-  votes: Int
-  views: Int
+  sats: Int!
+  votes: Int!
+  views: Int!
 }
 
 type PollAll {
@@ -184,6 +184,9 @@ type CampaignAll {
   blindRank: Boolean
   allowMultipleVotes: Boolean
   paused: Boolean
+  sats: Int!
+  votes: Int!
+  views: Int!
   pollsAll: [PollAll]
 }
 
@@ -256,6 +259,7 @@ type Query {
   # REVIEW: campaignID Not null (String!) but must provide default value !!!
   # get list of all votes
   ping: pingResponse
+  getLocalIpAddress: String!
   getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
   getVotesForPoll(pollID: String! = "", userID: String): getVotesQueryResponse
   getVotesForPollOption(pollOptionID: String! = "", userID: String): getVotesQueryResponse

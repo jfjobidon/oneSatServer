@@ -76,7 +76,7 @@ export class DataSourcesRedis {
     if (exists) {
       // REVIEW: quoi faire si return false ???
       // await this.incrPollOption(voteInput.pollOptionID, voteInput.sats);
-      // await this.incrPoll(voteInput.pollID, voteInput.sats);
+      await this.incrPoll(voteInput.pollID, voteInput.sats);
       await this.incrCampaign(voteInput.campaignID, voteInput.userID, voteInput.sats);
       // await this.incrUser(voteInput.userID, voteInput.sats);
       return {
@@ -202,6 +202,17 @@ export class DataSourcesRedis {
     return sats
   }
 
+  async getSatsForPoll(pollID: string): Promise<number> {
+    const satPoll: Entity[] = await satsPollRepository.search().where('pollID').equals(pollID).return.all();
+    let sats: number = 0
+    if (satPoll.length == 0) {
+      sats = 0
+    } else {
+      sats = parseInt((satPoll[0].totalSats).toString())
+    }
+    return sats
+  }
+
   async getNbVotesForCampaign(campaignID: string): Promise<number> {
     const voteCampaign: Entity[] = await votesCampaignRepository.search().where('campaignID').equals(campaignID).return.all();
     let nbVotes: number
@@ -211,6 +222,28 @@ export class DataSourcesRedis {
       nbVotes = parseInt((voteCampaign[0].totalVotes).toString())
     }
     return nbVotes
+  }
+  
+  async getNbVotesForPoll(pollID: string): Promise<number> {
+    const votePoll: Entity[] = await votesPollRepository.search().where('pollID').equals(pollID).return.all();
+    let nbVotes: number
+    if (votePoll.length == 0) {
+      nbVotes = 0
+    } else {
+      nbVotes = parseInt((votePoll[0].totalVotes).toString())
+    }
+    return nbVotes
+  }
+
+  async getNbViewsForPoll(pollID: string): Promise<number> {
+    const viewsPoll: Entity[] = await viewsPollRepository.search().where('pollID').equals(pollID).return.all();
+    let nbViews: number
+    if (viewsPoll.length == 0) {
+      nbViews = 0
+    } else {
+      nbViews = parseInt((viewsPoll[0].totalViews).toString())
+    }
+    return nbViews
   }
 
   async getNbViewsForCampaign(campaignID: string): Promise<number> {
@@ -223,6 +256,7 @@ export class DataSourcesRedis {
     }
     return nbViews
   }
+ 
 
   async incrCampaign(campaignID: string, userID: string, sats: number): Promise<Boolean> {
     try {
