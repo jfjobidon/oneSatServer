@@ -43,7 +43,6 @@ model Campaign {
   minSatPerVote       Int // default in config file
   maxSatPerVote       Int // default in config file
   suggestedSatPerVote Int // default in config file
-  totalSats           Int // TODO: remove that -> implemented in redis
   blindAmount         Boolean
   blindRank           Boolean
   allowMultipleVotes  Boolean
@@ -86,7 +85,6 @@ model Poll {
   campaignId  String   @db.ObjectId
   title       String
   description String
-  totalSats   Int      @default(0)
   paused      Boolean  @default(false)
   pollOptions PollOption[]
 }
@@ -97,7 +95,6 @@ model PollOption {
   pollId      String @db.ObjectId
   title       String
   description String
-  totalSats   Int    @default(0)
 }
 
 // model Post {

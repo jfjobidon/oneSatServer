@@ -83,7 +83,6 @@ type Poll {
   campaignId: String!
   title: String!
   description: String!
-  totalSats: Int!
   paused: Boolean!
   sats: Int
   votes: Int
@@ -95,7 +94,6 @@ type PollAll {
   campaignId: String!
   title: String!
   description: String!
-  totalSats: Int!
   paused: Boolean!
   pollOptions: [PollOption]
 }
@@ -160,7 +158,6 @@ type Campaign {
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
-  totalSats: Int!
   blindAmount: Boolean
   blindRank: Boolean
   allowMultipleVotes: Boolean
@@ -183,7 +180,6 @@ type CampaignAll {
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
-  totalSats: Int!
   blindAmount: Boolean
   blindRank: Boolean
   allowMultipleVotes: Boolean
@@ -216,7 +212,6 @@ type PollOption {
   pollId: String!
   title: String!
   description: String
-  totalSats: Int
 }
 
 input PollOptionInput {

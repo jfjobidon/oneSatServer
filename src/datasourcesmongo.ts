@@ -292,7 +292,6 @@ export class DataSourcesMongo {
                   minSatPerVote: minSatPerVote,
                   maxSatPerVote: maxSatPerVote,
                   suggestedSatPerVote: suggestedSatPerVote,
-                  totalSats: 0,
                   creationDate: creationDate,
                   updatedDate: creationDate,
                   startingDate: startingDate,
@@ -335,7 +334,6 @@ export class DataSourcesMongo {
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,
           suggestedSatPerVote: suggestedSatPerVote,
-          totalSats: 0,
           paused: campaignPausedDefault,
           blindAmount: blindAmount,
           blindRank: blindRank,
@@ -398,7 +396,6 @@ export class DataSourcesMongo {
                 {
                   title: pollInput.title,
                   description: pollInput.description,
-                  totalSats: 0,
                   paused: false
                 }
               ]
@@ -425,7 +422,6 @@ export class DataSourcesMongo {
           campaignId: campaignId,
           title: pollInput.title,
           description: pollInput.description,
-          totalSats: 0,
           paused: false
         },
       }
@@ -465,8 +461,7 @@ export class DataSourcesMongo {
         pollOption: {
           pollId: pollId,
           title: pollOptionInput.title,
-          description: pollOptionInput.description,
-          totalSats: 0
+          description: pollOptionInput.description
         }
       }
      } catch (err) {
