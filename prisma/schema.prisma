@@ -86,6 +86,16 @@ model Poll {
   title       String
   description String
   paused      Boolean  @default(false)
+  // creationDate        DateTime
+  // startingDate        DateTime
+  // endingDate          DateTime
+  // updatedDate         DateTime
+  // minSatPerVote       Int // default in config file
+  // maxSatPerVote       Int // default in config file
+  // suggestedSatPerVote Int // default in config file
+  // blindAmount         Boolean
+  // blindRank           Boolean
+  // allowMultipleVotes  Boolean
   pollOptions PollOption[]
 }
 

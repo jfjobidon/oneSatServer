@@ -42,11 +42,11 @@ input UserInput {
 }
 
 input PausePollInput {
-  pollID: String!
+  pollId: String!
 }
 
 input PauseCampaignInput {
-  campaignID: String!
+  campaignId: String!
 }
 
 # REVIEW: devrait hériter de type:  code, success et message --> fragment ?
@@ -95,6 +95,9 @@ type PollAll {
   title: String!
   description: String!
   paused: Boolean!
+  sats: Int
+  votes: Int
+  views: Int
   pollOptions: [PollOption]
 }
 
@@ -112,24 +115,24 @@ type PollMutationResponse {
 }
 
 type Vote {
-  userID: String!
+  userId: String!
   voteCode: String!
   invoice: String!
   sats: Int!
   date: String!
-  campaignID: String!
-  pollID: String!
-  pollOptionID: String!
+  campaignId: String!
+  pollId: String!
+  pollOptionId: String!
   certified: Boolean!
 }
 
 input VoteInput {
-  userID: String!
+  userId: String!
   invoice: String!
   sats: Int!
-  campaignID: String!
-  pollID: String!
-  pollOptionID: String!
+  campaignId: String!
+  pollId: String!
+  pollOptionId: String!
   certified: Boolean!
 }
 
@@ -232,15 +235,15 @@ type PollOptionMutationResponse {
 }
 
 type campaignStatus {
-  campaignID: String
+  campaignId: String
   campaignPaused: Boolean
   newItemPaused: Boolean
-  newItemID: String!
+  newItemId: String!
   pollsStatus: [pollStatus]
 }
 
 type pollStatus {
-  pollID: String
+  pollId: String
   paused: Boolean
 }
 
@@ -252,19 +255,19 @@ type pauseMutationResponse {
 }
 
 type pingResponse {
-  alpha: String
+  pong: String
 }
 
 type Query {
   placeholder: Boolean
-  # REVIEW: campaignID Not null (String!) but must provide default value !!!
+  # REVIEW: campaignId Not null (String!) but must provide default value !!!
   # get list of all votes
   ping: pingResponse
   getLocalIpAddress: String!
-  getVotesForCampaign(campaignID: String! = "", userID: String): getVotesQueryResponse
-  getVotesForPoll(pollID: String! = "", userID: String): getVotesQueryResponse
-  getVotesForPollOption(pollOptionID: String! = "", userID: String): getVotesQueryResponse
-  getVotesForUser(userID: String): getVotesQueryResponse
+  getVotesForCampaign(campaignId: String! = "", userId: String): getVotesQueryResponse
+  getVotesForPoll(pollId: String! = "", userId: String): getVotesQueryResponse
+  getVotesForPollOption(pollOptionId: String! = "", userId: String): getVotesQueryResponse
+  getVotesForUser(userId: String): getVotesQueryResponse
   getUsers: [User]
   getUserById(id: String): User
   getUserByName(name: String): User
@@ -301,5 +304,5 @@ type Mutation {
 
 type Subscription {
   newsFeed: NewsEvent
-  voteAdded(campaignID: String): Vote
+  voteAdded(campaignId: String): Vote
 }

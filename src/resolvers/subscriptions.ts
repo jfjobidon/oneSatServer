@@ -71,7 +71,7 @@ const subscriptions: SubscriptionResolvers = {
             [Symbol.asyncIterator]:  withFilter(
                 (_, args) => pubsub.asyncIterator('EVENT_VOTEADDED'),
                 // (_, args) => pubsub.asyncIterator(['EVENT_VOTEADDED']),
-                // (_, args) => pubsub.asyncIterator<{ campaignID: string }>(['EVENT_VOTEADDED']),
+                // (_, args) => pubsub.asyncIterator<{ campaignId: string }>(['EVENT_VOTEADDED']),
                 // () => pubsub.asyncIterator(['EVENT_VOTEADDED']),
                 (payload, variables, context, info) => {
                     console.table(payload);

@@ -20,7 +20,7 @@ const queries: QueryResolvers = {
   },
 
   ping: async (_, __) => {
-    return { alpha: "Pong"}
+    return { pong: "Pong"}
   },
 
   // for development, android needs the ip address of the server: localhost or 127.0.0.1 wont work
@@ -60,7 +60,7 @@ const queries: QueryResolvers = {
     // if (true) throw new GraphQLError('You are not authorized to perform this action.', {
     //   extensions: {
     //     code: 'FORBIDDEN',
-    //     argumentName: 'tokenID',
+    //     argumentName: 'tokenId',
     //     alpha: 'beta'
     //   },
     // });
@@ -160,30 +160,30 @@ const queries: QueryResolvers = {
     }
   },
 
-  // getVotesForCampaign: async (_, {campaignID, userID}) => {
+  // getVotesForCampaign: async (_, {campaignId, userId}) => {
   //   // console.log("getVotesForCampaign from client");
-  //   return await dataSourcesRedis.getVotesForCampaign(campaignID, userID);
+  //   return await dataSourcesRedis.getVotesForCampaign(campaignId, userId);
   // },
   // getVotesForCampaign: async (_, args) => {
   //   console.log("getVotesForCampaign from client");
-  //   console.log(args.userID)
-  //   return await dataSourcesRedis.getVotesForCampaign(args.campaignID);
+  //   console.log(args.userId)
+  //   return await dataSourcesRedis.getVotesForCampaign(args.campaignId);
   // },
   
   // REVIEW: nécessaire dans schema graphql ???
-  getVotesForPoll: async (_, {pollID, userID}) => {
+  getVotesForPoll: async (_, {pollId, userId}) => {
     // console.log("getVotesForPoll from client");
-    return await dataSourcesRedis.getVotesForPoll(pollID, userID);
+    return await dataSourcesRedis.getVotesForPoll(pollId, userId);
   },
   
-  getVotesForPollOption: async (_, {pollOptionID, userID}) => {
+  getVotesForPollOption: async (_, {pollOptionId, userId}) => {
     console.log("getVotesForPollOption from client");
-    return await dataSourcesRedis.getVotesForPollOption(pollOptionID, userID);
+    return await dataSourcesRedis.getVotesForPollOption(pollOptionId, userId);
   },
   
   getVotesForUser: async (_, args) => {
     console.log("getVotesForUser from client");
-    return await dataSourcesRedis.getVotesForUser(args.userID);
+    return await dataSourcesRedis.getVotesForUser(args.userId);
   },
 
   getVoteById: async (_, args) => {

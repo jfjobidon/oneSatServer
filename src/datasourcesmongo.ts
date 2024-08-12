@@ -103,23 +103,23 @@ export class DataSourcesMongo {
     // return null;
   }
 
-  async getPollOption(pollOptionID: string): Promise<PollOption> {
+  async getPollOption(pollOptionId: string): Promise<PollOption> {
     console.log("in getPollOption");
-    // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionID}});
-    const pollOption = await prisma.pollOption.findUnique({ where: { id: pollOptionID}});
+    // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionId}});
+    const pollOption = await prisma.pollOption.findUnique({ where: { id: pollOptionId}});
     // console.log(pollOption);
     return pollOption;
   }
 
-  async getCampaign(campaignID: string): Promise<Campaign> {
+  async getCampaign(campaignId: string): Promise<Campaign> {
     try {
-      const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignID} });
+      const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignId} });
       if (campaign === null) {
         return null
       } else {
-        const sats = await dataSourcesRedis.getSatsForCampaign(campaignID)
-        const nbVotes = await dataSourcesRedis.getNbVotesForCampaign(campaignID)
-        const nbViews = await dataSourcesRedis.getNbViewsForCampaign(campaignID)
+        const sats = await dataSourcesRedis.getSatsForCampaign(campaignId)
+        const nbVotes = await dataSourcesRedis.getNbVotesForCampaign(campaignId)
+        const nbViews = await dataSourcesRedis.getNbViewsForCampaign(campaignId)
         return {...campaign, sats: sats, votes: nbVotes, views: nbViews};
       }
     }
@@ -129,11 +129,11 @@ export class DataSourcesMongo {
     }
   }
 
-  async getCampaigns(userID: string): Promise<Campaign[]> {
-    console.log("userID", userID)
+  async getCampaigns(userId: string): Promise<Campaign[]> {
+    console.log("userId", userId)
 
     try {
-      const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userID} });
+      const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} });
       if (campaignsMongo === null) {
         return null
       } else {
@@ -159,17 +159,17 @@ export class DataSourcesMongo {
     
   }
 
-  async getCampaignAll(campaignID: string): Promise<CampaignAll> {
+  async getCampaignAll(campaignId: string): Promise<CampaignAll> {
     try {
-      const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignID} })
+      const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignId} })
       if (campaign === null) {
         return null
       } else {
-        const polls = await this.getPollsAllForCampaign(campaignID);
-        const sats = await dataSourcesRedis.getSatsForCampaign(campaignID)
-        const nbVotes = await dataSourcesRedis.getNbVotesForCampaign(campaignID)
-        const nbViews = await dataSourcesRedis.getNbViewsForCampaign(campaignID)
-        return {...campaign, pollsAll: polls, sats: sats, votes: nbVotes, views: nbViews}
+        const polls = await this.getPollsAllForCampaign(campaignId);
+        const sats = await dataSourcesRedis.getSatsForCampaign(campaignId)
+        const votes = await dataSourcesRedis.getNbVotesForCampaign(campaignId)
+        const views = await dataSourcesRedis.getNbViewsForCampaign(campaignId)
+        return {...campaign, pollsAll: polls, sats: sats, votes, views}
       }
     }
     catch(error) {
@@ -179,10 +179,10 @@ export class DataSourcesMongo {
   }
 
   async togglePausePoll(pausePollInput) : Promise<PauseMutationResponse> {
-    const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pausePollInput.pollID} });
+    const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pausePollInput.pollId} });
     const updatePoll = await prisma.poll.update({
       where: {
-        id: pausePollInput.pollID,
+        id: pausePollInput.pollId,
       },
       data: {
         paused: {
@@ -195,7 +195,7 @@ export class DataSourcesMongo {
     const polls = await this.getPollsForCampaign(campaign.id);
     const pollsStatus: any = polls.map(poll => {
       return {
-        pollID: poll.id,
+        pollId: poll.id,
         paused: poll.paused
       }
     });
@@ -204,9 +204,9 @@ export class DataSourcesMongo {
       success: true,
       message: "voila",
       campaignStatus: {
-          campaignID: poll.campaignId,
+          campaignId: poll.campaignId,
           campaignPaused: campaign.paused,
-          newItemID: pausePollInput.pollID,
+          newItemId: pausePollInput.pollId,
           newItemPaused: !poll.paused,
           pollsStatus: pollsStatus
         }
@@ -214,10 +214,10 @@ export class DataSourcesMongo {
   }
 
   async togglePauseCampaign(pauseCampaignInput) : Promise<PauseMutationResponse> {
-    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignID} });
+    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignId} });
     const updateCampaign = await prisma.campaign.update({
       where: {
-        id: pauseCampaignInput.campaignID
+        id: pauseCampaignInput.campaignId
       },
       data: {
         paused: {
@@ -229,7 +229,7 @@ export class DataSourcesMongo {
     const polls = await this.getPollsForCampaign(campaign.id);
     const pollsStatus: any = polls.map(poll => {
       return {
-        pollID: poll.id,
+        pollId: poll.id,
         paused: poll.paused
       }
     });
@@ -238,51 +238,55 @@ export class DataSourcesMongo {
       success: true,
       message: "voila",
       campaignStatus: {
-          campaignID: campaign.id,
+          campaignId: campaign.id,
           campaignPaused: !campaign.paused,
-          newItemID: campaign.id,
+          newItemId: campaign.id,
           newItemPaused: !campaign.paused,
           pollsStatus: pollsStatus
         }
     }
   }
 
-  async getPoll(pollID: string): Promise<Poll> {
-    const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pollID} })
-    const sats = await dataSourcesRedis.getSatsForPoll(pollID)
-    const nbVotes = await dataSourcesRedis.getNbVotesForPoll(pollID)
-    const nbViews = await dataSourcesRedis.getNbViewsForPoll(pollID)
+  async getPoll(pollId: string): Promise<Poll> {
+    const poll: PollMongo = await prisma.poll.findUnique({ where: {id: pollId} })
+    const sats = await dataSourcesRedis.getSatsForPoll(pollId)
+    const nbVotes = await dataSourcesRedis.getNbVotesForPoll(pollId)
+    const nbViews = await dataSourcesRedis.getViewsForPoll(pollId)
     // console.table(poll);
     return {...poll, sats: sats, votes: nbVotes, views: nbViews}
   }
 
-  async getPollsForCampaign(campaignID: string): Promise<Poll[]> {
-    // const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
+  async getPollsForCampaign(campaignId: string): Promise<Poll[]> {
+    // const campaign = await prisma.campaign.findUnique({ where: {id: campaignId} });
     // return campaign.polls;
-    // const polls = await prisma.poll.findMany({ where: {campaignId: campaignID}});
-    const polls: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignID} });
+    // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}});
+    const polls: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} });
     return <Poll[]>polls;
   }
 
-  async getPollsAllForCampaign(campaignID: string): Promise<PollAll[]> {
-    // const campaign = await prisma.campaign.findUnique({ where: {id: campaignID} });
+  async getPollsAllForCampaign(campaignId: string): Promise<PollAll[]> {
+    // const campaign = await prisma.campaign.findUnique({ where: {id: campaignId} });
     // return campaign.polls;
-    // const polls = await prisma.poll.findMany({ where: {campaignId: campaignID}});
-    const pollsAll: PollAll[] = await prisma.poll.findMany({ where: {campaignId: campaignID} });
+    // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}});
+    const pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} });
     // pollsAll.forEach(poll => {
+    let polls: PollAll[] = []
     for (const pollAll of pollsAll) {
-      // console.table(pollAll);
-      // poll.pollOptions = await this.getPollOptionsForPoll(poll.id);
-      const pollOptions = await this.getPollOptionsForPoll(pollAll.id);
-      // console.table(pollOptions);
-      pollAll.pollOptions = pollOptions;
-      // const pollOptions = await this.getPollOptionsForPoll(pollAll.id);
+      console.table(pollAll)
+      const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
+      // console.log("pollOptions", pollOptions)
+      const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
+      const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
+      // console.log("getNbVotesForPoll", votes)
+      const views = await dataSourcesRedis.getViewsForPoll(pollAll.id)
+      console.log("getViewsForPoll", views)
+      polls.push({...pollAll, sats, votes, views, pollOptions})
     };
-    return pollsAll;
+    return polls
   }
 
-  async getPollOptionsForPoll(pollID: string): Promise<PollOption[]> {
-    const pollOptions = await prisma.pollOption.findMany({ where: {pollId: pollID} });
+  async getPollOptionsForPoll(pollId: string): Promise<PollOption[]> {
+    const pollOptions = await prisma.pollOption.findMany({ where: {pollId: pollId} });
     return pollOptions;
   }
 
@@ -417,7 +421,7 @@ export class DataSourcesMongo {
   async createPoll(authorId: String, pollInput: PollInput): Promise<PollMutationResponse> {
     const campaignId = pollInput.campaignId;
 
-    // to get the new pollID, we must compare poll database before and after !!!
+    // to get the new pollId, we must compare poll database before and after !!!
     const pollsBefore = await this.getPollsForCampaign(campaignId);
 
     try {
@@ -443,10 +447,10 @@ export class DataSourcesMongo {
         }
       })
       // console.table(result);
-      // extracting new pollID
+      // extracting new pollId
       const pollsAfter = await this.getPollsForCampaign(campaignId);
       let newPollArray = pollsAfter.filter(pollAfter => pollsBefore.every(pollBefore => !(pollBefore.id === pollAfter.id)));
-      const newPollID = newPollArray[0].id;
+      const newPollId = newPollArray[0].id;
 
       return {
         code: "200",
@@ -454,7 +458,7 @@ export class DataSourcesMongo {
         message: "poll created!",
         poll: {
           // authorId: authorId,
-          id: newPollID,
+          id: newPollId,
           campaignId: campaignId,
           title: pollInput.title,
           description: pollInput.description,

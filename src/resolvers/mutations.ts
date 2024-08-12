@@ -19,10 +19,10 @@ import randomstring from "randomstring";
 //    vérifier multiple votes...
 // modifier la campagne tant qu'elle n'est pas lancée ?
 // ajouter un filtre pour les subscriptions aux votes
-    // le filtre sera fait sur les campaignID
+    // le filtre sera fait sur les campaignId
     // tout les events seront envoyés aux clients
     // chaque client pourra mettre toutes les infos de la campagne à jour
-    // et pourra décider d'envoyer une alerte à l'usager (en fonction du pollID ou pollOptionID par exemple)
+    // et pourra décider d'envoyer une alerte à l'usager (en fonction du pollId ou pollOptionId par exemple)
     // c'est le client qui alertera aussi si une pollOption change de position
     // add subscription poll, pollOption, campaign pour chaque voteur
       // subscription campaign seulement coté serveur
@@ -31,8 +31,8 @@ import randomstring from "randomstring";
 // script simulation votes pour une campaign
 // produire rapport votes de la campagne
 // add users from excel file
-// (cron job): campaignReport(campaignID)
-// admin: getStats([campaignID | userID | pollID | pollOptionID])
+// (cron job): campaignReport(campaignId)
+// admin: getStats([campaignId | userId | pollId | pollOptionId])
 // ? campaign: add field: numberVotes ?
 // createPoll: check if title is unique: same for campaign, pollOption...
 
@@ -63,7 +63,7 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
     response.code = 400;
   } else {
     // 2) check if enough sats
-    let user = await dataSourcesMongo.getUserById(voteInput.userID);
+    let user = await dataSourcesMongo.getUserById(voteInput.userId);
     let userSats = user.sats;
     let voteInputSats = voteInput.sats
     if (userSats < voteInputSats) {
@@ -73,7 +73,7 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
       response.code = 400;
     } else {
       // console.log("enough sats");
-      let campaign = await dataSourcesMongo.getCampaign(voteInput.campaignID);
+      let campaign = await dataSourcesMongo.getCampaign(voteInput.campaignId);
       console.table(campaign);
       // 3) check campaign parameters: min sat per vote
       if (voteInputSats < campaign.minSatPerVote) {
@@ -93,7 +93,7 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
           // vote has <= maximum sats per vote
           // console.log("sats ok for campaign");
           // 5) check poll parameters: paused ?
-          let poll = await dataSourcesMongo.getPoll(voteInput.pollID);
+          let poll = await dataSourcesMongo.getPoll(voteInput.pollId);
           if (poll.paused) {
             response.message = "Poll is Paused";
             console.log(response.message);
@@ -204,7 +204,7 @@ const mutations: MutationResolvers = {
   accountFunding: async (_, { fundingInput }, context): Promise<FundingMutationResponse> => {
     console.log("account funding...")
     console.table(context)
-    let af = await dataSourcesMongo.accountFunding(context.userid, fundingInput);
+    let af = await dataSourcesMongo.accountFunding(context.userId, fundingInput);
     console.log("accountFunding return: ", af);
     return af;
   },
@@ -212,7 +212,7 @@ const mutations: MutationResolvers = {
   createCampaign: async (_, { campaignInput }, context): Promise<CampaignMutationResponse> => {
     console.log("create campaign")
     console.table(context)
-    let campaign = await dataSourcesMongo.createCampaign(context.userid, campaignInput);
+    let campaign = await dataSourcesMongo.createCampaign(context.userId, campaignInput);
     console.log("createCampaign return: ", campaign)
     return {...campaign}
   },
@@ -220,7 +220,7 @@ const mutations: MutationResolvers = {
   createPoll: async (_, { pollInput }, context): Promise<PollMutationResponse> => {
     console.log("create poll");
     console.log(context);
-    let poll = await dataSourcesMongo.createPoll(context.userid, pollInput);
+    let poll = await dataSourcesMongo.createPoll(context.userId, pollInput);
     console.log("createPoll return: ", poll);
     return poll;
   },
@@ -228,7 +228,7 @@ const mutations: MutationResolvers = {
   createPollOption: async (_, { pollOptionInput }, context): Promise<PollOptionMutationResponse> => {
     console.log("create poll option")
     console.log(context)
-    let pollOption = await dataSourcesMongo.createPollOption(context.userid, pollOptionInput);
+    let pollOption = await dataSourcesMongo.createPollOption(context.userId, pollOptionInput);
     console.log("createPollOption return: ", pollOption)
     return pollOption
   },
@@ -249,7 +249,7 @@ const mutations: MutationResolvers = {
     return campaignStatus;
   },
 
-  // (campaignID: String!): pauseMutationResponse
+  // (campaignId: String!): pauseMutationResponse
 
   // TODO: transformer en ACID transaction
   // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
