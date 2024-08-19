@@ -84,9 +84,18 @@ type Poll {
   title: String!
   description: String!
   paused: Boolean!
+  startingDate: DateScalar!
+  endingDate: DateScalar!
+  minSatPerVote: Int
+  maxSatPerVote: Int
+  suggestedSatPerVote: Int
+  blindAmount: Boolean
+  blindRank: Boolean
+  allowMultipleVotes: Boolean
+  pollOptions: [PollOption]
   sats: Int!
   votes: Int!
-  views: Int!
+  views: Int!  
 }
 
 type PollAll {
@@ -105,6 +114,14 @@ input PollInput {
   campaignId: String!
   title: String!
   description: String!
+  startingDate: DateScalar!
+  endingDate: DateScalar!
+  minSatPerVote: Int
+  maxSatPerVote: Int
+  suggestedSatPerVote: Int
+  blindAmount: Boolean
+  blindRank: Boolean
+  allowMultipleVotes: Boolean
 }
 
 type PollMutationResponse {

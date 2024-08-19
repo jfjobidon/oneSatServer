@@ -30,6 +30,28 @@ const dataSourcesRedis = new DataSourcesRedis();
 // import { clearScreenDown } from "readline";
 const prisma = new PrismaClient();
 
+const pollsTest = [
+  {
+    id: "65f85cc473d0142ca49897df",
+  campaignId: "65f85b91bbe053d8e26121fd",
+  title: "title",
+  description: "desc",
+  paused: false,
+  startingDate: Date(),
+  endingDate: Date(),
+  minSatPerVote: 2,
+  maxSatPerVote: 5,
+  suggestedSatPerVote: 3,
+  blindAmount: false,
+  blindRank: false,
+  allowMultipleVotes: false,
+  pollOptions: [],
+  sats: 23,
+  votes: 34,
+  views: 45
+  }
+]
+
 export class DataSourcesMongo {
 
   async accountFunding(userId: string, fundingInput: FundingInput): Promise<FundingMutationResponse> {
@@ -261,7 +283,8 @@ export class DataSourcesMongo {
     // return campaign.polls;
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}});
     const polls: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} });
-    return <Poll[]>polls;
+    // return <Poll[]>polls;
+    return pollsTest  // TODO: FIXME: JFJ fix that function
   }
 
   async getPollsAllForCampaign(campaignId: string): Promise<PollAll[]> {
@@ -418,8 +441,18 @@ export class DataSourcesMongo {
     }
   }
 
-  async createPoll(authorId: String, pollInput: PollInput): Promise<PollMutationResponse> {
+  async createPoll(authorId: string, pollInput: PollInput): Promise<PollMutationResponse> {
     const campaignId = pollInput.campaignId;
+
+    const minSatPerVote = pollInput.minSatPerVote || minSatPerVoteDefault;
+    const maxSatPerVote = pollInput.maxSatPerVote || maxSatPerVoteDefault;
+    const suggestedSatPerVote = pollInput.suggestedSatPerVote || suggestedSatPerVoteDefault;
+    const blindAmount = pollInput.blindAmount || blindAmountDefault;
+    const blindRank = pollInput.blindRank || blindRankDefault;
+    const allowMultipleVotes = pollInput.allowMultipleVotes || allowMultipleVotesDefault;
+    const creationDate = new Date()
+    const startingDate = new Date(pollInput.startingDate)
+    const endingDate = new Date(pollInput.endingDate)
 
     // to get the new pollId, we must compare poll database before and after !!!
     const pollsBefore = await this.getPollsForCampaign(campaignId);
@@ -434,9 +467,21 @@ export class DataSourcesMongo {
             createMany: {
               data: [
                 {
+                  // TODO:
+                  authorId: authorId.toString(),
                   title: pollInput.title,
                   description: pollInput.description,
-                  paused: false
+                  paused: false,
+                  creationDate: Date(),
+                  startingDate: Date(),
+                  endingDate: Date(),
+                  updatedDate: Date(),
+                  minSatPerVote: 2,
+                  maxSatPerVote: 3,
+                  suggestedSatPerVote: 2,
+                  blindAmount: false,
+                  blindRank: false,
+                  allowMultipleVotes: false
                 }
               ]
             }
@@ -465,7 +510,16 @@ export class DataSourcesMongo {
           paused: false,
           sats: 0,
           views: 0,
-          votes: 0
+          votes: 0,
+          startingDate: Date(), // TODO: FIXME: JFJ 
+          endingDate: Date(),
+          minSatPerVote: 3,
+          maxSatPerVote: 5,
+          suggestedSatPerVote: 3,
+          blindAmount: false,
+          blindRank: false,
+          allowMultipleVotes: false,
+          pollOptions: []
         },
       }
     } catch (err) {

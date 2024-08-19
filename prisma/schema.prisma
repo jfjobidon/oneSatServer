@@ -46,7 +46,7 @@ model Campaign {
   blindAmount         Boolean
   blindRank           Boolean
   allowMultipleVotes  Boolean
-  paused              Boolean @default(false) // REVIEW: how to get the variable from config file ?
+  paused              Boolean  @default(false) // REVIEW: how to get the variable from config file ?
   polls               Poll[]
   // updatedAt DateTime @updatedAt
   // xyz      String @unique @default(uuid())
@@ -64,39 +64,44 @@ model User {
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
-  sats         Int @default(0)
+  sats         Int        @default(0)
   fundings     Funding[]
   // updatedDate DateTime @updatedAt
+  Poll         Poll[]
 }
 
 model Funding {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  date      DateTime   @default(now())
-  invoice   String
-  sats      Int
-  author    User       @relation(fields: [authorId], references: [id])
-  authorId  String     @db.ObjectId
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  date     DateTime @default(now())
+  invoice  String
+  sats     Int
+  author   User     @relation(fields: [authorId], references: [id])
+  authorId String   @db.ObjectId
 }
+
+//   message             String?
 
 // REVIEW: change default minSatPerVote and maxSatsPerVote ?
 model Poll {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  campaign    Campaign @relation(fields: [campaignId], references: [id])
-  campaignId  String   @db.ObjectId
-  title       String
-  description String
-  paused      Boolean  @default(false)
-  // creationDate        DateTime
-  // startingDate        DateTime
-  // endingDate          DateTime
-  // updatedDate         DateTime
-  // minSatPerVote       Int // default in config file
-  // maxSatPerVote       Int // default in config file
-  // suggestedSatPerVote Int // default in config file
-  // blindAmount         Boolean
-  // blindRank           Boolean
-  // allowMultipleVotes  Boolean
-  pollOptions PollOption[]
+  id                  String       @id @default(auto()) @map("_id") @db.ObjectId
+  campaign            Campaign     @relation(fields: [campaignId], references: [id])
+  campaignId          String       @db.ObjectId
+  author              User         @relation(fields: [authorId], references: [id])
+  authorId            String       @db.ObjectId
+  title               String
+  description         String
+  paused              Boolean      @default(false)
+  creationDate        DateTime
+  startingDate        DateTime
+  endingDate          DateTime
+  updatedDate         DateTime
+  minSatPerVote       Int // default in config file
+  maxSatPerVote       Int // default in config file
+  suggestedSatPerVote Int // default in config file
+  blindAmount         Boolean
+  blindRank           Boolean
+  allowMultipleVotes  Boolean
+  pollOptions         PollOption[]
 }
 
 model PollOption {
