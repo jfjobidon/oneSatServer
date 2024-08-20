@@ -67,11 +67,12 @@ const typeDefs = readFileSync('schema.graphql', { encoding: 'utf-8' }); // REVIE
 interface MyContext {
   token?: string;
   roles?: string;
-  userid?: string;
+  userId?: string;
 }
 
 let schema = makeExecutableSchema({ typeDefs, resolvers });
-schema = applyMiddleware(schema, permissions)
+// schema = applyMiddleware(schema, permissions)
+schema = applyMiddleware(schema)
 
 // Create an Express app and HTTP server; we will attach both the WebSocket
 // server and the ApolloServer to this HTTP server.
@@ -125,7 +126,7 @@ app.use(
       context: async ({ req }) => ({
         token: req.headers.token,
         roles: req.headers.roles,
-        userid: req.headers.userid
+        userId: req.headers.userId
       })
       // context: async ({ req }) => {
       //   // get the user token from the headers

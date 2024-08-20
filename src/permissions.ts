@@ -36,6 +36,7 @@ export const permissions = shield({
     getUsers: isAllow,
     getUserById: isAllow,
     getUserByEmail: isAllow,
+    getPollsForCampaign: isAllow,
     // getPollOption: isUser
   },
   Mutation: {

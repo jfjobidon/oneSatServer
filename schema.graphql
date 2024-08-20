@@ -81,9 +81,11 @@ type FundingMutationResponse {
 type Poll {
   id: String!
   campaignId: String!
+  authorId: String!
   title: String!
   description: String!
   paused: Boolean!
+  creationDate: DateScalar!
   startingDate: DateScalar!
   endingDate: DateScalar!
   minSatPerVote: Int
@@ -112,6 +114,7 @@ type PollAll {
 
 input PollInput {
   campaignId: String!
+  authorId: String!
   title: String!
   description: String!
   startingDate: DateScalar!

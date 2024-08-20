@@ -2,7 +2,25 @@ import config from "config";
 
 // // for type safety in our data source class
 // // import { objectEnumValues } from "@prisma/client/runtime/library";
-import { User, UserInput, UserMutationResponse, Campaign, CampaignMutationResponse, CampaignInput, CampaignAll, Poll, PollInput, PollMutationResponse, PollOptionMutationResponse, PollOption, PollOptionInput, PollAll, FundingInput, FundingMutationResponse, PauseMutationResponse  } from "./__generated__/resolvers-types";
+import {
+  User,
+  UserInput,
+  UserMutationResponse,
+  Campaign,
+  CampaignMutationResponse,
+  CampaignInput,
+  CampaignAll,
+  Poll,
+  PollInput,
+  PollMutationResponse,
+  PollOptionMutationResponse,
+  PollOption,
+  PollOptionInput,
+  PollAll,
+  FundingInput,
+  FundingMutationResponse,
+  PauseMutationResponse 
+} from "./__generated__/resolvers-types";
 
 // const UsersDB: Omit<Required<User>, "__typename">[] = usersData;
 
@@ -33,22 +51,24 @@ const prisma = new PrismaClient();
 const pollsTest = [
   {
     id: "65f85cc473d0142ca49897df",
-  campaignId: "65f85b91bbe053d8e26121fd",
-  title: "title",
-  description: "desc",
-  paused: false,
-  startingDate: Date(),
-  endingDate: Date(),
-  minSatPerVote: 2,
-  maxSatPerVote: 5,
-  suggestedSatPerVote: 3,
-  blindAmount: false,
-  blindRank: false,
-  allowMultipleVotes: false,
-  pollOptions: [],
-  sats: 23,
-  votes: 34,
-  views: 45
+    campaignId: "65f85b91bbe053d8e26121fd",
+    authorId: "65f85cc473d0142ca49897df",
+    title: "title",
+    description: "desc",
+    paused: false,
+    creationDate: Date(),
+    startingDate: Date(),
+    endingDate: Date(),
+    minSatPerVote: 2,
+    maxSatPerVote: 5,
+    suggestedSatPerVote: 3,
+    blindAmount: false,
+    blindRank: false,
+    allowMultipleVotes: false,
+    pollOptions: [],
+    sats: 23,
+    votes: 34,
+    views: 45
   }
 ]
 
@@ -188,6 +208,7 @@ export class DataSourcesMongo {
         return null
       } else {
         const polls = await this.getPollsAllForCampaign(campaignId);
+        // const polls = []
         const sats = await dataSourcesRedis.getSatsForCampaign(campaignId)
         const votes = await dataSourcesRedis.getNbVotesForCampaign(campaignId)
         const views = await dataSourcesRedis.getNbViewsForCampaign(campaignId)
@@ -284,28 +305,35 @@ export class DataSourcesMongo {
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}});
     const polls: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} });
     // return <Poll[]>polls;
-    return pollsTest  // TODO: FIXME: JFJ fix that function
+    return []
+    // return pollsTest  // TODO: FIXME: JFJ fix that function
   }
 
   async getPollsAllForCampaign(campaignId: string): Promise<PollAll[]> {
+    console.log("campaignId", campaignId)
     // const campaign = await prisma.campaign.findUnique({ where: {id: campaignId} });
     // return campaign.polls;
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}});
-    const pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} });
+    let pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} });
+    // const pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: "66ab973fe635cdbb9a694333"} });
+    // const pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: "65f85b91bbe053d8e26121fd"} });
+    console.table(pollsAll)
+    // pollsAll = []
     // pollsAll.forEach(poll => {
-    let polls: PollAll[] = []
-    for (const pollAll of pollsAll) {
-      console.table(pollAll)
-      const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
-      // console.log("pollOptions", pollOptions)
-      const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
-      const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
-      // console.log("getNbVotesForPoll", votes)
-      const views = await dataSourcesRedis.getViewsForPoll(pollAll.id)
-      console.log("getViewsForPoll", views)
-      polls.push({...pollAll, sats, votes, views, pollOptions})
-    };
-    return polls
+    // let polls: PollAll[] = []
+    // for (const pollAll of pollsAll) {
+    //   console.table(pollAll)
+    //   const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
+    //   // console.log("pollOptions", pollOptions)
+    //   const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
+    //   const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
+    //   // console.log("getNbVotesForPoll", votes)
+    //   const views = await dataSourcesRedis.getViewsForPoll(pollAll.id)
+    //   console.log("getViewsForPoll", views)
+    //   polls.push({...pollAll, sats, votes, views, pollOptions})
+    // };
+    // return polls
+    return []
   }
 
   async getPollOptionsForPoll(pollId: string): Promise<PollOption[]> {
@@ -315,6 +343,7 @@ export class DataSourcesMongo {
 
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
   async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
+    console.log("authorId", authorId)
     console.table(campaignInput)
     const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault;
     const maxSatPerVote = campaignInput.maxSatPerVote || maxSatPerVoteDefault;
@@ -364,29 +393,24 @@ export class DataSourcesMongo {
                   blindRank: blindRank,
                   allowMultipleVotes: allowMultipleVotes
                 }
-              ],
-              // data: [{...campaignInput, creationDate: Date()}],
-              // data: [{...campaignInput}],
-              // data: [{...campaignInput, creationDate: "2023-10-23T19:13:38.357+00:00"}],
-              // data: [{...campaignInput, creationDate: new Date(isodate)}],
-              // data: [{...campaignInput, creationDate: (new Date()).toISOString()}],
-              // data: [{ title: 'My first post' }, { title: 'My second post' }],
-            },
-          },
+              ]
+            }
+          }
         },
         include: {
           campaigns: true
         },
       })
+      console.log("result")
       console.table(result)
+      console.log("result.campaigns")
       console.table(result.campaigns)
       return {
         code: "200",
         success: true,
         message: "Campaign created!",
-        // campaign: result.campaigns[1]
         campaign: {
-          id: result.campaigns[1].id, // REVIEW: indice 1 ???
+          id: result.campaigns[0].id,
           authorId: authorId,
           title: campaignInput.title,
           question: campaignInput.question,
@@ -437,7 +461,7 @@ export class DataSourcesMongo {
       //   },
       // }
     } catch (err) {
-      console.log(err)
+      console.log("err", err)
     }
   }
 
@@ -505,12 +529,11 @@ export class DataSourcesMongo {
           // authorId: authorId,
           id: newPollId,
           campaignId: campaignId,
+          authorId: authorId,
           title: pollInput.title,
           description: pollInput.description,
           paused: false,
-          sats: 0,
-          views: 0,
-          votes: 0,
+          creationDate: Date(),
           startingDate: Date(), // TODO: FIXME: JFJ 
           endingDate: Date(),
           minSatPerVote: 3,
@@ -519,7 +542,10 @@ export class DataSourcesMongo {
           blindAmount: false,
           blindRank: false,
           allowMultipleVotes: false,
-          pollOptions: []
+          pollOptions: [],
+          sats: 0,
+          views: 0,
+          votes: 0
         },
       }
     } catch (err) {
@@ -527,7 +553,7 @@ export class DataSourcesMongo {
     }
   }
 
-  // createPollOption(context.userid, pollOptionInput);
+  // createPollOption(context.userId, pollOptionInput);
   async createPollOption(authorId: String, pollOptionInput: PollOptionInput): Promise<PollOptionMutationResponse> {
      const pollId = pollOptionInput.pollId;
      try {
