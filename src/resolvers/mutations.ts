@@ -1,19 +1,19 @@
 
-import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse, FundingMutationResponse, PauseMutationResponse } from '../__generated__/resolvers-types';
+import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse, FundingMutationResponse, PauseMutationResponse } from '../__generated__/resolvers-types'
 
-import { CreateNewsEventInput } from '../__generated__/resolvers-types';
-import { pubsub } from './pubsub.js';
-import { DataSourcesRedis } from '../datasourcesredis.js';
-const dataSourcesRedis = new DataSourcesRedis();
-import { DataSourcesMongo } from '../datasourcesmongo.js';
-const dataSourcesMongo = new DataSourcesMongo();
-import bcrypt from "bcrypt";
-const saltRounds = 10;
-import { JwtUtil } from "../utils/jwt.js";
-import { ChildProcess } from 'child_process';
-const jwtUtil = new JwtUtil();
-import { responseObject } from '../utils/types';
-import randomstring from "randomstring";
+import { CreateNewsEventInput } from '../__generated__/resolvers-types'
+import { pubsub } from './pubsub.js'
+import { DataSourcesRedis } from '../datasourcesredis.js'
+const dataSourcesRedis = new DataSourcesRedis()
+import { DataSourcesMongo } from '../datasourcesmongo.js'
+const dataSourcesMongo = new DataSourcesMongo()
+import bcrypt from "bcrypt"
+const saltRounds = 10
+import { JwtUtil } from "../utils/jwt.js"
+import { ChildProcess } from 'child_process'
+const jwtUtil = new JwtUtil()
+import { responseObject } from '../utils/types'
+import randomstring from "randomstring"
 
 // check addVote authorisation for user
 //    vérifier multiple votes...
@@ -55,78 +55,78 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
   }
 
   // 1) check if voteInput is empty
-  const isEmpty: Boolean = Object.values(voteInput).some(x => x === null || x === '');
+  const isEmpty: Boolean = Object.values(voteInput).some(x => x === null || x === '')
   if (isEmpty) {
-    response.message = "vote is empty";
-    console.log(response.message);
-    response.success = false;
-    response.code = 400;
+    response.message = "vote is empty"
+    console.log(response.message)
+    response.success = false
+    response.code = 400
   } else {
     // 2) check if enough sats
-    let user = await dataSourcesMongo.getUserById(voteInput.userId);
-    let userSats = user.sats;
+    let user = await dataSourcesMongo.getUserById(voteInput.userId)
+    let userSats = user.sats
     let voteInputSats = voteInput.sats
     if (userSats < voteInputSats) {
-      response.message = `You dont have enough sats to vote: you have ${userSats}, you need ${voteInput.sats}`;
-      console.log(response.message);
-      response.success = false;
-      response.code = 400;
+      response.message = `You dont have enough sats to vote: you have ${userSats}, you need ${voteInput.sats}`
+      console.log(response.message)
+      response.success = false
+      response.code = 400
     } else {
-      // console.log("enough sats");
-      let campaign = await dataSourcesMongo.getCampaign(voteInput.campaignId);
-      console.table(campaign);
+      // console.log("enough sats")
+      let campaign = await dataSourcesMongo.getCampaign(voteInput.campaignId)
+      console.table(campaign)
       // 3) check campaign parameters: min sat per vote
       if (voteInputSats < campaign.minSatPerVote) {
-        response.message = `vote should be at least ${campaign.minSatPerVote} sats`;
-        console.log(response.message);
-        response.success = false;
-        response.code = 400;
+        response.message = `vote should be at least ${campaign.minSatPerVote} sats`
+        console.log(response.message)
+        response.success = false
+        response.code = 400
       } else {
         // vote has >= minimum sats per vote
         // 4) check campaign parameters: max sat per vote
         if (voteInputSats > campaign.maxSatPerVote) {
-          response.message = `vote should be at max ${campaign.maxSatPerVote} sats`;
-          console.log(response.message);
-          response.success = false;
-          response.code = 400;
+          response.message = `vote should be at max ${campaign.maxSatPerVote} sats`
+          console.log(response.message)
+          response.success = false
+          response.code = 400
         } else {
           // vote has <= maximum sats per vote
-          // console.log("sats ok for campaign");
+          // console.log("sats ok for campaign")
           // 5) check poll parameters: paused ?
-          let poll = await dataSourcesMongo.getPoll(voteInput.pollId);
+          let poll = await dataSourcesMongo.getPoll(voteInput.pollId)
           if (poll.paused) {
-            response.message = "Poll is Paused";
-            console.log(response.message);
-            response.success = false;
-            response.code = 400;
+            response.message = "Poll is Paused"
+            console.log(response.message)
+            response.success = false
+            response.code = 400
           } else {
-            // console.log("Campaign is NOT paused");
+            // console.log("Campaign is NOT paused")
             // 6) check campaign parameters: paused ?
             if (campaign.paused) {
-              response.message = "Campaign is Paused";
-              console.log(response.message);
-              response.success = false;
-              response.code = 400;
+              response.message = "Campaign is Paused"
+              console.log(response.message)
+              response.success = false
+              response.code = 400
             } else {
-              // console.log("poll is NOT paused");
+              // console.log("poll is NOT paused")
               // 7) check campaign dates: has started
-              let startingDate = campaign.startingDate;
-              let endingDate = campaign.endingDate;
-              let currentDate = new Date();
+              let startingDate = campaign.startingDate
+              let endingDate = campaign.endingDate
+              let currentDate = new Date()
               if (currentDate < startingDate) {
                 response.message = "Campaign has not started yet"
-                console.log(response.message);
-                response.success = false;
-                response.code = 400;
+                console.log(response.message)
+                response.success = false
+                response.code = 400
               } else {
                 // 8) check campaign dates: has ended
                 if (currentDate > endingDate) {
                   response.message = "Campaign has ended"
-                  console.log(response.message);
-                  response.success = false;
-                  response.code = 400;
+                  console.log(response.message)
+                  response.success = false
+                  response.code = 400
                 } else {
-                  console.log(response.message);
+                  console.log(response.message)
                 }
               }
             }
@@ -135,28 +135,28 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
       }
     }
   }
-  // console.log(response.message);
-  return response;
+  // console.log(response.message)
+  return response
 }
 
 // Use the generated `MutationResolvers` type to type check our mutations!
 const mutations: MutationResolvers = {
 
   createNewsEvent: (_parent: any, args: CreateNewsEventInput) => {
-    console.log('args:', args);
-    pubsub.publish('EVENT_CREATED', { newsFeed: args });
-    return args;
+    console.log('args:', args)
+    pubsub.publish('EVENT_CREATED', { newsFeed: args })
+    return args
   },
 
   // signup: async (_, { name, email, password }: User): Promise<UserMutationResponse> => {
   // signup: async (_, user: User): Promise<UserMutationResponse> => {
   signup: async (_, { userInput }): Promise<UserMutationResponse> => {
     console.log("mutation signup....")
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const userCode = randomstring.generate(12);
-    const passwordCrypt = bcrypt.hashSync(userInput.password, salt);
-    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: passwordCrypt}, userCode);
-    const token = await jwtUtil.sign();
+    const salt = bcrypt.genSaltSync(saltRounds)
+    const userCode = randomstring.generate(12)
+    const passwordCrypt = bcrypt.hashSync(userInput.password, salt)
+    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: passwordCrypt}, userCode)
+    const token = await jwtUtil.sign()
     return {
       code: userMutationResponse.code,
       success: userMutationResponse.success,
@@ -170,15 +170,15 @@ const mutations: MutationResolvers = {
 
     // bcrypt.genSalt(saltRounds, function(err, salt) {
     //   bcrypt.hash(password, salt, function(err, hashPassword) {
-    //     dataSourcesMongo.signup({ name: name, email: email, password: hashPassword });
-    //   });
-    // });
+    //     dataSourcesMongo.signup({ name: name, email: email, password: hashPassword })
+    //   })
+    // })
 
 
 
     // bcrypt.hash(myPlaintextPassword, saltRounds).then(function(hash) {
     //   // Store hash in your password DB.
-    // });
+    // })
     // bcrypt.genSalt(saltRounds).then(
     //   salt => bcrypt.hash(password, salt).then(
     // hashPassword => dataSourcesMongo.signup({ name: name, email: email, password: hashPassword }).then(
@@ -204,32 +204,33 @@ const mutations: MutationResolvers = {
   accountFunding: async (_, { fundingInput }, context): Promise<FundingMutationResponse> => {
     console.log("account funding...")
     console.table(context)
-    let af = await dataSourcesMongo.accountFunding(context.userId, fundingInput);
-    console.log("accountFunding return: ", af);
-    return af;
+    let af = await dataSourcesMongo.accountFunding(context.userId, fundingInput)
+    console.log("accountFunding return: ", af)
+    return af
   },
 
   createCampaign: async (_, { campaignInput }, context): Promise<CampaignMutationResponse> => {
     const userId = "66c4b26f8d94b6da2b1fa18d"
     // console.log("context.userId", context.userId)  // TODO: FIXME:
     // console.table(context)
-    let campaign = await dataSourcesMongo.createCampaign(userId, campaignInput);
+    let campaign = await dataSourcesMongo.createCampaign(userId, campaignInput)
     // console.log("createCampaign return: ", campaign)
     return {...campaign}
   },
 
   createPoll: async (_, { pollInput }, context): Promise<PollMutationResponse> => {
-    console.log("create poll");
-    console.log(context);
-    let poll = await dataSourcesMongo.createPoll(context.userId, pollInput);
-    console.log("createPoll return: ", poll);
-    return poll;
+    console.log("create poll")
+    console.log(context)
+    // TODO: FIXME: enable context and get authorId from context.userId
+    let poll = await dataSourcesMongo.createPoll(context.userId, pollInput)
+    console.log("createPoll return: ", poll)
+    return poll
   },
 
   createPollOption: async (_, { pollOptionInput }, context): Promise<PollOptionMutationResponse> => {
     console.log("create poll option")
     console.log(context)
-    let pollOption = await dataSourcesMongo.createPollOption(context.userId, pollOptionInput);
+    let pollOption = await dataSourcesMongo.createPollOption(context.userId, pollOptionInput)
     console.log("createPollOption return: ", pollOption)
     return pollOption
   },
@@ -237,17 +238,17 @@ const mutations: MutationResolvers = {
   togglePausePoll: async (_, { pausePollInput }, context): Promise<PauseMutationResponse> => {
     console.log("toggle pause poll")
     console.log(context)
-    let campaignStatus = await dataSourcesMongo.togglePausePoll(pausePollInput);
+    let campaignStatus = await dataSourcesMongo.togglePausePoll(pausePollInput)
     console.log("togglePausePoll return: ", campaignStatus)
-    return campaignStatus;
+    return campaignStatus
   },
 
   togglePauseCampaign: async (_, { pauseCampaignInput }, context): Promise<PauseMutationResponse> => {
     console.log("toggle pause campaign")
     console.log(context)
-    let campaignStatus = await dataSourcesMongo.togglePauseCampaign(pauseCampaignInput);
+    let campaignStatus = await dataSourcesMongo.togglePauseCampaign(pauseCampaignInput)
     console.log("togglePauseCampaign return: ", campaignStatus)
-    return campaignStatus;
+    return campaignStatus
   },
 
   // (campaignId: String!): pauseMutationResponse
@@ -256,21 +257,21 @@ const mutations: MutationResolvers = {
   // addVote: async (_, vote: VoteInput, { dataSources }): Promise<AddVoteMutationResponse>  => {
   addVote: async (_, { voteInput }): Promise<AddVoteMutationResponse> => {
     console.log("addVote async mutations...")
-    // let responseObject = await validateVote(voteInput);
+    // let responseObject = await validateVote(voteInput)
     let responseObject = {  // TODO: DEBUG: REVIEW: delete this object
       success: true,
       code: 200,
       message: "ok"
     }
     if (responseObject.success) {
-      console.log("VOTE IS VALID");
+      console.log("VOTE IS VALID")
       // possibility to filter publish: withFilter
-      let voteResponse = await dataSourcesRedis.addVote(voteInput);
-      console.table(voteResponse);
-      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteResponse.vote });
-      return voteResponse;
+      let voteResponse = await dataSourcesRedis.addVote(voteInput)
+      console.table(voteResponse)
+      pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteResponse.vote })
+      return voteResponse
     } else {
-      console.log("VOTE IS NOT VALID");
+      console.log("VOTE IS NOT VALID")
       console.log(responseObject.message)
       return {
         code: responseObject.code,
@@ -280,6 +281,6 @@ const mutations: MutationResolvers = {
       }
     }
   }
-};
+}
 
-export default mutations;
+export default mutations
