@@ -239,6 +239,9 @@ type PollOption {
   pollId: String!
   title: String!
   description: String
+  sats: Int!
+  votes: Int!
+  views: Int!
 }
 
 input PollOptionInput {

@@ -222,9 +222,9 @@ const mutations: MutationResolvers = {
     console.log("create poll")
     console.log(context)
     // TODO: FIXME: enable context and get authorId from context.userId
-    let poll = await dataSourcesMongo.createPoll(context.userId, pollInput)
-    console.log("createPoll return: ", poll)
-    return poll
+    let pollMutationResponse = await dataSourcesMongo.createPoll(context.userId, pollInput)
+    // console.log("createPoll return: ", pollMutationResponse)
+    return pollMutationResponse
   },
 
   createPollOption: async (_, { pollOptionInput }, context): Promise<PollOptionMutationResponse> => {

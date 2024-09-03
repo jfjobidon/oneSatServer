@@ -195,12 +195,12 @@ export class DataSourcesRedis {
   }
 
   async getSatsForPoll(pollId: string): Promise<number> {
-    const satPoll: Entity[] = await satsPollRepository.search().where('pollId').equals(pollId).return.all();
+    const satsPoll: Entity[] = await satsPollRepository.search().where('pollId').equals(pollId).return.all();
     let sats: number = 0
-    if (satPoll.length == 0) {
+    if (satsPoll.length == 0) {
       sats = 0
     } else {
-      sats = parseInt((satPoll[0].sats).toString())
+      sats = parseInt((satsPoll[0].sats).toString())
     }
     return sats
   }
@@ -228,7 +228,7 @@ export class DataSourcesRedis {
     return nbVotes
   }
 
-  async getViewsForPoll(pollId: string): Promise<number> {
+  async getNbViewsForPoll(pollId: string): Promise<number> {
     // console.log("pollId", pollId)
     const viewsPoll: Entity[] = await viewsPollRepository.search().where('pollId').equals(pollId).return.all();
     let views: number
@@ -402,6 +402,44 @@ export class DataSourcesRedis {
     let votesResponse: Vote[] = allVotes.map(x => Object(x));
     return { votes: votesResponse }
   }
+
+  
+  async getSatsForPollOption(pollOptionId: string): Promise<number> {
+    const satsPollOption: Entity[] = await satsPollOptionRepository.search().where('pollOptionId').equals(pollOptionId).return.all();
+    let sats: number = 0
+    if (satsPollOption.length == 0) {
+      sats = 0
+    } else {
+      sats = parseInt((satsPollOption[0].sats).toString())
+    }
+    return sats
+  }
+
+  async getNbVotesForPollOption(pollOptionId: string): Promise<number> {
+    const nbVotesPollOption: Entity[] = await votesPollOptionRepository.search().where('pollOptionId').equals(pollOptionId).return.all();
+    let nbVotes: number
+    if (nbVotesPollOption.length == 0) {
+      nbVotes = 0
+    } else {
+      nbVotes = parseInt((nbVotesPollOption[0].votes).toString())
+    }
+    return nbVotes
+  }
+
+  
+  async getNbViewsForPollOption(pollOptionId: string): Promise<number> {
+    console.log("pollOptionId", pollOptionId)
+    const viewsPollOption: Entity[] = await viewsPollOptionRepository.search().where('pollOptionId').equals(pollOptionId).return.all();
+    let views: number
+    if (viewsPollOption.length == 0) {
+      views = 0
+    } else {
+      views = parseInt((viewsPollOption[0].views).toString())
+    }
+    return views
+  }
+
+// getVotesForPollOption  TODO:
 
   async getVotesForUser(userId: string): Promise<GetVotesQueryResponse> {
     const allVotes = await voteRepository.search()
