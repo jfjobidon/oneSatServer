@@ -200,6 +200,8 @@ export class DataSourcesMongo {
         return null
       } else {
         const polls = await this.getPollsAllForCampaign(campaignId)
+        console.log("polls")
+        console.table(polls)
         // const polls = []
         const sats = await dataSourcesRedis.getSatsForCampaign(campaignId)
         const votes = await dataSourcesRedis.getNbVotesForCampaign(campaignId)
@@ -315,30 +317,28 @@ export class DataSourcesMongo {
   }
 
   async getPollsAllForCampaign(campaignId: string): Promise<PollAll[]> {
-    console.log("campaignId", campaignId)
-    // const campaign = await prisma.campaign.findUnique({ where: {id: campaignId} })
-    // return campaign.polls
-    // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}})
-    let pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} })
-    // const pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: "66ab973fe635cdbb9a694333"} })
-    // const pollsAll: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: "65f85b91bbe053d8e26121fd"} })
+    let pollsAllMongo: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} })
+    console.log("polslallmongo")
+    console.table(pollsAllMongo)
+    let pollsAll: PollAll[] = []
+    // pollsAllMongo.forEach(async poll => {
+      for (const pollAll of pollsAllMongo) {
+        console.log("pollAll")
+        console.table(pollAll)
+        // const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
+        const pollOptions = []
+        // console.log("pollOptions", pollOptions)
+        const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
+        const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
+        // console.log("getNbVotesForPoll", votes)
+        const views = await dataSourcesRedis.getNbViewsForPoll(pollAll.id)
+        console.log("getNbViewsForPoll", views)
+        pollsAll.push({...pollAll, sats, votes, views, pollOptions})
+      }
+    // })
+    console.log("res pollsAll")
     console.table(pollsAll)
-    // pollsAll = []
-    // pollsAll.forEach(poll => {
-    // let polls: PollAll[] = []
-    // for (const pollAll of pollsAll) {
-    //   console.table(pollAll)
-    //   const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
-    //   // console.log("pollOptions", pollOptions)
-    //   const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
-    //   const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
-    //   // console.log("getNbVotesForPoll", votes)
-    //   const views = await dataSourcesRedis.getNbViewsForPoll(pollAll.id)
-    //   console.log("getNbViewsForPoll", views)
-    //   polls.push({...pollAll, sats, votes, views, pollOptions})
-    // }
-    // return polls
-    return []
+    return pollsAll
   }
 
   async getPollOption(pollOptionId: string): Promise<PollOption> {
