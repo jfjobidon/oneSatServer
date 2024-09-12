@@ -289,8 +289,9 @@ export class DataSourcesMongo {
     const sats = await dataSourcesRedis.getSatsForPoll(pollId)
     const nbVotes = await dataSourcesRedis.getNbVotesForPoll(pollId)
     const nbViews = await dataSourcesRedis.getNbViewsForPoll(pollId)
+    const pollOptions = await this.getPollOptionsForPoll(pollId)
     // console.table(poll)
-    return {...poll, sats: sats, votes: nbVotes, views: nbViews}
+    return {...poll, sats: sats, votes: nbVotes, views: nbViews, pollOptions: pollOptions}
   }
 
   async getPollsForCampaign(campaignId: string): Promise<Poll[]> {
@@ -345,7 +346,7 @@ export class DataSourcesMongo {
     console.log("in getPollOption")
     // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionId}})
     const pollOption: PollOptionMongo = await prisma.pollOption.findUnique({ where: { id: pollOptionId}})
-    // console.log(pollOption)
+    console.log(pollOption)
     const sats = await dataSourcesRedis.getSatsForPollOption(pollOptionId)
     const nbVotes = await dataSourcesRedis.getNbVotesForPollOption(pollOptionId)
     const nbViews = await dataSourcesRedis.getNbViewsForPollOption(pollOptionId)
@@ -617,6 +618,7 @@ export class DataSourcesMongo {
         success: true,
         message: "poll option created",
         pollOption: {
+          id: result.id,
           pollId: pollId,
           title: pollOptionInput.title,
           description: pollOptionInput.description,

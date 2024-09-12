@@ -236,6 +236,7 @@ type CampaignMutationResponse {
 }
 
 type PollOption {
+  id: String!
   pollId: String!
   title: String!
   description: String
