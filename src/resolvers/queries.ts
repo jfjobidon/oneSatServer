@@ -160,17 +160,11 @@ const queries: QueryResolvers = {
     }
   },
 
-  // getVotesForCampaign: async (_, {campaignId, userId}) => {
-  //   // console.log("getVotesForCampaign from client");
-  //   return await dataSourcesRedis.getVotesForCampaign(campaignId, userId);
-  // },
-  // getVotesForCampaign: async (_, args) => {
-  //   console.log("getVotesForCampaign from client");
-  //   console.log(args.userId)
-  //   return await dataSourcesRedis.getVotesForCampaign(args.campaignId);
-  // },
+  getVotesForCampaign: async (_, {campaignId, userId}) => {
+    // console.log("getVotesForCampaign from client");
+    return await dataSourcesRedis.getVotesForCampaign(campaignId, userId);
+  },
   
-  // REVIEW: nécessaire dans schema graphql ???
   getVotesForPoll: async (_, {pollId, userId}) => {
     // console.log("getVotesForPoll from client");
     return await dataSourcesRedis.getVotesForPoll(pollId, userId);

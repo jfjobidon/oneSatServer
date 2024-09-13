@@ -1,5 +1,20 @@
 
-import { User, AddVoteMutationResponse, MutationResolvers, VoteInput, UserMutationResponse, CampaignMutationResponse, CampaignInput, UserInput, PollInput, PollOptionInput, PollMutationResponse, PollOptionMutationResponse, FundingMutationResponse, PauseMutationResponse } from '../__generated__/resolvers-types'
+import {
+  User,
+  AddVoteMutationResponse,
+  MutationResolvers,
+  VoteInput,
+  UserMutationResponse,
+  CampaignMutationResponse,
+  CampaignInput,
+  UserInput,
+  PollInput,
+  PollOptionInput,
+  PollMutationResponse,
+  PollOptionMutationResponse,
+  FundingMutationResponse,
+  PauseMutationResponse
+} from '../__generated__/resolvers-types'
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types'
 import { pubsub } from './pubsub.js'

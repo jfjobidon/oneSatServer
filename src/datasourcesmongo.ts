@@ -350,7 +350,7 @@ export class DataSourcesMongo {
     const sats = await dataSourcesRedis.getSatsForPollOption(pollOptionId)
     const nbVotes = await dataSourcesRedis.getNbVotesForPollOption(pollOptionId)
     const nbViews = await dataSourcesRedis.getNbViewsForPollOption(pollOptionId)
-    return {...pollOption, sats: sats, votes: nbVotes, views: nbViews}
+    return {...pollOption, sats: sats, votes: nbVotes, views: nbViews, aVotes: []} // FIXME: TODO: get aVotes
   }
 
   async getPollOptionsForPoll(pollId: string): Promise<PollOption[]> {
@@ -368,7 +368,7 @@ export class DataSourcesMongo {
         const sats = await dataSourcesRedis.getSatsForPollOption(pollOption.id)
         const votes = await dataSourcesRedis.getNbVotesForPollOption(pollOption.id)
         const views = await dataSourcesRedis.getNbViewsForPollOption(pollOption.id)
-        pollOptions.push({...pollOption, sats, votes, views})
+        pollOptions.push({...pollOption, sats, votes, views, aVotes: []}) // FIXME: TODO: get aVotes
       }
       return pollOptions
     }
@@ -624,7 +624,8 @@ export class DataSourcesMongo {
           description: pollOptionInput.description,
           sats: 0,
           votes: 0,
-          views: 0
+          views: 0,
+          aVotes: []
         }
       }
      } catch (err) {

@@ -243,6 +243,7 @@ type PollOption {
   sats: Int!
   votes: Int!
   views: Int!
+  aVotes: [Vote]!
 }
 
 input PollOptionInput {
