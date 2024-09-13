@@ -19,7 +19,8 @@ import {
   PollAll,
   FundingInput,
   FundingMutationResponse,
-  PauseMutationResponse 
+  PauseMutationResponse,
+  GetVotesQueryResponse
 } from "./__generated__/resolvers-types"
 
 // const UsersDB: Omit<Required<User>, "__typename">[] = usersData
@@ -344,13 +345,15 @@ export class DataSourcesMongo {
 
   async getPollOption(pollOptionId: string): Promise<PollOption> {
     console.log("in getPollOption")
+    const userId = "66c4b26f8d94b6da2b1fa18d" // TODO: FIXME:
     // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionId}})
     const pollOption: PollOptionMongo = await prisma.pollOption.findUnique({ where: { id: pollOptionId}})
     console.log(pollOption)
     const sats = await dataSourcesRedis.getSatsForPollOption(pollOptionId)
     const nbVotes = await dataSourcesRedis.getNbVotesForPollOption(pollOptionId)
     const nbViews = await dataSourcesRedis.getNbViewsForPollOption(pollOptionId)
-    return {...pollOption, sats: sats, votes: nbVotes, views: nbViews, aVotes: []} // FIXME: TODO: get aVotes
+    const aVotes: GetVotesQueryResponse = await dataSourcesRedis.getVotesForPollOption(pollOptionId, userId)
+    return {...pollOption, sats: sats, votes: nbVotes, views: nbViews, aVotes: aVotes.votes}
   }
 
   async getPollOptionsForPoll(pollId: string): Promise<PollOption[]> {
