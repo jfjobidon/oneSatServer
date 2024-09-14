@@ -41,7 +41,7 @@ console.log("blindRankDefault " + blindRankDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 // NOTE: Campaing prisma !== Campaign graphQL
-import { Campaign as CampaingMongo, Poll as PollMongo, PollOption as PollOptionMongo, PrismaClient } from '@prisma/client'
+import { Campaign as CampaingMongo, Poll as PollMongo, PollOption as PollOptionMongo, User as UserMongo, PrismaClient } from '@prisma/client'
 import { DataSourcesRedis } from "./datasourcesredis.js"
 const dataSourcesRedis = new DataSourcesRedis()
 // import { describe } from "node:test"
@@ -693,6 +693,21 @@ export class DataSourcesMongo {
     // console.table(campaigns)
     return {...user, campaigns: campaignsStats}
     // return null
+  }
+
+  async getUserName(id: string): Promise<null | string> {
+    let user: UserMongo
+    try {
+      user = await prisma.user.findUnique({ where: { id: id } })
+      if (user === null) {
+        return null
+      }
+    }
+    catch(error) {
+      console.log("error user", error)
+      return null
+    }
+    return user.name
   }
 
   async signup(userInput: UserInput, userCode: string): Promise<UserMutationResponse> {

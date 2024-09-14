@@ -136,6 +136,7 @@ type PollMutationResponse {
 
 type Vote {
   userId: String!
+  userName: String!
   voteCode: String!
   invoice: String!
   sats: Int!
@@ -148,6 +149,7 @@ type Vote {
 
 input VoteInput {
   userId: String!
+  userName: String!
   invoice: String!
   sats: Int!
   campaignId: String!
@@ -295,6 +297,7 @@ type Query {
   getVotesForUser(userId: String): getVotesQueryResponse
   getUsers: [User]
   getUserById(id: String): User
+  getUserName(id: String): String
   getUserByName(name: String): User
   getUserByEmail(email: String): User
   getPollOption(id: String): PollOption
