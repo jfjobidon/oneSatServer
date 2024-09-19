@@ -390,8 +390,8 @@ export class DataSourcesMongo {
     const creationDate = new Date()
     const startingDate = new Date(campaignInput.startingDate)
     const endingDate = new Date(campaignInput.endingDate)
-    console.log("startingDate: " + startingDate)
-    console.log("creationDate: " + creationDate)
+    // console.log("startingDate: " + startingDate)
+    // console.log("creationDate: " + creationDate)
     
     if (creationDate > startingDate) {
       console.log("creationDate NOT OK")
@@ -441,12 +441,14 @@ export class DataSourcesMongo {
       console.table(result)
       console.log("result.campaigns")
       console.table(result.campaigns)
+      console.log("new campaign")
+      console.table(result.campaigns[result.campaigns.length - 1])
       return {
         code: "200",
         success: true,
         message: "Campaign created!",
         campaign: {
-          id: result.campaigns[0].id,
+          id: result.campaigns[result.campaigns.length - 1].id, // REVIEW: new created campaign allways last ?
           authorId: authorId,
           title: campaignInput.title,
           question: campaignInput.question,
