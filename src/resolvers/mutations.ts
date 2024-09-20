@@ -228,7 +228,9 @@ const mutations: MutationResolvers = {
     const userId = "66c4b26f8d94b6da2b1fa18d"
     // console.log("context.userId", context.userId)  // TODO: FIXME:
     // console.table(context)
+    console.log("1")
     let campaign = await dataSourcesMongo.createCampaign(userId, campaignInput)
+    console.log("2")
     // console.log("createCampaign return: ", campaign)
     return {...campaign}
   },

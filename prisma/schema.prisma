@@ -45,6 +45,7 @@ model Campaign {
   suggestedSatPerVote Int // default in config file
   blindAmount         Boolean
   blindRank           Boolean
+  blindVote           Boolean
   allowMultipleVotes  Boolean
   paused              Boolean  @default(false) // REVIEW: how to get the variable from config file ?
   polls               Poll[]
@@ -100,6 +101,7 @@ model Poll {
   suggestedSatPerVote Int // default in config file
   blindAmount         Boolean
   blindRank           Boolean
+  blindVote           Boolean
   allowMultipleVotes  Boolean
   pollOptions         PollOption[]
 }

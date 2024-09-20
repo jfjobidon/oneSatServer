@@ -93,6 +93,7 @@ type Poll {
   suggestedSatPerVote: Int
   blindAmount: Boolean
   blindRank: Boolean
+  blindVote: Boolean
   allowMultipleVotes: Boolean
   pollOptions: [PollOption]
   sats: Int!
@@ -124,6 +125,7 @@ input PollInput {
   suggestedSatPerVote: Int
   blindAmount: Boolean
   blindRank: Boolean
+  blindVote: Boolean
   allowMultipleVotes: Boolean
 }
 
@@ -185,6 +187,7 @@ type Campaign {
   suggestedSatPerVote: Int
   blindAmount: Boolean
   blindRank: Boolean
+  blindVote: Boolean
   allowMultipleVotes: Boolean
   paused: Boolean
   sats: Int
@@ -208,6 +211,7 @@ type CampaignAll {
   suggestedSatPerVote: Int
   blindAmount: Boolean
   blindRank: Boolean
+  blindVote: Boolean
   allowMultipleVotes: Boolean
   paused: Boolean
   sats: Int!
@@ -227,6 +231,7 @@ input CampaignInput {
   suggestedSatPerVote: Int
   blindAmount: Boolean
   blindRank: Boolean
+  blindVote: Boolean
   allowMultipleVotes: Boolean
 }
 

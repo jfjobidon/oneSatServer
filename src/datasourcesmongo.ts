@@ -31,6 +31,7 @@ const suggestedSatPerVoteDefault = config.get<string>('suggestedSatPerVoteDefaul
 const campaignPausedDefault = config.get<string>('campaignPausedDefault') 
 const blindAmountDefault = config.get<string>('blindAmount') 
 const blindRankDefault = config.get<string>('blindRank') 
+const blindVoteDefault = config.get<string>('blindVote') 
 const allowMultipleVotesDefault = config.get<string>('allowMultipleVotes') 
 console.log("minSatPerVoteDefault " + minSatPerVoteDefault)
 console.log("maxSatPerVoteDefault " + maxSatPerVoteDefault)
@@ -38,6 +39,7 @@ console.log("suggestedSatPerVoteDefault " + suggestedSatPerVoteDefault)
 console.log("campaignPausedDefault " + campaignPausedDefault)
 console.log("blindAmountDefault " + blindAmountDefault)
 console.log("blindRankDefault " + blindRankDefault)
+console.log("blindVoteDefault " + blindVoteDefault)
 console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 // NOTE: Campaing prisma !== Campaign graphQL
@@ -48,30 +50,6 @@ const dataSourcesRedis = new DataSourcesRedis()
 // import { commandOptions } from "redis"
 // import { clearScreenDown } from "readline"
 const prisma = new PrismaClient()
-
-const pollsTest = [
-  {
-    id: "65f85cc473d0142ca49897df",
-    campaignId: "65f85b91bbe053d8e26121fd",
-    authorId: "65f85cc473d0142ca49897df",
-    title: "title",
-    description: "desc",
-    paused: false,
-    creationDate: Date(),
-    startingDate: Date(),
-    endingDate: Date(),
-    minSatPerVote: 2,
-    maxSatPerVote: 5,
-    suggestedSatPerVote: 3,
-    blindAmount: false,
-    blindRank: false,
-    allowMultipleVotes: false,
-    pollOptions: [],
-    sats: 23,
-    votes: 34,
-    views: 45
-  }
-]
 
 export class DataSourcesMongo {
 
@@ -379,13 +357,17 @@ export class DataSourcesMongo {
 
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
   async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
+    console.log("createCampaign")
     console.log("authorId", authorId)
+    console.log("createCampaign blindVote 1", campaignInput.blindVote)
+    console.log("createCampaign blindVoteDefault", blindVoteDefault)
     console.table(campaignInput)
     const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault
     const maxSatPerVote = campaignInput.maxSatPerVote || maxSatPerVoteDefault
     const suggestedSatPerVote = campaignInput.suggestedSatPerVote || suggestedSatPerVoteDefault
     const blindAmount = campaignInput.blindAmount || blindAmountDefault
     const blindRank = campaignInput.blindRank || blindRankDefault
+    const blindVote = campaignInput.blindVote || blindVoteDefault
     const allowMultipleVotes = campaignInput.allowMultipleVotes || allowMultipleVotesDefault
     const creationDate = new Date()
     const startingDate = new Date(campaignInput.startingDate)
@@ -427,6 +409,7 @@ export class DataSourcesMongo {
                   paused: campaignPausedDefault,
                   blindAmount: blindAmount,
                   blindRank: blindRank,
+                  blindVote: blindVote,
                   allowMultipleVotes: allowMultipleVotes
                 }
               ]
@@ -462,8 +445,8 @@ export class DataSourcesMongo {
           paused: campaignPausedDefault,
           blindAmount: blindAmount,
           blindRank: blindRank,
+          blindVote: blindVote,
           allowMultipleVotes: allowMultipleVotes,
-          // creationDate: result.campaigns[1].creationDate
           creationDate: creationDate,
           updatedDate: creationDate,
           sats: 0,
@@ -511,6 +494,7 @@ export class DataSourcesMongo {
     const suggestedSatPerVote = pollInput.suggestedSatPerVote || suggestedSatPerVoteDefault
     const blindAmount = pollInput.blindAmount || blindAmountDefault
     const blindRank = pollInput.blindRank || blindRankDefault
+    const blindVote = pollInput.blindVote || blindVoteDefault
     const allowMultipleVotes = pollInput.allowMultipleVotes || allowMultipleVotesDefault
     const creationDate = new Date()
     const startingDate = new Date(pollInput.startingDate)
@@ -548,6 +532,7 @@ export class DataSourcesMongo {
                   suggestedSatPerVote: suggestedSatPerVote,
                   blindAmount: blindAmount,
                   blindRank: blindRank,
+                  blindVote: blindVote,
                   allowMultipleVotes: allowMultipleVotes
                 }
               ]
@@ -583,6 +568,7 @@ export class DataSourcesMongo {
           allowMultipleVotes: allowMultipleVotes,
           blindAmount: blindAmount,
           blindRank: blindRank,
+          blindVote: blindVote,
           pollOptions: [],
           sats: 0,
           views: 0,

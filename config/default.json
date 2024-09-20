@@ -10,5 +10,6 @@
     "campaignPausedDefault": false,
     "blindAmount": false,
     "blindRank": false,
+    "blindVote": false,
     "allowMultipleVotes": false
 }
