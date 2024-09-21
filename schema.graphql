@@ -88,6 +88,7 @@ type Poll {
   creationDate: DateScalar!
   startingDate: DateScalar!
   endingDate: DateScalar!
+  updatedDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
@@ -175,7 +176,6 @@ type Campaign {
   id: String!
   authorId: String!
   title: String!
-  question: String!
   description: String!
   message: String
   creationDate: DateScalar!
@@ -199,7 +199,6 @@ type CampaignAll {
   id: String!
   authorId: String!
   title: String!
-  question: String!
   description: String!
   message: String
   creationDate: DateScalar!
@@ -222,7 +221,6 @@ type CampaignAll {
 
 input CampaignInput {
   title: String!
-  question: String!
   description: String!
   startingDate: DateScalar!
   endingDate: DateScalar!

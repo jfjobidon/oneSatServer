@@ -434,7 +434,6 @@ export class DataSourcesMongo {
           id: result.campaigns[result.campaigns.length - 1].id, // REVIEW: new created campaign allways last ?
           authorId: authorId,
           title: campaignInput.title,
-          question: campaignInput.question,
           description: campaignInput.description,
           startingDate: startingDate,
           endingDate: endingDate,
