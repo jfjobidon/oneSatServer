@@ -180,7 +180,7 @@ export class DataSourcesMongo {
       } else {
         const polls = await this.getPollsAllForCampaign(campaignId)
         console.log("polls")
-        console.table(polls)
+        console.log(polls)
         // const polls = []
         const sats = await dataSourcesRedis.getSatsForCampaign(campaignId)
         const votes = await dataSourcesRedis.getNbVotesForCampaign(campaignId)
@@ -305,8 +305,7 @@ export class DataSourcesMongo {
       for (const pollAll of pollsAllMongo) {
         console.log("pollAll")
         console.table(pollAll)
-        // const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
-        const pollOptions = []
+        const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
         // console.log("pollOptions", pollOptions)
         const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
         const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
@@ -496,6 +495,7 @@ export class DataSourcesMongo {
     const blindVote = pollInput.blindVote || blindVoteDefault
     const allowMultipleVotes = pollInput.allowMultipleVotes || allowMultipleVotesDefault
     const creationDate = new Date()
+    const updatedDate = creationDate
     const startingDate = new Date(pollInput.startingDate)
     const endingDate = new Date(pollInput.endingDate)
 
@@ -561,6 +561,7 @@ export class DataSourcesMongo {
           creationDate: creationDate,
           startingDate: startingDate,
           endingDate: endingDate,
+          updatedDate: updatedDate,
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,
           suggestedSatPerVote: suggestedSatPerVote,
