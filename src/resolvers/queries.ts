@@ -92,6 +92,8 @@ const queries: QueryResolvers = {
   },
 
   getCampaign: async(_, args) => {
+    // TODO: dans dataSourcesMongo, on fait la requete sats, views, votes dans dataSourcesRedis
+    //       ces requêtes devraient être faites ici: keep mongo and Redis separated...
     console.log("dans getCampaign...")
     const campaign = await dataSourcesMongo.getCampaign(args.id);
     return campaign;

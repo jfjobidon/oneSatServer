@@ -604,12 +604,14 @@ export class DataSourcesMongo {
           pollOptions: true
         }
       })
+      const pollOption = result.pollOptions.filter(pollOption => pollOption.title == pollOptionInput.title)
+
       return {
         code: "200",
         success: true,
         message: "poll option created",
         pollOption: {
-          id: result.id,
+          id: pollOption[0].id,
           pollId: pollId,
           title: pollOptionInput.title,
           description: pollOptionInput.description,
