@@ -57,12 +57,12 @@ export class DataSourcesRedis {
   async addVote(voteInput: VoteInput): Promise<AddVoteMutationResponse> {
     // TODO: tester createAndSave
     const voteCode = randomstring.generate(12) // REVIEW: nanoId ???
-    console.log(voteCode)
+    // console.log(voteCode)
     const currentDate = new Date
     const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() })
-    console.table(vote)
+    // console.table(vote)
     // console.log('entityId: ', vote[entityId])
-    console.log('entityKeyName: ', vote[EntityKeyName])
+    // console.log('entityKeyName: ', vote[EntityKeyName])
     // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
     const exists = await redisClient.exists(vote[EntityKeyName])
     if (exists) {
@@ -428,7 +428,7 @@ export class DataSourcesRedis {
 
   
   async getNbViewsForPollOption(pollOptionId: string): Promise<number> {
-    console.log("pollOptionId", pollOptionId)
+    // console.log("pollOptionId", pollOptionId)
     const viewsPollOption: Entity[] = await viewsPollOptionRepository.search().where('pollOptionId').equals(pollOptionId).return.all()
     let views: number
     if (viewsPollOption.length == 0) {

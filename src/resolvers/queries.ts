@@ -181,7 +181,7 @@ const queries: QueryResolvers = {
   },
   
   getVotesForPollOption: async (_, {pollOptionId, userId}) => {
-    console.log("getVotesForPollOption from client");
+    // console.log("getVotesForPollOption from client");
     return await dataSourcesRedis.getVotesForPollOption(pollOptionId, userId);
   },
   

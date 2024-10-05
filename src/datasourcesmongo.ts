@@ -33,14 +33,14 @@ const blindAmountDefault = config.get<string>('blindAmount')
 const blindRankDefault = config.get<string>('blindRank') 
 const blindVoteDefault = config.get<string>('blindVote') 
 const allowMultipleVotesDefault = config.get<string>('allowMultipleVotes') 
-console.log("minSatPerVoteDefault " + minSatPerVoteDefault)
-console.log("maxSatPerVoteDefault " + maxSatPerVoteDefault)
-console.log("suggestedSatPerVoteDefault " + suggestedSatPerVoteDefault)
-console.log("campaignPausedDefault " + campaignPausedDefault)
-console.log("blindAmountDefault " + blindAmountDefault)
-console.log("blindRankDefault " + blindRankDefault)
-console.log("blindVoteDefault " + blindVoteDefault)
-console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
+// console.log("minSatPerVoteDefault " + minSatPerVoteDefault)
+// console.log("maxSatPerVoteDefault " + maxSatPerVoteDefault)
+// console.log("suggestedSatPerVoteDefault " + suggestedSatPerVoteDefault)
+// console.log("campaignPausedDefault " + campaignPausedDefault)
+// console.log("blindAmountDefault " + blindAmountDefault)
+// console.log("blindRankDefault " + blindRankDefault)
+// console.log("blindVoteDefault " + blindVoteDefault)
+// console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
 // NOTE: Campaing prisma !== Campaign graphQL
 import { Campaign as CampaingMongo, Poll as PollMongo, PollOption as PollOptionMongo, User as UserMongo, PrismaClient } from '@prisma/client'
@@ -109,17 +109,17 @@ export class DataSourcesMongo {
   }
 
   async getUserByName(name: string): Promise<User> {
-    console.log("in getUserByName")
-    console.log(name)
+    // console.log("in getUserByName")
+    // console.log(name)
     const user = prisma.user.findUnique({ where: { name: name } })
     return user
   }
 
   async getUserByEmail(email: string): Promise<User> {
-    console.log("in getUserByEmail")
-    console.log(email)
+    // console.log("in getUserByEmail")
+    // console.log(email)
     const user = await prisma.user.findUnique({ where: { email: email } })
-    console.log("date user: " + user.creationDate)
+    // console.log("date user: " + user.creationDate)
     return user
     // return null
   }
@@ -143,7 +143,7 @@ export class DataSourcesMongo {
   }
 
   async getCampaigns(userId: string): Promise<Campaign[]> {
-    console.log("userId", userId)
+    // console.log("userId", userId)
 
     try {
       const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} })
@@ -179,8 +179,8 @@ export class DataSourcesMongo {
         return null
       } else {
         const polls = await this.getPollsAllForCampaign(campaignId)
-        console.log("polls")
-        console.log(polls)
+        // console.log("polls")
+        // console.log(polls)
         // const polls = []
         const sats = await dataSourcesRedis.getSatsForCampaign(campaignId)
         const votes = await dataSourcesRedis.getNbVotesForCampaign(campaignId)
@@ -292,40 +292,46 @@ export class DataSourcesMongo {
         const views = await dataSourcesRedis.getNbViewsForPoll(poll.id)
         polls.push({...poll, sats, votes, views})
       }
+      // by default: sorting polls by sats DESC
+      polls.sort(function(a, b) {
+        return b.sats - a.sats;
+      })
       return polls
     }
   }
 
   async getPollsAllForCampaign(campaignId: string): Promise<PollAll[]> {
     let pollsAllMongo: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} })
-    console.log("polslallmongo")
-    console.table(pollsAllMongo)
+    // console.log("polslallmongo")
+    // console.table(pollsAllMongo)
     let pollsAll: PollAll[] = []
-    // pollsAllMongo.forEach(async poll => {
-      for (const pollAll of pollsAllMongo) {
-        console.log("pollAll")
-        console.table(pollAll)
-        const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
-        // console.log("pollOptions", pollOptions)
-        const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
-        const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
-        // console.log("getNbVotesForPoll", votes)
-        const views = await dataSourcesRedis.getNbViewsForPoll(pollAll.id)
-        console.log("getNbViewsForPoll", views)
-        pollsAll.push({...pollAll, sats, votes, views, pollOptions})
-      }
-    // })
-    console.log("res pollsAll")
-    console.table(pollsAll)
+    for (const pollAll of pollsAllMongo) {
+      // console.log("pollAll")
+      // console.table(pollAll)
+      const pollOptions = await this.getPollOptionsForPoll(pollAll.id)
+      // console.log("pollOptions", pollOptions)
+      const sats = await dataSourcesRedis.getSatsForPoll(pollAll.id)
+      const votes = await dataSourcesRedis.getNbVotesForPoll(pollAll.id)
+      // console.log("getNbVotesForPoll", votes)
+      const views = await dataSourcesRedis.getNbViewsForPoll(pollAll.id)
+      // console.log("getNbViewsForPoll", views)
+      pollsAll.push({...pollAll, sats, votes, views, pollOptions})
+    }
+    // console.log("res pollsAll")
+    // console.table(pollsAll)
+    // by default: sorting polls by sats DESC
+    pollsAll.sort(function(a, b) {
+      return b.sats - a.sats;
+    })
     return pollsAll
   }
 
   async getPollOption(pollOptionId: string): Promise<PollOption> {
-    console.log("in getPollOption")
+    // console.log("in getPollOption")
     const userId = "66c4b26f8d94b6da2b1fa18d" // TODO: FIXME:
     // const pollOption = await prisma.pollOption.findUnique({ where: { pollId: pollOptionId}})
     const pollOption: PollOptionMongo = await prisma.pollOption.findUnique({ where: { id: pollOptionId}})
-    console.log(pollOption)
+    // console.log(pollOption)
     const sats = await dataSourcesRedis.getSatsForPollOption(pollOptionId)
     const nbVotes = await dataSourcesRedis.getNbVotesForPollOption(pollOptionId)
     const nbViews = await dataSourcesRedis.getNbViewsForPollOption(pollOptionId)
@@ -356,11 +362,11 @@ export class DataSourcesMongo {
 
   // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
   async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
-    console.log("createCampaign")
-    console.log("authorId", authorId)
-    console.log("createCampaign blindVote 1", campaignInput.blindVote)
-    console.log("createCampaign blindVoteDefault", blindVoteDefault)
-    console.table(campaignInput)
+    // console.log("createCampaign")
+    // console.log("authorId", authorId)
+    // console.log("createCampaign blindVote 1", campaignInput.blindVote)
+    // console.log("createCampaign blindVoteDefault", blindVoteDefault)
+    // console.table(campaignInput)
     const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault
     const maxSatPerVote = campaignInput.maxSatPerVote || maxSatPerVoteDefault
     const suggestedSatPerVote = campaignInput.suggestedSatPerVote || suggestedSatPerVoteDefault
@@ -419,12 +425,12 @@ export class DataSourcesMongo {
           campaigns: true
         },
       })
-      console.log("result")
-      console.table(result)
-      console.log("result.campaigns")
-      console.table(result.campaigns)
-      console.log("new campaign")
-      console.table(result.campaigns[result.campaigns.length - 1])
+      // console.log("result")
+      // console.table(result)
+      // console.log("result.campaigns")
+      // console.table(result.campaigns)
+      // console.log("new campaign")
+      // console.table(result.campaigns[result.campaigns.length - 1])
       return {
         code: "200",
         success: true,
@@ -500,10 +506,10 @@ export class DataSourcesMongo {
     const endingDate = new Date(pollInput.endingDate)
 
     // to get the new pollId, we must compare poll database before and after !!!
-    console.log("campaignId", campaignId)
+    // console.log("campaignId", campaignId)
     const pollsBefore = await this.getPollsForCampaign(campaignId)
-    console.log("pollsBefore", pollsBefore)
-    console.table(pollsBefore)
+    // console.log("pollsBefore", pollsBefore)
+    // console.table(pollsBefore)
 
     try {
       const result = await prisma.campaign.update({
@@ -640,7 +646,7 @@ export class DataSourcesMongo {
     }
     // const user = prisma.user.findUnique({where: {id: "65df66779ebcb78f689a4803"}})
     // const user = prisma.user.findUnique({where: {name: id}})
-    console.table(user)
+    // console.table(user)
     // TODO: create a function that returns the campaigns with sats, views and votes
     const campaigns: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: id} })
     // const theCampaigns: Campaign[] = campaigns.map(camp => {
@@ -652,11 +658,11 @@ export class DataSourcesMongo {
 
     let campaignsStats: Campaign[] = []
     for (const campaign of campaigns) {
-      console.log(campaign.id)
+      // console.log(campaign.id)
       // const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
       let sats = 0
       try {
-        console.log("getSatsForCampaign", campaign.id)
+        // console.log("getSatsForCampaign", campaign.id)
         sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
       }
       catch(error) {
@@ -670,14 +676,6 @@ export class DataSourcesMongo {
 
     // for (var i = 0 i < campaigns.length i++) {
     //   campaigns[i] = {...campaigns[i], sats: 1, votes: 2, views: 3}
-    // }
-
-    // fruits.forEach(function(fruit) {
-    //   console.log(fruit)
-    // }) 
-
-    // for (var fruit of fruits) {
-    //   console.log(fruit)
     // }
 
     // console.table(campaigns)
