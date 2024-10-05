@@ -356,6 +356,10 @@ export class DataSourcesMongo {
         const views = await dataSourcesRedis.getNbViewsForPollOption(pollOption.id)
         pollOptions.push({...pollOption, sats, votes, views, aVotes: []}) // FIXME: TODO: get aVotes
       }
+      // by default: sorting pollOptions by sats DESC
+      pollOptions.sort(function(a, b) {
+        return b.sats - a.sats;
+      })
       return pollOptions
     }
   }
