@@ -6,10 +6,6 @@ const dataSourcesRedis = new DataSourcesRedis();
 import { DataSourcesMongo } from "../datasourcesmongo.js";
 import { GraphQLError } from "graphql";
 const dataSourcesMongo = new DataSourcesMongo()
-import { testenv } from '../utils/jwt.js';
-import bcrypt from "bcrypt";
-import { JwtUtil } from "../utils/jwt.js";
-const jwtUtil = new JwtUtil()
 
 import { networkInterfaces } from 'os';
 
@@ -48,7 +44,6 @@ const queries: QueryResolvers = {
   },
 
   getUsers: async (_, __, context) => {
-    // testenv()
     console.table(context)
     console.log(typeof context.roles)
     let users = await dataSourcesMongo.getUsers();
@@ -66,7 +61,7 @@ const queries: QueryResolvers = {
     // });
     // console.table(users)
     return users.map((user) => {
-      return { ...user, password: "********" };
+      return { ...user };
     });
   },
 
@@ -75,7 +70,7 @@ const queries: QueryResolvers = {
     if (user === null) {
       return null
     }
-    return { ...user, password: "********" }
+    return { ...user }
   },
 
   getUserName: async (_, args) => {
@@ -106,7 +101,7 @@ const queries: QueryResolvers = {
 
   getUserByUserName: async (_, args) => {
     const user = await dataSourcesMongo.getUserByUserName(args.userName);
-    return { ...user, password: "********" }
+    return { ...user }
   },
 
   getPollOption: async (_, args) => {
@@ -130,45 +125,45 @@ const queries: QueryResolvers = {
   },
 
   getUserByEmail: async (_, args, contextValue) => {
-    console.log("contextValue: ", contextValue.token)
+    // console.log("contextValue: ", contextValue.token)
     // TODO: check permissions...
     const user = await dataSourcesMongo.getUserByEmail(args.email);
-    return { ...user, password: "********" }
+    return { ...user }
   },
 
-  login: async (_, { email, password }): Promise<UserMutationResponse> => {
-    let user = await dataSourcesMongo.getUserByEmail(email);
-    const token = await jwtUtil.sign();
+  // login: async (_, { email, password }): Promise<UserMutationResponse> => {
+  //   let user = await dataSourcesMongo.getUserByEmail(email);
+  //   const token = await jwtUtil.sign();
 
-    if (user) {
-      const match = await bcrypt.compare(password, user.password);  // REVIEW: password encrypté dans le client !!??
-      if (match) {
-        return {
-          code: '200',
-          success: true,
-          message: "user successfully logged",
-          token: token,
-          user: { ...user, password: "********" }
-        }
-      } else {
-        return {
-          code: '200',
-          success: false,
-          message: "unknown combination email/passwword",
-          token: null,
-          user: null
-        }
-      }
-    } else {
-      return {
-        code: '200',
-        success: false,
-        message: "unknown combination email/passwword",
-        token: null,
-        user: null
-      }
-    }
-  },
+  //   if (user) {
+  //     const match = await bcrypt.compare(password, );  // REVIEW: password encrypté dans le client !!??
+  //     if (match) {
+  //       return {
+  //         code: '200',
+  //         success: true,
+  //         message: "user successfully logged",
+  //         token: token,
+  //         user: { ...user, password: "********" }
+  //       }
+  //     } else {
+  //       return {
+  //         code: '200',
+  //         success: false,
+  //         message: "unknown combination email/passwword",
+  //         token: null,
+  //         user: null
+  //       }
+  //     }
+  //   } else {
+  //     return {
+  //       code: '200',
+  //       success: false,
+  //       message: "unknown combination email/passwword",
+  //       token: null,
+  //       user: null
+  //     }
+  //   }
+  // },
 
   getVotesForCampaign: async (_, {campaignId, userId}) => {
     // console.log("getVotesForCampaign from client");

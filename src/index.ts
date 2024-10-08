@@ -14,7 +14,6 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { readFileSync } from 'fs';
 
-// TODO: put roles in token instead of headers
 import { applyMiddleware } from 'graphql-middleware'
 import { permissions } from './permissions.js';
 
@@ -65,7 +64,6 @@ import resolvers from "./resolvers/index.js";
 const typeDefs = readFileSync('schema.graphql', { encoding: 'utf-8' }); // REVIEW: Error message (callback fct)
 
 interface MyContext {
-  token?: string;
   roles?: string;
   userId?: string;
 }
@@ -124,7 +122,6 @@ app.use(
     server,
     {
       context: async ({ req }) => ({
-        token: req.headers.token,
         roles: req.headers.roles,
         userId: req.headers.userId
       })

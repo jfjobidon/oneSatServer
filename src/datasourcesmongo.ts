@@ -704,19 +704,18 @@ export class DataSourcesMongo {
     return user.userName
   }
 
-  async signup(userInput: UserInput, uid: string): Promise<UserMutationResponse> {
+  async signup(userInput: UserInput): Promise<UserMutationResponse> {
     try {
       let userResponse = await prisma.user.create({
         data: {
-          ...userInput,
-          uid: uid
+          ...userInput
         }
       })
       return {
         code: "200",
         success: true,
         message: "New user created!",
-        user: { ...userResponse, password: "********" },
+        user: { ...userResponse },
       }
     } catch (err) {
       console.log(err)

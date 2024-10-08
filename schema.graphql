@@ -25,7 +25,6 @@ type User {
   id: String!
   email: String!
   userName: String!
-  password: String!
   uid: String!
   roles: [String]
   campaigns: [Campaign]
@@ -37,7 +36,7 @@ type User {
 input UserInput {
   email: String!
   userName: String!
-  password: String!
+  uid: String!
 }
 
 input PausePollInput {
@@ -53,7 +52,6 @@ type UserMutationResponse {
   code: String!
   success: Boolean!
   message: String!
-  token: String
   user: User
 }
 
@@ -310,7 +308,7 @@ type Query {
   getPollsForCampaign(campaignId: String): [Poll]
   getPollOptionsForPoll(pollId: String): [PollOption]
   getVoteById(id: String): Vote
-  login(email: String!, password: String!): UserMutationResponse
+  # login(email: String!, password: String!): UserMutationResponse
 }
 
 # TODO: ajouter les types inputVote, inputCampaign, inputUser

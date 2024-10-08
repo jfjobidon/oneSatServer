@@ -22,11 +22,6 @@ import { DataSourcesRedis } from '../datasourcesredis.js'
 const dataSourcesRedis = new DataSourcesRedis()
 import { DataSourcesMongo } from '../datasourcesmongo.js'
 const dataSourcesMongo = new DataSourcesMongo()
-import bcrypt from "bcrypt"
-const saltRounds = 10
-import { JwtUtil } from "../utils/jwt.js"
-import { ChildProcess } from 'child_process'
-const jwtUtil = new JwtUtil()
 import { responseObject } from '../utils/types'
 import randomstring from "randomstring"
 
@@ -166,16 +161,11 @@ const mutations: MutationResolvers = {
 
   signup: async (_, { userInput }): Promise<UserMutationResponse> => {
     console.log("mutation signup....")
-    const salt = bcrypt.genSaltSync(saltRounds)
-    const uid = randomstring.generate(12)
-    const passwordCrypt = bcrypt.hashSync(userInput.password, salt)
-    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: passwordCrypt}, uid)
-    const token = await jwtUtil.sign()
+    const userMutationResponse = await dataSourcesMongo.signup({...userInput})
     return {
       code: userMutationResponse.code,
       success: userMutationResponse.success,
       message: userMutationResponse.message,
-      token: token,
       user: userMutationResponse.user
     }
   },
