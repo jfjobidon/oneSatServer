@@ -56,14 +56,16 @@ export class DataSourcesMongo {
   async accountFunding(userId: string, fundingInput: FundingInput): Promise<FundingMutationResponse> {
     try {
       let amountSat = fundingInput.sats
-      const result1 = await prisma.user.update({
-        where: {
-          id: userId
-        },
-        data: {
-          sats: {increment: amountSat}
-        }
-      })
+      
+      // TODO: FIXME: put new sats in redis
+      // const result1 = await prisma.user.update({
+      //   where: {
+      //     id: userId
+      //   },
+      //   data: {
+      //     sats: {increment: amountSat}
+      //   }
+      // })
 
       const result = await prisma.user.update({
         where: {

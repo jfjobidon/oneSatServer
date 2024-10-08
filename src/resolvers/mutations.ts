@@ -79,7 +79,8 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
   } else {
     // 2) check if enough sats
     let user = await dataSourcesMongo.getUserById(voteInput.userId)
-    let userSats = user.sats
+    // TODO: FIXME: get sats from redis
+    let userSats = 1111111
     let voteInputSats = voteInput.sats
     if (userSats < voteInputSats) {
       response.message = `You dont have enough sats to vote: you have ${userSats}, you need ${voteInput.sats}`

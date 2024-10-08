@@ -64,7 +64,6 @@ model User {
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
-  sats         Int        @default(0)
   fundings     Funding[]
   // updatedDate DateTime @updatedAt
   Poll         Poll[]
