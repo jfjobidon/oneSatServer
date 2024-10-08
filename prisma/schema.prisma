@@ -61,6 +61,7 @@ model User {
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
+  updatedDate  DateTime   @default(now())
   fundings     Funding[]
   // updatedDate DateTime @updatedAt
   Poll         Poll[]
