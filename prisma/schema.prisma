@@ -62,6 +62,7 @@ model User {
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
   updatedDate  DateTime   @default(now())
+  lastLogin    DateTime   @default(now())
   fundings     Funding[]
   // updatedDate DateTime @updatedAt
   Poll         Poll[]

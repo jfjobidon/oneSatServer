@@ -30,6 +30,7 @@ type User {
   campaigns: [Campaign]
   creationDate: DateScalar!
   updatedDate: DateScalar!
+  lastLogin: DateScalar!
   fundings: [Funding]
   # updatedDate: String!
 }
