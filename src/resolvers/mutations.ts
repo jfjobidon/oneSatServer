@@ -164,14 +164,12 @@ const mutations: MutationResolvers = {
     return args
   },
 
-  // signup: async (_, { name, email, password }: User): Promise<UserMutationResponse> => {
-  // signup: async (_, user: User): Promise<UserMutationResponse> => {
   signup: async (_, { userInput }): Promise<UserMutationResponse> => {
     console.log("mutation signup....")
     const salt = bcrypt.genSaltSync(saltRounds)
-    const userCode = randomstring.generate(12)
+    const uid = randomstring.generate(12)
     const passwordCrypt = bcrypt.hashSync(userInput.password, salt)
-    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: passwordCrypt}, userCode)
+    const userMutationResponse = await dataSourcesMongo.signup({...userInput, password: passwordCrypt}, uid)
     const token = await jwtUtil.sign()
     return {
       code: userMutationResponse.code,
@@ -180,41 +178,6 @@ const mutations: MutationResolvers = {
       token: token,
       user: userMutationResponse.user
     }
-
-    // REVIEW: refaire en sync
-    // https://www.npmjs.com/package/bcrypt
-
-    // bcrypt.genSalt(saltRounds, function(err, salt) {
-    //   bcrypt.hash(password, salt, function(err, hashPassword) {
-    //     dataSourcesMongo.signup({ name: name, email: email, password: hashPassword })
-    //   })
-    // })
-
-
-
-    // bcrypt.hash(myPlaintextPassword, saltRounds).then(function(hash) {
-    //   // Store hash in your password DB.
-    // })
-    // bcrypt.genSalt(saltRounds).then(
-    //   salt => bcrypt.hash(password, salt).then(
-    // hashPassword => dataSourcesMongo.signup({ name: name, email: email, password: hashPassword }).then(
-    //   () => {
-    //     return {
-    //       token: "jfdkalflkja",
-    //       user: {
-    //         email: email,
-    //         name: name,
-    //         password: hashPassword
-    //       }
-    //     }
-    //   }
-    // )
-    // hashPassword => ()
-    //    return dataSourcesMongo.signup({ name: name, email: email, password: hashPassword })
-    // }
-    //   )
-    // )
-
   },
 
   accountFunding: async (_, { fundingInput }, context): Promise<FundingMutationResponse> => {

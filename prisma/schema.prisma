@@ -58,9 +58,9 @@ model Campaign {
 model User {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   email        String     @unique
-  name         String     @unique
+  userName     String     @unique
   password     String
-  userCode     String
+  uid          String
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
@@ -111,36 +111,3 @@ model PollOption {
   title       String
   description String
 }
-
-// model Post {
-//   id       String    @id @default(auto()) @map("_id") @db.ObjectId
-//   slug     String    @unique
-//   title    String
-//   body     String
-//   author   User      @relation(fields: [authorId], references: [id])
-//   authorId String    @db.ObjectId
-//   comments Comment[]
-// }
-
-// model User {
-//   id      String   @id @default(auto()) @map("_id") @db.ObjectId
-//   email   String   @unique
-//   name    String?
-//   address Address?
-//   posts   Post[]
-// }
-
-// model Comment {
-//   id      String @id @default(auto()) @map("_id") @db.ObjectId
-//   comment String
-//   post    Post   @relation(fields: [postId], references: [id])
-//   postId  String @db.ObjectId
-// }
-
-// Address is an embedded document
-// type Address {
-//   street String
-//   city   String
-//   state  String
-//   zip    String
-// }

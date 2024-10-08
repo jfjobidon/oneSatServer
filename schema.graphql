@@ -24,9 +24,9 @@ input CreateNewsEventInput {
 type User {
   id: String!
   email: String!
-  name: String!
+  userName: String!
   password: String!
-  userCode: String!
+  uid: String!
   roles: [String]
   campaigns: [Campaign]
   creationDate: DateScalar!
@@ -36,7 +36,7 @@ type User {
 
 input UserInput {
   email: String!
-  name: String!
+  userName: String!
   password: String!
 }
 
@@ -300,7 +300,7 @@ type Query {
   getUsers: [User]
   getUserById(id: String): User
   getUserName(id: String): String
-  getUserByName(name: String): User
+  getUserByUserName(userName: String): User
   getUserByEmail(email: String): User
   getPollOption(id: String): PollOption
   getCampaign(id: String): Campaign
@@ -320,12 +320,6 @@ type Mutation {
   createPollOption(pollOptionInput: PollOptionInput): PollOptionMutationResponse
   addVote(voteInput: VoteInput): AddVoteMutationResponse
   signup(userInput: UserInput): UserMutationResponse
-  # signup(
-  #   email: String!
-  #   name: String!
-  #   roles: [String]
-  #   password: String!
-  # ): UserMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
   accountFunding(fundingInput: FundingInput): FundingMutationResponse
   togglePauseCampaign(pauseCampaignInput: PauseCampaignInput): pauseMutationResponse

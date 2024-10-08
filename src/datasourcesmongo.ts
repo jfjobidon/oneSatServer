@@ -110,10 +110,10 @@ export class DataSourcesMongo {
     return users
   }
 
-  async getUserByName(name: string): Promise<User> {
-    // console.log("in getUserByName")
-    // console.log(name)
-    const user = prisma.user.findUnique({ where: { name: name } })
+  async getUserByUserName(userName: string): Promise<User> {
+    // console.log("in getUserByUserName")
+    // console.log(userName)
+    const user = prisma.user.findUnique({ where: { userName: userName } })
     return user
   }
 
@@ -651,7 +651,7 @@ export class DataSourcesMongo {
       return null
     }
     // const user = prisma.user.findUnique({where: {id: "65df66779ebcb78f689a4803"}})
-    // const user = prisma.user.findUnique({where: {name: id}})
+    // const user = prisma.user.findUnique({where: {userName: id}})
     // console.table(user)
     // TODO: create a function that returns the campaigns with sats, views and votes
     const campaigns: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: id} })
@@ -701,15 +701,15 @@ export class DataSourcesMongo {
       console.log("error user", error)
       return null
     }
-    return user.name
+    return user.userName
   }
 
-  async signup(userInput: UserInput, userCode: string): Promise<UserMutationResponse> {
+  async signup(userInput: UserInput, uid: string): Promise<UserMutationResponse> {
     try {
       let userResponse = await prisma.user.create({
         data: {
           ...userInput,
-          userCode: userCode
+          uid: uid
         }
       })
       return {
