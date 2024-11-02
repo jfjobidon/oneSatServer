@@ -32,6 +32,9 @@ model Campaign {
   // authorEmail String
   author              User     @relation(fields: [authorId], references: [id])
   authorId            String   @db.ObjectId
+  // TODO: JFJ FIXME: authorId devrait faire référence à uid de user: (fourni par Firebase)
+  // author              User     @relation(fields: [authorId], references: [uid])
+  // authorId            String
   title               String
   description         String
   message             String?
@@ -57,7 +60,7 @@ model User {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   email        String     @unique
   userName     String     @unique
-  uid          String     @unique
+  uid          String     @unique // Firebase uid
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
   creationDate DateTime   @default(now())
