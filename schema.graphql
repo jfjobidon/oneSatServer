@@ -221,6 +221,7 @@ type CampaignAll {
 input CampaignInput {
   title: String!
   description: String!
+  authorId: String!
   startingDate: DateScalar!
   endingDate: DateScalar!
   minSatPerVote: Int

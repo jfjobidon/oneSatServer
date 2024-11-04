@@ -145,10 +145,17 @@ export class DataSourcesMongo {
   }
 
   async getCampaigns(userId: string): Promise<Campaign[]> {
-    // console.log("userId", userId)
+    console.log("\n--getCampaigns userId", userId)
+    // if userId === undefined --> returns all database !!!
+    if (!userId) {
+      userId = "000000000000000000000000"
+    }
 
     try {
+      console.log("getCampaigns userId2", userId)
       const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} })
+      // const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany()
+      console.log("campaignsMongo length", campaignsMongo.length)
       if (campaignsMongo === null) {
         return null
       } else {
@@ -366,13 +373,10 @@ export class DataSourcesMongo {
     }
   }
 
-  // async createCampaign(authorId: string, campaign: CampaignInput): Promise<CampaignMutationResponse> {
-  async createCampaign(authorId: string, campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
+  async createCampaign(campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
     // console.log("createCampaign")
-    // console.log("authorId", authorId)
-    // console.log("createCampaign blindVote 1", campaignInput.blindVote)
-    // console.log("createCampaign blindVoteDefault", blindVoteDefault)
-    // console.table(campaignInput)
+    let authorId = campaignInput.authorId
+
     const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault
     const maxSatPerVote = campaignInput.maxSatPerVote || maxSatPerVoteDefault
     const suggestedSatPerVote = campaignInput.suggestedSatPerVote || suggestedSatPerVoteDefault
@@ -383,8 +387,6 @@ export class DataSourcesMongo {
     const creationDate = new Date()
     const startingDate = new Date(campaignInput.startingDate)
     const endingDate = new Date(campaignInput.endingDate)
-    // console.log("startingDate: " + startingDate)
-    // console.log("creationDate: " + creationDate)
     
     if (creationDate > startingDate) {
       console.log("creationDate NOT OK")
@@ -399,17 +401,15 @@ export class DataSourcesMongo {
     try {
       const result = await prisma.user.update({
         where: {
-          id: authorId,
+          uid: authorId,
         },
         data: {
           campaigns: {
-            // create: campaignInput
-            // create: { ...campaignInput, creationDate: isodate },
-            // create: { ...campaignInput, creationDate: Date() },
             createMany: {
               data: [
                 {
-                  ...campaignInput,
+                  title: campaignInput.title,
+                  description: campaignInput.description,
                   minSatPerVote: minSatPerVote,
                   maxSatPerVote: maxSatPerVote,
                   suggestedSatPerVote: suggestedSatPerVote,
@@ -431,12 +431,6 @@ export class DataSourcesMongo {
           campaigns: true
         },
       })
-      // console.log("result")
-      // console.table(result)
-      // console.log("result.campaigns")
-      // console.table(result.campaigns)
-      // console.log("new campaign")
-      // console.table(result.campaigns[result.campaigns.length - 1])
       return {
         code: "200",
         success: true,
@@ -464,33 +458,6 @@ export class DataSourcesMongo {
           views: 0
         },
       }
-      // const result = await prisma.user.update({
-      //   where: {
-      //     id: authorId,
-      //   },
-      //   data: {
-      //     campaigns: {
-      //       createMany: {
-      //         data: [{...campaignInput, creationDate: new Date} ],
-      //       },
-      //     },
-      //   },
-      //   include: {
-      //     campaigns: true,
-      //   }
-      // })
-      // console.log(result)
-      // return {
-      //   code: "200",
-      //   success: true,
-      //   message: "Campaign created!",
-      //   campaign: {
-      //     title: campaignInput.title,
-      //     authorId: authorId,
-      //     // creationDate: result.campaigns[1].creationDate
-      //     creationDate: new Date()
-      //   },
-      // }
     } catch (err) {
       console.log("err", err)
     }
