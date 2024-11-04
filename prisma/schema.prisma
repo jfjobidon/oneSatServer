@@ -28,13 +28,8 @@ datasource db {
 
 model Campaign {
   id                  String   @id @default(auto()) @map("_id") @db.ObjectId
-  // author   User @relation(fields: [authorEmail], references: [email])
-  // authorEmail String
-  author              User     @relation(fields: [authorId], references: [id])
-  authorId            String   @db.ObjectId
-  // TODO: JFJ FIXME: authorId devrait faire référence à uid de user: (fourni par Firebase)
-  // author              User     @relation(fields: [authorId], references: [uid])
-  // authorId            String
+  author              User     @relation(fields: [authorId], references: [uid])
+  authorId            String
   title               String
   description         String
   message             String?
