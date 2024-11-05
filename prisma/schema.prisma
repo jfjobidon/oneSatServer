@@ -82,8 +82,8 @@ model Poll {
   id                  String       @id @default(auto()) @map("_id") @db.ObjectId
   campaign            Campaign     @relation(fields: [campaignId], references: [id])
   campaignId          String       @db.ObjectId
-  author              User         @relation(fields: [authorId], references: [id])
-  authorId            String       @db.ObjectId
+  author              User         @relation(fields: [authorId], references: [uid])
+  authorId            String
   title               String
   description         String
   paused              Boolean      @default(false)
