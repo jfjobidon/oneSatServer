@@ -463,7 +463,7 @@ export class DataSourcesMongo {
     }
   }
 
-  async createPoll(userId: string, pollInput: PollInput): Promise<PollMutationResponse> {
+  async createPoll( pollInput: PollInput): Promise<PollMutationResponse> {
     const campaignId = pollInput.campaignId
     const authorId = pollInput.authorId
     const minSatPerVote = pollInput.minSatPerVote || minSatPerVoteDefault
@@ -479,7 +479,8 @@ export class DataSourcesMongo {
     const endingDate = new Date(pollInput.endingDate)
 
     // to get the new pollId, we must compare poll database before and after !!!
-    // console.log("campaignId", campaignId)
+    console.log("createPoll campaignId", campaignId)
+    console.log("createPoll authorId", authorId)
     const pollsBefore = await this.getPollsForCampaign(campaignId)
     // console.log("pollsBefore", pollsBefore)
     // console.table(pollsBefore)

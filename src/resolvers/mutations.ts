@@ -192,7 +192,7 @@ const mutations: MutationResolvers = {
     console.log("create poll")
     console.log(context)
     // TODO: FIXME: enable context and get authorId from context.userId
-    let pollMutationResponse = await dataSourcesMongo.createPoll(context.userId, pollInput)
+    let pollMutationResponse = await dataSourcesMongo.createPoll(pollInput)
     // console.log("createPoll return: ", pollMutationResponse)
     return pollMutationResponse
   },
