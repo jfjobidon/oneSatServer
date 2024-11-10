@@ -179,12 +179,7 @@ const mutations: MutationResolvers = {
   },
 
   createCampaign: async (_, { campaignInput }, context): Promise<CampaignMutationResponse> => {
-    // const userId = "66c4b26f8d94b6da2b1fa18d"
-    // console.log("context.userId", context.userId)  // TODO: FIXME:
-    // console.table(context)x
     let campaign = await dataSourcesMongo.createCampaign(campaignInput)
-    console.log("2")
-    // console.log("createCampaign return: ", campaign)
     return {...campaign}
   },
 

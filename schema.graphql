@@ -184,6 +184,7 @@ type Campaign {
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
+  isPrivate: Boolean
   blindAmount: Boolean
   blindRank: Boolean
   blindVote: Boolean
@@ -207,6 +208,7 @@ type CampaignAll {
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
+  isPrivate: Boolean
   blindAmount: Boolean
   blindRank: Boolean
   blindVote: Boolean
@@ -227,6 +229,7 @@ input CampaignInput {
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
+  isPrivate: Boolean
   blindAmount: Boolean
   blindRank: Boolean
   blindVote: Boolean
