@@ -8,6 +8,7 @@
     "maxSatPerVoteDefault": 1,
     "suggestedSatPerVoteDefault": 1,
     "campaignPausedDefault": false,
+    "isPrivate": false,
     "blindAmount": false,
     "blindRank": false,
     "blindVote": false,

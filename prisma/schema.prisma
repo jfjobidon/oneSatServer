@@ -42,6 +42,7 @@ model Campaign {
   minSatPerVote       Int // default in config file
   maxSatPerVote       Int // default in config file
   suggestedSatPerVote Int // default in config file
+  isPrivate           Boolean  @default(false)
   blindAmount         Boolean
   blindRank           Boolean
   blindVote           Boolean

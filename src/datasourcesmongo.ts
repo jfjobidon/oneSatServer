@@ -29,6 +29,7 @@ const minSatPerVoteDefault = config.get<string>('minSatPerVoteDefault')
 const maxSatPerVoteDefault = config.get<string>('maxSatPerVoteDefault') 
 const suggestedSatPerVoteDefault = config.get<string>('suggestedSatPerVoteDefault') 
 const campaignPausedDefault = config.get<string>('campaignPausedDefault') 
+const isPrivateDefault = config.get<string>('isPrivate') 
 const blindAmountDefault = config.get<string>('blindAmount') 
 const blindRankDefault = config.get<string>('blindRank') 
 const blindVoteDefault = config.get<string>('blindVote') 
@@ -145,17 +146,16 @@ export class DataSourcesMongo {
   }
 
   async getCampaigns(userId: string): Promise<Campaign[]> {
-    console.log("\n--getCampaigns userId", userId)
     // if userId === undefined --> returns all database !!!
+    // console.log("getCampaigns userId", userId)
     if (!userId) {
       userId = "000000000000000000000000"
     }
 
     try {
-      console.log("getCampaigns userId2", userId)
       const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} })
       // const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany()
-      console.log("campaignsMongo length", campaignsMongo.length)
+      // console.log("campaignsMongo length", campaignsMongo.length)
       if (campaignsMongo === null) {
         return null
       } else {
@@ -374,12 +374,14 @@ export class DataSourcesMongo {
   }
 
   async createCampaign(campaignInput: CampaignInput): Promise<CampaignMutationResponse> {
-    // console.log("createCampaign")
+    console.log("createCampaign campaignInput")
+    console.log(campaignInput)
     let authorId = campaignInput.authorId
 
     const minSatPerVote = campaignInput.minSatPerVote || minSatPerVoteDefault
     const maxSatPerVote = campaignInput.maxSatPerVote || maxSatPerVoteDefault
     const suggestedSatPerVote = campaignInput.suggestedSatPerVote || suggestedSatPerVoteDefault
+    const isPrivate = campaignInput.isPrivate || isPrivateDefault
     const blindAmount = campaignInput.blindAmount || blindAmountDefault
     const blindRank = campaignInput.blindRank || blindRankDefault
     const blindVote = campaignInput.blindVote || blindVoteDefault
@@ -418,6 +420,7 @@ export class DataSourcesMongo {
                   startingDate: startingDate,
                   endingDate: endingDate,
                   paused: campaignPausedDefault,
+                  isPrivate: isPrivate,
                   blindAmount: blindAmount,
                   blindRank: blindRank,
                   blindVote: blindVote,
