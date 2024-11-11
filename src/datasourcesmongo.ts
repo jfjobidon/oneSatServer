@@ -20,7 +20,9 @@ import {
   FundingInput,
   FundingMutationResponse,
   PauseMutationResponse,
-  GetVotesQueryResponse
+  GetVotesQueryResponse,
+  FavoriteElementMutationResponse,
+  FavoriteInput
 } from "./__generated__/resolvers-types"
 
 // const UsersDB: Omit<Required<User>, "__typename">[] = usersData
@@ -125,6 +127,107 @@ export class DataSourcesMongo {
     // console.log("date user: " + user.creationDate)
     return user
     // return null
+  }
+
+  async favoriteElement(favoriteInput: FavoriteInput): Promise<FavoriteElementMutationResponse> {
+
+    try {
+      const user = await prisma.user.findUnique({ where: { id: favoriteInput.userId } })
+      if (user) {
+        if (favoriteInput.isFavorite) {
+          // element should not be in user.favorites --> add it
+          if (user.favorites.includes(favoriteInput.elementId)) {
+            // error: element is already in user's favorites
+            return {
+              code: "400",
+              success: true,
+              message: "element was already included in favorites",
+              ...favoriteInput
+            }
+          } else {
+            // OK, add element in favorites
+            await prisma.user.update({
+              data: {
+                favorites: {
+                  set: [...user.favorites, favoriteInput.elementId],
+                },
+              },
+              where: { id: favoriteInput.userId },
+            })
+            return {
+              code: "400",
+              success: true,
+              message: "element successfully included in favorites",
+              ...favoriteInput
+            }
+          }
+        } else {
+          // element should be in user.favorites --> remove it
+          console.log("element should be in user.favorites --> remove it")
+          // REVIEW:
+          // const index = user.favorites.indexOf(favoriteInput.elementId)
+          // if (index > -1) {...}
+          if (user.favorites.includes(favoriteInput.elementId)) { 
+            // OK, elementId is in user.favorites --> remove it
+            console.log("OK, elementId is in user.favorites --> remove it")
+            const elementIndex = user.favorites.indexOf(favoriteInput.elementId)
+            user.favorites.splice(elementIndex, 1)
+            await prisma.user.update({
+              data: {
+                favorites: {
+                  set: [...user.favorites],
+                },
+              },
+              where: { id: favoriteInput.userId },
+            })
+            return {
+              code: "400",
+              success: true,
+              message: "elementId has been successfully removed",
+              ...favoriteInput
+            }
+          } else {
+            // error: elementId is NOT in user.favorites --> cannot remove it
+            return {
+              code: "200",
+              success: false,
+              message: "error: elementId is NOT in user.favorites --> cannot remove it",
+              ...favoriteInput
+            }
+          }
+        }
+        await prisma.user.update({
+          data: {
+            favorites: {
+              set: [...user.favorites, "jfakfklads"],
+            },
+          },
+          where: { id: favoriteInput.userId },
+        })
+        return {
+          code: "400",
+          success: true,
+          message: "element added to favorites",
+          ...favoriteInput
+        }
+      } else {
+        return {
+          code: "200",
+          success: false,
+          message: "Error: user does NOT exist",
+          ...favoriteInput
+        }
+      }
+    } catch(error) {
+      console.log("error mongo")
+      console.log(error)
+      return {
+        code: "200",
+        success: false,
+        message: "error database",
+        ...favoriteInput
+      }
+    }
   }
 
   async getCampaign(campaignId: string): Promise<Campaign> {
@@ -674,6 +777,22 @@ export class DataSourcesMongo {
     }
     return user.userName
   }
+
+  async getFavorites(userId: string): Promise<string[]> {
+    let user: UserMongo
+    try {
+      user = await prisma.user.findUnique({ where: { id: userId } })
+      if (user === null) {
+        return []
+      }
+    }
+    catch(error) {
+      console.log("error user", error)
+      return null
+    }
+    return user.favorites
+  }
+
 
   async signup(userInput: UserInput): Promise<UserMutationResponse> {
     try {

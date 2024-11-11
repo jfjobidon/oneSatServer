@@ -59,6 +59,7 @@ model User {
   uid          String     @unique // Firebase uid
   roles        String[]   @default(["USER"])
   campaigns    Campaign[]
+  favorites    String[]   @default([])
   creationDate DateTime   @default(now())
   updatedDate  DateTime   @default(now())
   lastLogin    DateTime   @default(now())

@@ -28,6 +28,7 @@ type User {
   uid: String!
   roles: [String]
   campaigns: [Campaign]
+  favorites: [String]
   creationDate: DateScalar!
   updatedDate: DateScalar!
   lastLogin: DateScalar!
@@ -171,6 +172,10 @@ type getVotesQueryResponse {
   votes: [Vote]!
 }
 
+type getFavoritesQueryResponse {
+  favorites: [String]!
+}
+
 type Campaign {
   id: String!
   authorId: String!
@@ -241,6 +246,21 @@ type CampaignMutationResponse {
   success: Boolean!
   message: String!
   campaign: Campaign
+}
+
+type favoriteElementMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  userId: String!
+  elementId: String!
+  isFavorite: Boolean!
+}
+
+input FavoriteInput {
+  userId: String!
+  elementId: String!
+  isFavorite: Boolean!
 }
 
 type PollOption {
@@ -314,6 +334,7 @@ type Query {
   getPollsForCampaign(campaignId: String): [Poll]
   getPollOptionsForPoll(pollId: String): [PollOption]
   getVoteById(id: String): Vote
+  getFavorites(userId: String): getFavoritesQueryResponse
   # login(email: String!, password: String!): UserMutationResponse
 }
 
@@ -325,6 +346,7 @@ type Mutation {
   addVote(voteInput: VoteInput): AddVoteMutationResponse
   signup(userInput: UserInput): UserMutationResponse
   createCampaign(campaignInput: CampaignInput): CampaignMutationResponse
+  favoriteElement(favoriteInput: FavoriteInput): favoriteElementMutationResponse
   accountFunding(fundingInput: FundingInput): FundingMutationResponse
   togglePauseCampaign(pauseCampaignInput: PauseCampaignInput): pauseMutationResponse
   togglePausePoll(pausePollInput: PausePollInput): pauseMutationResponse

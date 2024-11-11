@@ -13,7 +13,9 @@ import {
   PollMutationResponse,
   PollOptionMutationResponse,
   FundingMutationResponse,
-  PauseMutationResponse
+  PauseMutationResponse,
+  FavoriteElementMutationResponse,
+  FavoriteInput,
 } from '../__generated__/resolvers-types'
 
 import { CreateNewsEventInput } from '../__generated__/resolvers-types'
@@ -45,7 +47,6 @@ import randomstring from "randomstring"
 // admin: getStats([campaignId | userId | pollId | pollOptionId])
 // ? campaign: add field: numberVotes ?
 // createPoll: check if title is unique: same for campaign, pollOption...
-
 
 const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
   // 1) check if voteInput is empty
@@ -152,6 +153,28 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
 
 // Use the generated `MutationResolvers` type to type check our mutations!
 const mutations: MutationResolvers = {
+
+  // createPoll: async (_, { pollInput }, context): Promise<PollMutationResponse> => {
+    // signup: async (_, { userInput }): Promise<UserMutationResponse> => {
+  favoriteElement: async (_, {favoriteInput}): Promise<FavoriteElementMutationResponse> => {
+    // add/remove elementId in user.isfavorite
+    console.log("favoriteElement: ", favoriteInput.userId, favoriteInput.elementId, favoriteInput.isFavorite)
+    console.log("favoriteElement")
+    const favoriteResponse = await dataSourcesMongo.favoriteElement({...favoriteInput})
+    return favoriteResponse
+    // return {
+    //   code: favoriteResponse.code,
+    //   success: favoriteResponse.success,
+    //   message: favoriteResponse.message,
+    //   isFavorite: favoriteResponse.isFavorite
+    // }
+    // return {
+    //   code: "400",
+    //   success: true,
+    //   message: "ok",
+    //   isFavorite: true
+    // }
+  },
 
   createNewsEvent: (_parent: any, args: CreateNewsEventInput) => {
     console.log('args:', args)

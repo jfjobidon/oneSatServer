@@ -1,4 +1,4 @@
-import { QueryResolvers, UserMutationResponse } from "../__generated__/resolvers-types";
+import { GetFavoritesQueryResponse, QueryResolvers, UserMutationResponse } from "../__generated__/resolvers-types";
 
 import { DataSourcesRedis } from '../datasourcesredis.js';
 const dataSourcesRedis = new DataSourcesRedis();
@@ -79,6 +79,15 @@ const queries: QueryResolvers = {
       return null
     }
     return userName
+  },
+
+  getFavorites: async (_, args): Promise<GetFavoritesQueryResponse> => {
+    // add/remove elementId in user.isfavorite
+    console.log("getFavorites userId: ", args)
+    const favoriteResponse = await dataSourcesMongo.getFavorites(args.userId)
+    return {
+      favorites: favoriteResponse
+    }
   },
 
   getCampaigns: async(_, args) => {
