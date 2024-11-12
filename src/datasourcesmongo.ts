@@ -45,9 +45,10 @@ const allowMultipleVotesDefault = config.get<string>('allowMultipleVotes')
 // console.log("blindVoteDefault " + blindVoteDefault)
 // console.log("allowMultipleVotesDefault " + allowMultipleVotesDefault)
 
-// NOTE: Campaing prisma !== Campaign graphQL
-import { Campaign as CampaingMongo, Poll as PollMongo, PollOption as PollOptionMongo, User as UserMongo, PrismaClient } from '@prisma/client'
+// NOTE: Campaign prisma !== Campaign graphQL
+import { Campaign as CampaignMongo, Poll as PollMongo, PollOption as PollOptionMongo, User as UserMongo, PrismaClient } from '@prisma/client'
 import { DataSourcesRedis } from "./datasourcesredis.js"
+// import { CampaignType } from "./utils/types"
 const dataSourcesRedis = new DataSourcesRedis()
 // import { describe } from "node:test"
 // import { commandOptions } from "redis"
@@ -130,9 +131,8 @@ export class DataSourcesMongo {
   }
 
   async favoriteElement(favoriteInput: FavoriteInput): Promise<FavoriteElementMutationResponse> {
-
     try {
-      const user = await prisma.user.findUnique({ where: { id: favoriteInput.userId } })
+      const user = await prisma.user.findUnique({ where: { uid: favoriteInput.userId } })
       if (user) {
         if (favoriteInput.isFavorite) {
           // element should not be in user.favorites --> add it
@@ -152,7 +152,7 @@ export class DataSourcesMongo {
                   set: [...user.favorites, favoriteInput.elementId],
                 },
               },
-              where: { id: favoriteInput.userId },
+              where: { uid: favoriteInput.userId },
             })
             return {
               code: "400",
@@ -178,7 +178,7 @@ export class DataSourcesMongo {
                   set: [...user.favorites],
                 },
               },
-              where: { id: favoriteInput.userId },
+              where: { uid: favoriteInput.userId },
             })
             return {
               code: "400",
@@ -202,7 +202,7 @@ export class DataSourcesMongo {
               set: [...user.favorites, "jfakfklads"],
             },
           },
-          where: { id: favoriteInput.userId },
+          where: { uid: favoriteInput.userId },
         })
         return {
           code: "400",
@@ -232,7 +232,7 @@ export class DataSourcesMongo {
 
   async getCampaign(campaignId: string): Promise<Campaign> {
     try {
-      const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignId} })
+      const campaign: CampaignMongo = await prisma.campaign.findUnique({ where: {id: campaignId} })
       if (campaign === null) {
         return null
       } else {
@@ -248,37 +248,72 @@ export class DataSourcesMongo {
     }
   }
 
-  async getCampaigns(userId: string): Promise<Campaign[]> {
+  async getCampaigns(userId: string, campaignType: string): Promise<Campaign[]> {
     // if userId === undefined --> returns all database !!!
     // console.log("getCampaigns userId", userId)
+    console.log("getCampaigns campaignType", campaignType)
     if (!userId) {
       userId = "000000000000000000000000"
     }
 
-    try {
-      const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} })
-      // const campaignsMongo: CampaingMongo[] = await prisma.campaign.findMany()
-      // console.log("campaignsMongo length", campaignsMongo.length)
-      if (campaignsMongo === null) {
-        return null
-      } else {
-        let campaigns: Campaign[] = []
-
-        for (const campaign of campaignsMongo) {
-          // console.table(campaign)
-          // console.log("paused", campaign.paused)
-          const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
-          const votes = await dataSourcesRedis.getNbVotesForCampaign(campaign.id)
-          const views = await dataSourcesRedis.getNbViewsForCampaign(campaign.id)
-          campaigns.push({...campaign, sats, votes, views})
+    switch (campaignType) {
+      case 'USER':
+        try {
+          const campaignsMongo: CampaignMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} })
+          // const campaignsMongo: CampaignMongo[] = await prisma.campaign.findMany()
+          // console.log("campaignsMongo length", campaignsMongo.length)
+          if (campaignsMongo === null) {
+            return null
+          } else {
+            let campaigns: Campaign[] = []
+    
+            for (const campaign of campaignsMongo) {
+              // console.table(campaign)
+              // console.log("paused", campaign.paused)
+              const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
+              const votes = await dataSourcesRedis.getNbVotesForCampaign(campaign.id)
+              const views = await dataSourcesRedis.getNbViewsForCampaign(campaign.id)
+              campaigns.push({...campaign, sats, votes, views})
+            }
+            return campaigns
+          }
         }
-        return campaigns
-      }
+        catch(error) {
+          console.log(error)  // TODO: logError(error)
+          return null
+        }
+        break
+      case 'FAVORITES':
+        try {
+          const campaigns: Campaign[] = []
+          const favorites = await this.getFavorites(userId) // [campaignId] TODO: campaigns + polls + pollOptions
+          console.log("favorites", favorites)
+          if (favorites.length === 0) {
+            return null
+          } else {
+            for (const favorite of favorites) {
+              console.log("favorite", favorite)
+              const campaign = await this.getCampaign(favorite)
+              const sats = await dataSourcesRedis.getSatsForCampaign(favorite)
+              const votes = await dataSourcesRedis.getNbVotesForCampaign(favorite)
+              const views = await dataSourcesRedis.getNbViewsForCampaign(favorite)
+              campaigns.push({...campaign, sats, votes, views})
+            }
+            return campaigns
+          }
+        }
+        catch(error) {
+          console.log(error)  // TODO: logError(error)
+          return null
+        }
+      case 'VOTED':
+        break
+      default:
+          // ALL
+        console.log(`Sorry, we are out of ${campaignType}.`);
     }
-    catch(error) {
-      console.log(error)  // TODO: logError(error)
-      return null
-    }
+
+    
     // console.table(campaignsMongo)
 
     
@@ -286,7 +321,7 @@ export class DataSourcesMongo {
 
   async getCampaignAll(campaignId: string): Promise<CampaignAll> {
     try {
-      const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: campaignId} })
+      const campaign: CampaignMongo = await prisma.campaign.findUnique({ where: {id: campaignId} })
       if (campaign === null) {
         return null
       } else {
@@ -318,7 +353,7 @@ export class DataSourcesMongo {
         },
       },
     })
-    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: poll.campaignId} })
+    const campaign: CampaignMongo = await prisma.campaign.findUnique({ where: {id: poll.campaignId} })
 
     const polls = await this.getPollsForCampaign(campaign.id)
     const pollsStatus: any = polls.map(poll => {
@@ -342,7 +377,7 @@ export class DataSourcesMongo {
   }
 
   async togglePauseCampaign(pauseCampaignInput) : Promise<PauseMutationResponse> {
-    const campaign: CampaingMongo = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignId} })
+    const campaign: CampaignMongo = await prisma.campaign.findUnique({ where: {id: pauseCampaignInput.campaignId} })
     const updateCampaign = await prisma.campaign.update({
       where: {
         id: pauseCampaignInput.campaignId
@@ -728,7 +763,7 @@ export class DataSourcesMongo {
     // const user = prisma.user.findUnique({where: {userName: id}})
     // console.table(user)
     // TODO: create a function that returns the campaigns with sats, views and votes
-    const campaigns: CampaingMongo[] = await prisma.campaign.findMany({ where: {authorId: id} })
+    const campaigns: CampaignMongo[] = await prisma.campaign.findMany({ where: {authorId: id} })
     // const theCampaigns: Campaign[] = campaigns.map(camp => {
     //   // const satsCampaign2 = await dataSourcesRedis.getVotesForCampaign(camp.id, null)
     //   // const satsCampaign2 = dataSourcesRedis.getSatsForCampaign(camp.id)
@@ -781,7 +816,7 @@ export class DataSourcesMongo {
   async getFavorites(userId: string): Promise<string[]> {
     let user: UserMongo
     try {
-      user = await prisma.user.findUnique({ where: { id: userId } })
+      user = await prisma.user.findUnique({ where: { uid: userId } })
       if (user === null) {
         return []
       }

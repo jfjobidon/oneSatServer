@@ -5,12 +5,12 @@ type NewsEvent {
   description: String
 }
 
-# enum not compatible with prisma
-# export enum Role {
-#   SUPERADMIN
-#   ADMIN
-#   USER
-# }
+enum CampaignType {
+  USER
+  FAVORITES
+  VOTED
+  ALL
+}
 
 # Input types can't have fields that are other objects, only basic scalar types, list types, and other input types.
 input CreateNewsEventInput {
@@ -329,7 +329,7 @@ type Query {
   getPollOption(id: String): PollOption
   getCampaign(id: String): Campaign
   getCampaignAll(id: String): CampaignAll
-  getCampaigns(id: String): [Campaign]
+  getCampaigns(id: String, campaignType: CampaignType): [Campaign]
   getPoll(id: String): Poll
   getPollsForCampaign(campaignId: String): [Poll]
   getPollOptionsForPoll(pollId: String): [PollOption]

@@ -91,7 +91,7 @@ const queries: QueryResolvers = {
   },
 
   getCampaigns: async(_, args) => {
-    const campaigns = await dataSourcesMongo.getCampaigns(args.id);
+    const campaigns = await dataSourcesMongo.getCampaigns(args.id, args.campaignType);
     return campaigns;
   },
 
