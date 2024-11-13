@@ -255,7 +255,8 @@ const mutations: MutationResolvers = {
       console.log("VOTE IS VALID")
       // possibility to filter publish: withFilter
       let voteResponse = await dataSourcesRedis.addVote(voteInput)
-      console.table(voteResponse)
+      // console.log("addVote voteResponse")
+      // console.table(voteResponse)
       pubsub.publish('EVENT_VOTEADDED', { voteAdded: voteResponse.vote })
       return voteResponse
     } else {

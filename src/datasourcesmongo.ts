@@ -828,7 +828,6 @@ export class DataSourcesMongo {
     return user.favorites
   }
 
-
   async signup(userInput: UserInput): Promise<UserMutationResponse> {
     try {
       let userResponse = await prisma.user.create({

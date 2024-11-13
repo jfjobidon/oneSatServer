@@ -15,7 +15,7 @@ import randomstring from "randomstring"
 
 import { Vote, VoteInput, AddVoteMutationResponse, GetVotesQueryResponse } from "./__generated__/resolvers-types"
 // import { voteSchema } from './schema.redis.js'
-import { voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, votesPollSchema, viewsPollSchema, satsCampaignSchema, votesCampaignSchema, viewsCampaignSchema, satsUserSchema } from './schema.redis.js'
+import { userVotedSchema, voteSchema, satsPollOptionSchema, votesPollOptionSchema, viewsPollOptionSchema, satsPollSchema, votesPollSchema, viewsPollSchema, satsCampaignSchema, votesCampaignSchema, viewsCampaignSchema, satsUserSchema } from './schema.redis.js'
 
 let voteRepository = new Repository(voteSchema, redisClient)
 // await voteRepository.dropIndex()
@@ -45,6 +45,9 @@ await satsCampaignRepository.createIndex()
 let votesCampaignRepository = new Repository(votesCampaignSchema, redisClient)
 await votesCampaignRepository.createIndex()
 
+let userVotedRepository = new Repository(userVotedSchema, redisClient)
+await userVotedRepository.createIndex()
+
 let viewsCampaignRepository = new Repository(viewsCampaignSchema, redisClient)
 await viewsCampaignRepository.createIndex()
 
@@ -53,38 +56,39 @@ await satsUserRepository.createIndex()
 
 export class DataSourcesRedis {
   // async addVote(userId: string, invoice: string, date: number, campaignId: string, certified: boolean) {
-  // async r({ userId, invoice, date, campaignId, pollId, certified }: Vote): Promise<AddVoteMutationResponse> {
   async addVote(voteInput: VoteInput): Promise<AddVoteMutationResponse> {
-    // TODO: tester createAndSave
-    const voteCode = randomstring.generate(12) // REVIEW: nanoId ???
-    // console.log(voteCode)
-    const currentDate = new Date
-    const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() })
-    // console.table(vote)
-    // console.log('entityId: ', vote[entityId])
-    // console.log('entityKeyName: ', vote[EntityKeyName])
-    // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
-    const exists = await redisClient.exists(vote[EntityKeyName])
-    if (exists) {
-      // REVIEW: quoi faire si return false ???
-      await this.incrPollOption(voteInput.pollOptionId, voteInput.sats)
-      await this.incrPoll(voteInput.pollId, voteInput.sats)
-      await this.incrCampaign(voteInput.campaignId, voteInput.userId, voteInput.sats)
-      // incrUser(voteInput.userId, voteInput.sats) --> Done in incrCampaign
-      return {
-        code: 200,
-        success: true,
-        message: "New vote added!",
-        vote: Object(vote), // vote is of type Symbol
-      }
-    } else {
+    // // TODO: tester createAndSave
+    // const voteCode = randomstring.generate(12) // REVIEW: nanoId ???
+    // // console.log(voteCode)
+    // const currentDate = new Date
+    // const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() })
+    // // console.table(vote)
+    // // console.log('entityId: ', vote[entityId])
+    // // console.log('entityKeyName: ', vote[EntityKeyName])
+    // // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
+    // const exists = await redisClient.exists(vote[EntityKeyName])
+    // if (exists) {
+    //   // REVIEW: quoi faire si return false ???
+    //   await this.incrPollOption(voteInput.pollOptionId, voteInput.sats)
+    //   await this.incrPoll(voteInput.pollId, voteInput.sats)
+    //   await this.incrCampaign(voteInput.campaignId, voteInput.userId, voteInput.sats)
+      await this.addUserVoted(voteInput.userId, voteInput.campaignId)
+    //   // incrUser(voteInput.userId, voteInput.sats) --> Done in incrCampaign
+    //   // redis SET anotherkey "will expire in a minute" EX 60
+    //   return {
+    //     code: 200,
+    //     success: true,
+    //     message: "New vote added!",
+    //     vote: Object(vote), // vote is of type Symbol
+    //   }
+    // } else {
       return {
         code: 500,
         success: false,
         message: "Problem adding new vote!",
         vote: null
       }
-    }
+    // }
   }
 
   async incrPollOption(pollOptionId: string, sats: number): Promise<Boolean> {
@@ -250,7 +254,58 @@ export class DataSourcesRedis {
     }
     return nbViews
   }
+
+  async getVoted(userId: string): Promise<string[]> {
+    // const exists = await redisClient.exists('userVoted:01JCHC08V5WGZ5X633XP1H64Y3')
+    //   console.log("exists: ", exists)
+    // const x = await userVotedRepository.fetch('01JCHC08V5WGZ5X633XP1H64Y3')
+    // console.log("entityId", x)
+    const userVoted: Entity[] = await userVotedRepository.search().where('userId').equals(userId).return.all()
+    console.log("userVoted", userVoted)
+    console.log("userVoted['entityId']", userVoted['entityId'])
+    if (userVoted.length === 0 ) {
+      console.log("userVoted.length", userVoted.length)
+      console.log("userVoted.userId", userVoted)
+      // console.log( "campaignId", JSON.parse(JSON.stringify(userVoted[0].campaignId)))
+      // console.log("Symbol(entityId)", userVoted['Symbol(EntityId)'])
+      console.log("EntityKeyName", userVoted[EntityKeyName])
+      return []
+    } else {
+      return JSON.parse(JSON.stringify(userVoted[0].campaignIds))
+    }
+  }
  
+  async addUserVoted(userId: string, campaignId: string): Promise<Boolean> {
+    try {
+      const userVoted: Entity[] = await userVotedRepository.search().where('userId').equals(userId).return.all()
+      // console.log("addUserVoted userVoted", userVoted)
+      // console.log("addUserVoted userVoted lenght", userVoted.length)
+      // console.log("userVoted", userVoted)
+      if (userVoted.length === 0) {
+        userVoted[0] = {
+          userId: userId,
+          campaignIds: [campaignId]
+        }
+        await userVotedRepository.save(userVoted[0])
+      } else if (userVoted.length === 1) {
+        console.log("addUserVoted", userVoted)
+        let campaignIds: string[] = JSON.parse(JSON.stringify(userVoted[0].campaignIds))
+        if (!campaignIds.includes(campaignId)) {
+          // console.log("add campaignId")
+          // console.log("campaignIds", campaignIds)
+          campaignIds.push(campaignId)
+          userVoted[0].campaignIds = campaignIds
+          await userVotedRepository.save(userVoted[0])
+        } else {
+          // console.log("campaign Id is included")
+        }
+      }
+    } catch(error) {
+      console.log("addUserVoted ERROR", error)
+      return false
+    }
+    return true
+  }
 
   async incrCampaign(campaignId: string, userId: string, sats: number): Promise<Boolean> {
     try {

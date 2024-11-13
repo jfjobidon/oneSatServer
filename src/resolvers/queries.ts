@@ -1,4 +1,4 @@
-import { GetFavoritesQueryResponse, QueryResolvers, UserMutationResponse } from "../__generated__/resolvers-types";
+import { GetFavoritesQueryResponse, GetVotedQueryResponse, QueryResolvers, UserMutationResponse } from "../__generated__/resolvers-types";
 
 import { DataSourcesRedis } from '../datasourcesredis.js';
 const dataSourcesRedis = new DataSourcesRedis();
@@ -87,6 +87,16 @@ const queries: QueryResolvers = {
     const favoriteResponse = await dataSourcesMongo.getFavorites(args.userId)
     return {
       favorites: favoriteResponse
+    }
+  },
+  
+  // TODO: partout: changer userId pour uid lorsque nécessaire...
+  getVoted: async (_, args): Promise<GetVotedQueryResponse> => {
+    // add/remove elementId in user.isfavorite
+    // console.log("getVoted userId: ", args)
+    const userVoted = await dataSourcesRedis.getVoted(args.userId)
+    return {
+      voted: userVoted
     }
   },
 

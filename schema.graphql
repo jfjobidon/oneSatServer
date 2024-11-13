@@ -29,6 +29,7 @@ type User {
   roles: [String]
   campaigns: [Campaign]
   favorites: [String]
+  voted: [String]
   creationDate: DateScalar!
   updatedDate: DateScalar!
   lastLogin: DateScalar!
@@ -176,6 +177,10 @@ type getFavoritesQueryResponse {
   favorites: [String]!
 }
 
+type getVotedQueryResponse {
+  voted: [String]!
+}
+
 type Campaign {
   id: String!
   authorId: String!
@@ -257,6 +262,15 @@ type favoriteElementMutationResponse {
   isFavorite: Boolean!
 }
 
+type votedMutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  userId: String!
+  elementId: String!
+  voted: Boolean!
+}
+
 input FavoriteInput {
   userId: String!
   elementId: String!
@@ -335,6 +349,7 @@ type Query {
   getPollOptionsForPoll(pollId: String): [PollOption]
   getVoteById(id: String): Vote
   getFavorites(userId: String): getFavoritesQueryResponse
+  getVoted(userId: String): getVotedQueryResponse
   # login(email: String!, password: String!): UserMutationResponse
 }
 
