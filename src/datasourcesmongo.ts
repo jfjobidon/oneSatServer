@@ -287,7 +287,7 @@ export class DataSourcesMongo {
         try {
           const campaigns: Campaign[] = []
           const favorites = await this.getFavorites(userId) // [campaignId] TODO: campaigns + polls + pollOptions
-          console.log("favorites", favorites)
+          // console.log("favorites", favorites)
           if (favorites.length === 0) {
             return null
           } else {
@@ -307,10 +307,52 @@ export class DataSourcesMongo {
           return null
         }
       case 'VOTED':
-        break
+        try {
+          const campaigns: Campaign[] = []
+          const voteds = await dataSourcesRedis.getVoted(userId) // [campaignId] TODO: campaigns + polls + pollOptions
+          // console.log("favorites", favorites)
+          if (voteds.length === 0) {
+            return null
+          } else {
+            for (const voted of voteds) {
+              console.log("voted", voted)
+              const campaign = await this.getCampaign(voted)
+              const sats = await dataSourcesRedis.getSatsForCampaign(voted)
+              const votes = await dataSourcesRedis.getNbVotesForCampaign(voted)
+              const views = await dataSourcesRedis.getNbViewsForCampaign(voted)
+              campaigns.push({...campaign, sats, votes, views})
+            }
+            return campaigns
+          }
+        }
+        catch(error) {
+          console.log(error)  // TODO: logError(error)
+          return null
+        }
       default:
-          // ALL
-        console.log(`Sorry, we are out of ${campaignType}.`);
+        // ALL
+        try {
+          const campaignsMongo: CampaignMongo[] = await prisma.campaign.findMany()
+          if (campaignsMongo === null) {
+            return null
+          } else {
+            let campaigns: Campaign[] = []
+    
+            for (const campaign of campaignsMongo) {
+              // console.table(campaign)
+              // console.log("paused", campaign.paused)
+              const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
+              const votes = await dataSourcesRedis.getNbVotesForCampaign(campaign.id)
+              const views = await dataSourcesRedis.getNbViewsForCampaign(campaign.id)
+              campaigns.push({...campaign, sats, votes, views})
+            }
+            return campaigns
+          }
+        }
+        catch(error) {
+          console.log(error)  // TODO: logError(error)
+          return null
+        }
     }
 
     

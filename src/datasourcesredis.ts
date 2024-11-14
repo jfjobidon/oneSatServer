@@ -57,38 +57,38 @@ await satsUserRepository.createIndex()
 export class DataSourcesRedis {
   // async addVote(userId: string, invoice: string, date: number, campaignId: string, certified: boolean) {
   async addVote(voteInput: VoteInput): Promise<AddVoteMutationResponse> {
-    // // TODO: tester createAndSave
-    // const voteCode = randomstring.generate(12) // REVIEW: nanoId ???
-    // // console.log(voteCode)
-    // const currentDate = new Date
-    // const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() })
-    // // console.table(vote)
-    // // console.log('entityId: ', vote[entityId])
-    // // console.log('entityKeyName: ', vote[EntityKeyName])
-    // // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
-    // const exists = await redisClient.exists(vote[EntityKeyName])
-    // if (exists) {
-    //   // REVIEW: quoi faire si return false ???
-    //   await this.incrPollOption(voteInput.pollOptionId, voteInput.sats)
-    //   await this.incrPoll(voteInput.pollId, voteInput.sats)
-    //   await this.incrCampaign(voteInput.campaignId, voteInput.userId, voteInput.sats)
+    // TODO: tester createAndSave
+    const voteCode = randomstring.generate(12) // REVIEW: nanoId ???
+    // console.log(voteCode)
+    const currentDate = new Date
+    const vote: Entity = await voteRepository.save({ ...voteInput, voteCode: voteCode, date: currentDate.toString() })
+    // console.table(vote)
+    // console.log('entityId: ', vote[entityId])
+    // console.log('entityKeyName: ', vote[EntityKeyName])
+    // const exists = await redisClient.exists(`vote:${vote[EntityId]}`)
+    const exists = await redisClient.exists(vote[EntityKeyName])
+    if (exists) {
+      // REVIEW: quoi faire si return false ???
+      await this.incrPollOption(voteInput.pollOptionId, voteInput.sats)
+      await this.incrPoll(voteInput.pollId, voteInput.sats)
+      await this.incrCampaign(voteInput.campaignId, voteInput.userId, voteInput.sats)
       await this.addUserVoted(voteInput.userId, voteInput.campaignId)
-    //   // incrUser(voteInput.userId, voteInput.sats) --> Done in incrCampaign
-    //   // redis SET anotherkey "will expire in a minute" EX 60
-    //   return {
-    //     code: 200,
-    //     success: true,
-    //     message: "New vote added!",
-    //     vote: Object(vote), // vote is of type Symbol
-    //   }
-    // } else {
+      // incrUser(voteInput.userId, voteInput.sats) --> Done in incrCampaign
+      // redis SET anotherkey "will expire in a minute" EX 60
+      return {
+        code: 200,
+        success: true,
+        message: "New vote added!",
+        vote: Object(vote), // vote is of type Symbol
+      }
+    } else {
       return {
         code: 500,
         success: false,
         message: "Problem adding new vote!",
         vote: null
       }
-    // }
+    }
   }
 
   async incrPollOption(pollOptionId: string, sats: number): Promise<Boolean> {
