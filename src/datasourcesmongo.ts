@@ -459,7 +459,8 @@ export class DataSourcesMongo {
     const nbViews = await dataSourcesRedis.getNbViewsForPoll(pollId)
     const pollOptions = await this.getPollOptionsForPoll(pollId)
     // console.table(poll)
-    return {...poll, sats: sats, votes: nbVotes, views: nbViews, pollOptions: pollOptions}
+    const campaign = await this.getCampaign(poll.campaignId)
+    return {...poll, startingDate: campaign.startingDate, endingDate: campaign.endingDate, sats, votes: nbVotes, views: nbViews, pollOptions: pollOptions}
   }
 
   async getPollsForCampaign(campaignId: string): Promise<Poll[]> {
@@ -467,7 +468,7 @@ export class DataSourcesMongo {
     // return campaign.polls
     // const polls = await prisma.poll.findMany({ where: {campaignId: campaignId}})
     const pollsMongo: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} })
-
+    const campaign = await this.getCampaign(campaignId)
     if (pollsMongo === null) {
       return []
     } else {
@@ -479,7 +480,7 @@ export class DataSourcesMongo {
         const sats = await dataSourcesRedis.getSatsForPoll(poll.id)
         const votes = await dataSourcesRedis.getNbVotesForPoll(poll.id)
         const views = await dataSourcesRedis.getNbViewsForPoll(poll.id)
-        polls.push({...poll, sats, votes, views})
+        polls.push({...poll, startingDate: campaign.startingDate, endingDate: campaign.endingDate, sats, votes, views})
       }
       // by default: sorting polls by sats DESC
       polls.sort(function(a, b) {
@@ -491,6 +492,7 @@ export class DataSourcesMongo {
 
   async getPollsAllForCampaign(campaignId: string): Promise<PollAll[]> {
     let pollsAllMongo: PollMongo[] = await prisma.poll.findMany({ where: {campaignId: campaignId} })
+    const campaign = await this.getCampaign(campaignId)
     // console.log("polslallmongo")
     // console.table(pollsAllMongo)
     let pollsAll: PollAll[] = []
@@ -504,7 +506,7 @@ export class DataSourcesMongo {
       // console.log("getNbVotesForPoll", votes)
       const views = await dataSourcesRedis.getNbViewsForPoll(pollAll.id)
       // console.log("getNbViewsForPoll", views)
-      pollsAll.push({...pollAll, sats, votes, views, pollOptions})
+      pollsAll.push({...pollAll, startingDate: campaign.startingDate, endingDate: campaign.endingDate, sats, votes, views, pollOptions})
     }
     // console.log("res pollsAll")
     // console.table(pollsAll)
@@ -658,8 +660,9 @@ export class DataSourcesMongo {
     const allowMultipleVotes = pollInput.allowMultipleVotes || allowMultipleVotesDefault
     const creationDate = new Date()
     const updatedDate = creationDate
-    const startingDate = new Date(pollInput.startingDate)
-    const endingDate = new Date(pollInput.endingDate)
+    // const startingDate = new Date(pollInput.startingDate)
+    // const endingDate = new Date(pollInput.endingDate)
+    const currentCampaign = await this.getCampaign(campaignId)
 
     // to get the new pollId, we must compare poll database before and after !!!
     console.log("createPoll campaignId", campaignId)
@@ -686,8 +689,6 @@ export class DataSourcesMongo {
                   description: pollInput.description,
                   paused: false,
                   creationDate: creationDate,
-                  startingDate: startingDate,
-                  endingDate: endingDate,
                   updatedDate: creationDate,
                   minSatPerVote: minSatPerVote,
                   maxSatPerVote: maxSatPerVote,
@@ -722,8 +723,8 @@ export class DataSourcesMongo {
           description: pollInput.description,
           paused: false,
           creationDate: creationDate,
-          startingDate: startingDate,
-          endingDate: endingDate,
+          startingDate: currentCampaign.startingDate,
+          endingDate: currentCampaign.endingDate,
           updatedDate: updatedDate,
           minSatPerVote: minSatPerVote,
           maxSatPerVote: maxSatPerVote,

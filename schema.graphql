@@ -108,6 +108,8 @@ type PollAll {
   campaignId: String!
   title: String!
   description: String!
+  startingDate: DateScalar!
+  endingDate: DateScalar!
   paused: Boolean!
   sats: Int
   votes: Int
@@ -120,8 +122,6 @@ input PollInput {
   authorId: String!
   title: String!
   description: String!
-  startingDate: DateScalar!
-  endingDate: DateScalar!
   minSatPerVote: Int
   maxSatPerVote: Int
   suggestedSatPerVote: Int
