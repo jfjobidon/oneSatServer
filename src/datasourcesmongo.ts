@@ -249,9 +249,9 @@ export class DataSourcesMongo {
   }
 
   async getCampaigns(userId: string, campaignType: string): Promise<Campaign[]> {
-    // if userId === undefined --> returns all database !!!
+    // if campaignType === ALL --> returns all database !!!
     // console.log("getCampaigns userId", userId)
-    console.log("getCampaigns campaignType", campaignType)
+    // console.log("getCampaigns campaignType", campaignType)
     if (!userId) {
       userId = "000000000000000000000000"
     }
@@ -260,6 +260,7 @@ export class DataSourcesMongo {
       case 'USER':
         try {
           const campaignsMongo: CampaignMongo[] = await prisma.campaign.findMany({ where: {authorId: userId} })
+          const voteds = await dataSourcesRedis.getVoted(userId)
           // const campaignsMongo: CampaignMongo[] = await prisma.campaign.findMany()
           // console.log("campaignsMongo length", campaignsMongo.length)
           if (campaignsMongo === null) {
@@ -273,7 +274,9 @@ export class DataSourcesMongo {
               const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
               const votes = await dataSourcesRedis.getNbVotesForCampaign(campaign.id)
               const views = await dataSourcesRedis.getNbViewsForCampaign(campaign.id)
-              campaigns.push({...campaign, sats, votes, views})
+              const isFavorite = true // since campaignType is USER ==> isFavorite will not be used
+              const isVoted = voteds.includes(campaign.id)
+              campaigns.push({...campaign, isFavorite, isVoted, sats, votes, views})
             }
             return campaigns
           }
@@ -287,17 +290,19 @@ export class DataSourcesMongo {
         try {
           const campaigns: Campaign[] = []
           const favorites = await this.getFavorites(userId) // [campaignId] TODO: campaigns + polls + pollOptions
-          // console.log("favorites", favorites)
+          const voteds = await dataSourcesRedis.getVoted(userId)
           if (favorites.length === 0) {
             return null
           } else {
             for (const favorite of favorites) {
               console.log("favorite", favorite)
               const campaign = await this.getCampaign(favorite)
+              const isFavorite = true // obviously
+              const isVoted = voteds.includes(favorite)
               const sats = await dataSourcesRedis.getSatsForCampaign(favorite)
               const votes = await dataSourcesRedis.getNbVotesForCampaign(favorite)
               const views = await dataSourcesRedis.getNbViewsForCampaign(favorite)
-              campaigns.push({...campaign, sats, votes, views})
+              campaigns.push({...campaign, isFavorite, isVoted, sats, votes, views})
             }
             return campaigns
           }
@@ -310,17 +315,19 @@ export class DataSourcesMongo {
         try {
           const campaigns: Campaign[] = []
           const voteds = await dataSourcesRedis.getVoted(userId) // [campaignId] TODO: campaigns + polls + pollOptions
-          // console.log("favorites", favorites)
+          const favorites = await this.getFavorites(userId)
           if (voteds.length === 0) {
             return null
           } else {
             for (const voted of voteds) {
               console.log("voted", voted)
               const campaign = await this.getCampaign(voted)
+              const isFavorite = favorites.includes(voted)
+              const isVoted = true  // obviously
               const sats = await dataSourcesRedis.getSatsForCampaign(voted)
               const votes = await dataSourcesRedis.getNbVotesForCampaign(voted)
               const views = await dataSourcesRedis.getNbViewsForCampaign(voted)
-              campaigns.push({...campaign, sats, votes, views})
+              campaigns.push({...campaign, isFavorite, isVoted, sats, votes, views})
             }
             return campaigns
           }
@@ -329,22 +336,22 @@ export class DataSourcesMongo {
           console.log(error)  // TODO: logError(error)
           return null
         }
-      default:
-        // ALL
+      default:    // ALL
         try {
           const campaignsMongo: CampaignMongo[] = await prisma.campaign.findMany()
+          const favorites = await this.getFavorites(userId)
+          const voteds = await dataSourcesRedis.getVoted(userId)
           if (campaignsMongo === null) {
             return null
           } else {
             let campaigns: Campaign[] = []
-    
             for (const campaign of campaignsMongo) {
-              // console.table(campaign)
-              // console.log("paused", campaign.paused)
+              const isFavorite = favorites.includes(campaign.id)
+              const isVoted = voteds.includes(campaign.id)
               const sats = await dataSourcesRedis.getSatsForCampaign(campaign.id)
               const votes = await dataSourcesRedis.getNbVotesForCampaign(campaign.id)
               const views = await dataSourcesRedis.getNbViewsForCampaign(campaign.id)
-              campaigns.push({...campaign, sats, votes, views})
+              campaigns.push({...campaign, isFavorite, isVoted, sats, votes, views})
             }
             return campaigns
           }
@@ -354,11 +361,6 @@ export class DataSourcesMongo {
           return null
         }
     }
-
-    
-    // console.table(campaignsMongo)
-
-    
   }
 
   async getCampaignAll(campaignId: string): Promise<CampaignAll> {

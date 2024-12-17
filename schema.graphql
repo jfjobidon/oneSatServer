@@ -200,6 +200,8 @@ type Campaign {
   blindVote: Boolean
   allowMultipleVotes: Boolean
   paused: Boolean
+  isFavorite: Boolean
+  isVoted: Boolean
   sats: Int
   votes: Int
   views: Int
