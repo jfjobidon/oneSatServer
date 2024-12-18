@@ -74,7 +74,7 @@ const validateVote = async (voteInput: VoteInput): Promise<responseObject> => {
     response.code = 400
   } else {
     // 2) check if enough sats
-    let user = await dataSourcesMongo.getUserById(voteInput.userId)
+    let user = await dataSourcesMongo.getUserById(voteInput.uid)
     // TODO: FIXME: get sats from redis
     let userSats = 1111111
     let voteInputSats = voteInput.sats
@@ -158,7 +158,7 @@ const mutations: MutationResolvers = {
     // signup: async (_, { userInput }): Promise<UserMutationResponse> => {
   favoriteElement: async (_, {favoriteInput}): Promise<FavoriteElementMutationResponse> => {
     // add/remove elementId in user.isfavorite
-    console.log("favoriteElement: ", favoriteInput.userId, favoriteInput.elementId, favoriteInput.isFavorite)
+    console.log("favoriteElement: ", favoriteInput.uid, favoriteInput.elementId, favoriteInput.isFavorite)
     console.log("favoriteElement")
     const favoriteResponse = await dataSourcesMongo.favoriteElement({...favoriteInput})
     return favoriteResponse

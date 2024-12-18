@@ -7,7 +7,7 @@ import { Schema } from 'redis-om';
 // number[] is only possible when working with JSON
 // export const voteSchema = new Schema('vote', {
 export const voteSchema = new Schema('vote', {
-  userId: { type: 'string' },
+  uid: { type: 'string' },
   voteCode: { type: 'string'},
   invoice: { type: 'string' },
   date: { type: 'string' },
@@ -22,7 +22,7 @@ export const voteSchema = new Schema('vote', {
 })
 
 export const userVotedSchema = new Schema('userVoted', {
-  userId: { type: 'string' },
+  uid: { type: 'string' },
   campaignIds: { type: 'string[]', path: '$.userVoted.campaignIds[*]' }
 }, {
   dataStructure: 'HASH'
@@ -92,7 +92,7 @@ export const viewsPollOptionSchema = new Schema('viewsPollOption', {
 })
 
 export const satsUserSchema = new Schema('satsUser', {
-  userId: { type: 'string' },
+  uid: { type: 'string' },
   sats: { type: 'number' }
 }, {
   dataStructure: 'HASH'

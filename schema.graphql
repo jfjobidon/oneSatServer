@@ -139,7 +139,7 @@ type PollMutationResponse {
 }
 
 type Vote {
-  userId: String!
+  uid: String!
   userName: String!
   voteCode: String!
   invoice: String!
@@ -152,7 +152,7 @@ type Vote {
 }
 
 input VoteInput {
-  userId: String!
+  uid: String!
   userName: String!
   invoice: String!
   sats: Int!
@@ -259,22 +259,22 @@ type favoriteElementMutationResponse {
   code: String!
   success: Boolean!
   message: String!
-  userId: String!
+  uid: String!
   elementId: String!
   isFavorite: Boolean!
 }
 
-type votedMutationResponse {
-  code: String!
-  success: Boolean!
-  message: String!
-  userId: String!
-  elementId: String!
-  voted: Boolean!
-}
+# type votedMutationResponse {
+#   code: String!
+#   success: Boolean!
+#   message: String!
+#   uid: String!
+#   elementId: String!
+#   voted: Boolean!
+# }
 
 input FavoriteInput {
-  userId: String!
+  uid: String!
   elementId: String!
   isFavorite: Boolean!
 }
@@ -333,25 +333,27 @@ type Query {
   # get list of all votes
   ping: pingResponse
   getLocalIpAddress: String!
-  getVotesForCampaign(campaignId: String! = "", userId: String): getVotesQueryResponse
-  getVotesForPoll(pollId: String! = "", userId: String): getVotesQueryResponse
-  getVotesForPollOption(pollOptionId: String! = "", userId: String): getVotesQueryResponse
-  getVotesForUser(userId: String): getVotesQueryResponse
+  getVotesForCampaign(campaignId: String! = "", uid: String): getVotesQueryResponse
+  getVotesForPoll(pollId: String! = "", uid: String): getVotesQueryResponse
+  getVotesForPollOption(pollOptionId: String!): getVotesQueryResponse
+  getVotesForUser(uid: String): getVotesQueryResponse
   getUsers: [User]
   getUserById(id: String): User
-  getUserName(id: String): String
+  getUserName(uid: String): String
   getUserByUserName(userName: String): User
   getUserByEmail(email: String): User
   getPollOption(id: String): PollOption
   getCampaign(id: String): Campaign
   getCampaignAll(id: String): CampaignAll
-  getCampaigns(id: String, campaignType: CampaignType): [Campaign]
+  getCampaigns(uid: String, campaignType: CampaignType): [Campaign]
+  # getCampaignsVoted(id: String): [Campaign]
+  getCampaignsVoted(uid: String): getVotedQueryResponse
   getPoll(id: String): Poll
   getPollsForCampaign(campaignId: String): [Poll]
   getPollOptionsForPoll(pollId: String): [PollOption]
   getVoteById(id: String): Vote
-  getFavorites(userId: String): getFavoritesQueryResponse
-  getVoted(userId: String): getVotedQueryResponse
+  getFavorites(uid: String): getFavoritesQueryResponse
+  getVoted(uid: String): getVotedQueryResponse
   # login(email: String!, password: String!): UserMutationResponse
 }
 
